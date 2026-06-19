@@ -124,9 +124,7 @@ function getReducedMotionStrategy(): ReducedMotionStrategy {
 }
 
 function writeReducedMotionStatus(): void {
-  const reducedMotionEnabled = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches;
+  const reducedMotionEnabled = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   reducedMotionStatus.textContent = `prefers-reduced-motion: ${
     reducedMotionEnabled ? 'reduce' : 'no-preference'

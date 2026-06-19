@@ -45,18 +45,30 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         };
       }
 
-      const timeline = definition.buildTimeline({
+      const buildContext = {
         options,
         duration: normalizedConfig.duration,
         delay: normalizedConfig.delay,
         easing: normalizedConfig.easing,
         trigger: normalizedConfig.trigger
-      });
+      };
+
+      const timeline = definition.buildTimeline(buildContext);
+
+      const reducedMotionTimeline =
+        normalizedConfig.reducedMotionStrategy === 'simplify'
+          ? definition.buildReducedMotionTimeline?.(buildContext)
+          : undefined;
 
       return await this.dependencies.driver.play(target, timeline, {
         trigger: normalizedConfig.trigger,
         respectReducedMotion: normalizedConfig.respectReducedMotion,
-        reducedMotionStrategy: normalizedConfig.reducedMotionStrategy
+        reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
+        ...(reducedMotionTimeline !== undefined
+          ? {
+              reducedMotionTimeline
+            }
+          : {})
       });
     } catch (error: unknown) {
       return {

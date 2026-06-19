@@ -110,6 +110,42 @@ describe('WebMotionDriver', () => {
     );
   });
 
+  it('uses the provided reduced motion timeline when simplifying playback', async () => {
+    const driver = new WebMotionDriver({
+      reducedMotion: true
+    });
+
+    const target = new FakeElement();
+
+    const result = await driver.play(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'simplify',
+      reducedMotionTimeline: createReducedTimeline()
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0.4
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 80,
+        delay: 0,
+        easing: 'linear',
+        fill: 'both'
+      }
+    );
+  });
+
   it('does not skip playback when reduced motion is disabled', async () => {
     const driver = new WebMotionDriver({
       reducedMotion: false
@@ -324,6 +360,34 @@ function createSelfTimeline(): MotionTimelineDefinition {
             keyframes: [
               {
                 opacity: 0
+              },
+              {
+                opacity: 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+}
+
+function createReducedTimeline(): MotionTimelineDefinition {
+  return {
+    tracks: [
+      {
+        target: {
+          type: 'self'
+        },
+        steps: [
+          {
+            duration: 80,
+            delay: 0,
+            easing: 'linear',
+            fill: 'both',
+            keyframes: [
+              {
+                opacity: 0.4
               },
               {
                 opacity: 1

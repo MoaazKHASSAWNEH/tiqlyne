@@ -144,4 +144,46 @@ describe('SlideInMotion', () => {
       ]
     });
   });
+
+  it('builds a reduced motion timeline without transform', () => {
+    const motion = new SlideInMotion();
+
+    const timeline = motion.buildReducedMotionTimeline({
+      options: {
+        direction: 'bottom',
+        distance: 56,
+        fade: true
+      },
+      duration: 500,
+      delay: 120,
+      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      trigger: 'onClick'
+    });
+
+    expect(timeline).toEqual({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 150,
+              delay: 0,
+              easing: 'ease-out',
+              fill: 'both',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+  });
 });

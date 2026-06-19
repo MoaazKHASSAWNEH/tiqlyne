@@ -34,7 +34,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
     const playableTimeline =
       shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
-        ? this.simplifyTimeline(timeline)
+        ? (options.reducedMotionTimeline ?? this.simplifyTimeline(timeline))
         : timeline;
 
     const trackTargets = this.resolveTrackTargets(target, playableTimeline);

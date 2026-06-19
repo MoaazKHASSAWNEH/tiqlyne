@@ -151,4 +151,34 @@ export class SlideInMotion extends BaseMotionDefinition<SlideInMotionOptions> {
       ]
     };
   }
+
+  buildReducedMotionTimeline(
+    context: MotionBuildContext<SlideInMotionOptions>
+  ): MotionTimelineDefinition {
+    return {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: Math.min(context.duration, 150),
+              delay: 0,
+              easing: 'ease-out',
+              fill: 'both',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
 }

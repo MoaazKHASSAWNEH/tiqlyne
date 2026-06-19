@@ -1,57 +1,55 @@
 <!doctype html>
 <html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Structifyx Motion Engine - Vanilla Example</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Structifyx Motion Engine - Vanilla Example</title>
-</head>
+  <body>
+    <main class="page">
+      <section class="panel" aria-labelledby="title">
+        <p class="eyebrow">Structifyx Motion Engine</p>
 
-<body>
-  <main class="page">
-    <section class="panel" aria-labelledby="title">
-      <p class="eyebrow">Structifyx Motion Engine</p>
+        <h1 id="title">Test réel du moteur d’animation</h1>
 
-      <h1 id="title">Test réel du moteur d’animation</h1>
-
-      <p class="description">
-        Cette page utilise le vrai moteur, le pack basic et le WebMotionDriver pour jouer des
-        animations dans le navigateur.
-      </p>
-
-      <div class="actions" aria-label="Actions d’animation">
-        <button id="fadeInButton" type="button">Fade In</button>
-        <button id="fadeOutButton" type="button">Fade Out</button>
-        <button id="slideInButton" type="button">Slide In</button>
-        <button id="resetButton" type="button">Reset</button>
-      </div>
-
-      <div class="settings" aria-label="Réglages d’accessibilité">
-        <label for="reducedMotionStrategySelect">Stratégie reduced motion</label>
-
-        <select id="reducedMotionStrategySelect">
-          <option value="skip">skip — ignorer l’animation</option>
-          <option value="preserve">preserve — garder l’animation</option>
-          <option value="simplify">simplify — simplifier l’animation</option>
-        </select>
-
-        <p id="reducedMotionStatus" class="status"></p>
-      </div>
-
-      <article id="motionTarget" class="card" tabindex="0">
-        <p class="card-label">Carte animée</p>
-        <h2>Le moteur bouge vraiment 🎯</h2>
-        <p>
-          Cette carte est animée avec une configuration JSON, une définition de motion et le
-          WebMotionDriver.
+        <p class="description">
+          Cette page utilise le vrai moteur, le pack basic et le WebMotionDriver pour jouer des
+          animations dans le navigateur.
         </p>
-      </article>
 
-      <pre id="log" class="log" aria-live="polite"></pre>
-    </section>
-  </main>
+        <div class="actions" aria-label="Actions d’animation">
+          <button id="fadeInButton" type="button">Fade In</button>
+          <button id="fadeOutButton" type="button">Fade Out</button>
+          <button id="slideInButton" type="button">Slide In</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
 
-  <script type="module" src="/src/main.ts"></script>
-</body>
+        <div class="settings" aria-label="Réglages d’accessibilité">
+          <label for="reducedMotionStrategySelect">Stratégie reduced motion</label>
 
+          <select id="reducedMotionStrategySelect">
+            <option value="skip">skip — ignorer l’animation</option>
+            <option value="preserve">preserve — garder l’animation</option>
+            <option value="simplify">simplify — simplifier l’animation</option>
+          </select>
+
+          <p id="reducedMotionStatus" class="status"></p>
+        </div>
+
+        <article id="motionTarget" class="card" tabindex="0">
+          <p class="card-label">Carte animée</p>
+          <h2>Le moteur bouge vraiment 🎯</h2>
+          <p>
+            Cette carte est animée avec une configuration JSON, une définition de motion et le
+            WebMotionDriver.
+          </p>
+        </article>
+
+        <pre id="log" class="log" aria-live="polite"></pre>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

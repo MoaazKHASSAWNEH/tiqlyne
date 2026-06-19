@@ -24,4 +24,6 @@ export interface MotionDefinition<TOptions extends object = object> {
   validateOptions?(options: TOptions): ReadonlyArray<string>;
 
   buildTimeline(context: MotionBuildContext<TOptions>): MotionTimelineDefinition;
+
+  buildReducedMotionTimeline?(context: MotionBuildContext<TOptions>): MotionTimelineDefinition;
 }

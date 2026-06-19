@@ -77,6 +77,39 @@ class ThrowingMotionDefinition extends TestMotionDefinition {
   }
 }
 
+class ReducedMotionAwareMotionDefinition extends TestMotionDefinition {
+  override readonly type = 'reduced-aware-motion';
+
+  buildReducedMotionTimeline(
+    context: MotionBuildContext<TestOptions>
+  ): MotionTimelineDefinition {
+    return {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: Math.min(context.duration, 120),
+              delay: 0,
+              easing: 'ease-out',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+}
+
 function createEngine() {
   const registry = new DefaultMotionRegistry();
   const driver = new TestMotionDriver<string>();
@@ -188,6 +221,54 @@ describe('DefaultMotionEngine', () => {
         respectReducedMotion: false,
         reducedMotionStrategy: 'skip'
       }
+    });
+  });
+
+  it('passes a reduced motion timeline to the driver when strategy is simplify', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new ReducedMotionAwareMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_reduced_001',
+      type: 'reduced-aware-motion',
+      trigger: 'onClick',
+      duration: 400,
+      reducedMotionStrategy: 'simplify',
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(driver.getCalls()).toHaveLength(1);
+
+    expect(driver.getCalls()[0]?.options.reducedMotionTimeline).toEqual({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 120,
+              delay: 0,
+              easing: 'ease-out',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
   });
 

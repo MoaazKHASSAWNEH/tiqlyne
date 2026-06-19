@@ -14,6 +14,9 @@ const engine = new DefaultMotionEngine({
 });
 const target = getElementByIdOrThrow('motionTarget');
 const log = getElementByIdOrThrow('log');
+const reducedMotionStrategySelect = getElementByIdOrThrow('reducedMotionStrategySelect');
+const reducedMotionStatus = getElementByIdOrThrow('reducedMotionStatus');
+writeReducedMotionStatus();
 const fadeInButton = getElementByIdOrThrow('fadeInButton');
 const fadeOutButton = getElementByIdOrThrow('fadeOutButton');
 const slideInButton = getElementByIdOrThrow('slideInButton');
@@ -25,6 +28,8 @@ fadeInButton.addEventListener('click', () => {
         trigger: 'onClick',
         duration: 450,
         easing: 'ease-out',
+        respectReducedMotion: true,
+        reducedMotionStrategy: getReducedMotionStrategy(),
         options: {
             fromOpacity: 0,
             toOpacity: 1
@@ -38,6 +43,8 @@ fadeOutButton.addEventListener('click', () => {
         trigger: 'onClick',
         duration: 350,
         easing: 'ease-in',
+        respectReducedMotion: true,
+        reducedMotionStrategy: getReducedMotionStrategy(),
         options: {
             fromOpacity: 1,
             toOpacity: 0
@@ -51,6 +58,8 @@ slideInButton.addEventListener('click', () => {
         trigger: 'onClick',
         duration: 500,
         easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        respectReducedMotion: true,
+        reducedMotionStrategy: getReducedMotionStrategy(),
         options: {
             direction: 'bottom',
             distance: 56,
@@ -75,6 +84,17 @@ async function playMotion(config) {
 }
 function writeLog(result) {
     log.textContent = JSON.stringify(result, null, 2);
+}
+function getReducedMotionStrategy() {
+    const value = reducedMotionStrategySelect.value;
+    if (value === 'preserve' || value === 'simplify' || value === 'skip') {
+        return value;
+    }
+    return 'skip';
+}
+function writeReducedMotionStatus() {
+    const reducedMotionEnabled = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    reducedMotionStatus.textContent = `prefers-reduced-motion: ${reducedMotionEnabled ? 'reduce' : 'no-preference'}`;
 }
 function getElementByIdOrThrow(id) {
     const element = document.getElementById(id);

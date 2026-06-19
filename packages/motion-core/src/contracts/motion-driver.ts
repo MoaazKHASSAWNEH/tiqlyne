@@ -6,6 +6,7 @@ export type MotionPlayOptions = {
   readonly trigger: string;
   readonly respectReducedMotion: boolean;
   readonly reducedMotionStrategy: ReducedMotionStrategy;
+  readonly reducedMotionTimeline?: MotionTimelineDefinition;
 };
 
 export interface MotionDriver<TTarget = unknown> {
