@@ -16,7 +16,7 @@ type TestOptions = {
 };
 
 class TestMotionDefinition implements MotionDefinition<TestOptions> {
-  readonly type = 'test-motion';
+  readonly type: string = 'test-motion';
   readonly label = 'Test motion';
   readonly description = 'A test motion definition.';
   readonly category: MotionCategory = 'custom';
