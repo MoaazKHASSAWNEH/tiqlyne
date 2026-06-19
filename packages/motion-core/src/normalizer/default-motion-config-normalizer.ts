@@ -44,9 +44,7 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
       easing: normalizeString(config.easing, DEFAULT_EASING),
       options: isRecord(config.options) ? config.options : {},
       respectReducedMotion: normalizeBoolean(config.respectReducedMotion, true),
-      reducedMotionStrategy: this.normalizeReducedMotionStrategy(
-        config.reducedMotionStrategy
-      ),
+      reducedMotionStrategy: this.normalizeReducedMotionStrategy(config.reducedMotionStrategy),
       priority: normalizeNumber(config.priority, {
         defaultValue: 0,
         integer: true
@@ -55,12 +53,8 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
     };
   }
 
-  private normalizeReducedMotionStrategy(
-    value: unknown
-  ): ReducedMotionStrategy {
-    return ALLOWED_REDUCED_MOTION_STRATEGIES.includes(
-      value as ReducedMotionStrategy
-    )
+  private normalizeReducedMotionStrategy(value: unknown): ReducedMotionStrategy {
+    return ALLOWED_REDUCED_MOTION_STRATEGIES.includes(value as ReducedMotionStrategy)
       ? (value as ReducedMotionStrategy)
       : 'skip';
   }

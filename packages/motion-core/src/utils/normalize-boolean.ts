@@ -1,6 +1,3 @@
-export function normalizeBoolean(
-  value: unknown,
-  defaultValue: boolean
-): boolean {
+export function normalizeBoolean(value: unknown, defaultValue: boolean): boolean {
   return typeof value === 'boolean' ? value : defaultValue;
 }

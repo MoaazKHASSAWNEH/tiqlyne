@@ -50,9 +50,7 @@ export class FadeInMotion extends BaseMotionDefinition<FadeInMotionOptions> {
     };
   }
 
-  normalizeOptions(
-    options: Record<string, unknown> | undefined
-  ): FadeInMotionOptions {
+  normalizeOptions(options: Record<string, unknown> | undefined): FadeInMotionOptions {
     return {
       fromOpacity: normalizeNumber(options?.['fromOpacity'], {
         defaultValue: 0,
@@ -75,9 +73,7 @@ export class FadeInMotion extends BaseMotionDefinition<FadeInMotionOptions> {
     return [];
   }
 
-  buildTimeline(
-    context: MotionBuildContext<FadeInMotionOptions>
-  ): MotionTimelineDefinition {
+  buildTimeline(context: MotionBuildContext<FadeInMotionOptions>): MotionTimelineDefinition {
     return {
       tracks: [
         {

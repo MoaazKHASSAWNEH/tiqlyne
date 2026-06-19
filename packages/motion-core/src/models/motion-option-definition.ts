@@ -1,10 +1,4 @@
-export type MotionOptionType =
-  | 'number'
-  | 'string'
-  | 'boolean'
-  | 'select'
-  | 'color'
-  | 'range';
+export type MotionOptionType = 'number' | 'string' | 'boolean' | 'select' | 'color' | 'range';
 
 export type MotionOptionUnit = 'px' | '%' | 'deg' | 'ms' | 's' | 'none';
 

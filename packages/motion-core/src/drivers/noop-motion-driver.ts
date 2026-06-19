@@ -1,7 +1,4 @@
-import type {
-  MotionDriver,
-  MotionPlayOptions
-} from '../contracts/motion-driver';
+import type { MotionDriver, MotionPlayOptions } from '../contracts/motion-driver';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 

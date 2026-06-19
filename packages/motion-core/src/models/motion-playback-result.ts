@@ -1,8 +1,4 @@
-export type MotionPlaybackStatus =
-  | 'finished'
-  | 'cancelled'
-  | 'skipped'
-  | 'failed';
+export type MotionPlaybackStatus = 'finished' | 'cancelled' | 'skipped' | 'failed';
 
 export type MotionPlaybackResult = {
   readonly status: MotionPlaybackStatus;

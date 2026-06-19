@@ -1,8 +1,6 @@
 import type { MotionKeyframe } from '@structifyx/motion-core';
 
-export function toWebKeyframes(
-  keyframes: ReadonlyArray<MotionKeyframe>
-): Keyframe[] {
+export function toWebKeyframes(keyframes: ReadonlyArray<MotionKeyframe>): Keyframe[] {
   return keyframes.map((keyframe) => {
     const webKeyframe: Keyframe = {};
 

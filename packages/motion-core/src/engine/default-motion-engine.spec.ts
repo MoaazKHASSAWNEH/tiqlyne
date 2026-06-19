@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  MotionBuildContext,
-  MotionDefinition
-} from '../contracts/motion-definition';
+import type { MotionBuildContext, MotionDefinition } from '../contracts/motion-definition';
 import { TestMotionDriver } from '../drivers/test-motion-driver';
 import type { MotionCategory } from '../models/motion-category';
 import type { MotionOptionDefinition } from '../models/motion-option-definition';
@@ -29,8 +26,7 @@ class TestMotionDefinition implements MotionDefinition<TestOptions> {
   }
 
   normalizeOptions(options: Record<string, unknown> | undefined): TestOptions {
-    const intensity =
-      typeof options?.['intensity'] === 'number' ? options['intensity'] : 1;
+    const intensity = typeof options?.['intensity'] === 'number' ? options['intensity'] : 1;
 
     return {
       intensity
@@ -45,9 +41,7 @@ class TestMotionDefinition implements MotionDefinition<TestOptions> {
     return [];
   }
 
-  buildTimeline(
-    context: MotionBuildContext<TestOptions>
-  ): MotionTimelineDefinition {
+  buildTimeline(context: MotionBuildContext<TestOptions>): MotionTimelineDefinition {
     return {
       tracks: [
         {
@@ -237,7 +231,7 @@ describe('DefaultMotionEngine', () => {
     expect(driver.getCalls()).toHaveLength(0);
   });
 
-    it('delegates cancel to the driver', async () => {
+  it('delegates cancel to the driver', async () => {
     const { engine, driver } = createEngine();
 
     const result = await engine.cancel('target-1');

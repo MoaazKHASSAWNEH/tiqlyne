@@ -152,19 +152,19 @@ Un driver est responsable de l'execution concrete d'une timeline.
 V1 definit :
 
 ```ts
-play(target, timeline, options)
-cancel(target)
-finish(target)
-reset(target)
+play(target, timeline, options);
+cancel(target);
+finish(target);
+reset(target);
 ```
 
 Les methodes de controle sont optionnelles au niveau du contrat driver, mais le `DefaultMotionEngine` expose une API stable :
 
 ```ts
-engine.play(target, config)
-engine.cancel(target)
-engine.finish(target)
-engine.reset(target)
+engine.play(target, config);
+engine.cancel(target);
+engine.finish(target);
+engine.reset(target);
 ```
 
 Si un driver ne supporte pas une action de controle, le moteur retourne un resultat `skipped` explicite.

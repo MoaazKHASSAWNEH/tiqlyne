@@ -2,9 +2,7 @@ import type { MotionDefinition } from './motion-definition';
 import type { MotionCategory } from '../models/motion-category';
 
 export interface MotionRegistry {
-  register<TOptions extends object>(
-    definition: MotionDefinition<TOptions>
-  ): void;
+  register<TOptions extends object>(definition: MotionDefinition<TOptions>): void;
 
   has(type: string): boolean;
 
@@ -12,7 +10,5 @@ export interface MotionRegistry {
 
   getAll(): ReadonlyArray<MotionDefinition<object>>;
 
-  getByCategory(
-    category: MotionCategory
-  ): ReadonlyArray<MotionDefinition<object>>;
+  getByCategory(category: MotionCategory): ReadonlyArray<MotionDefinition<object>>;
 }

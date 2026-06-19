@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  MotionBuildContext,
-  MotionDefinition
-} from '../contracts/motion-definition';
+import type { MotionBuildContext, MotionDefinition } from '../contracts/motion-definition';
 import type { MotionCategory } from '../models/motion-category';
 import type { MotionOptionDefinition } from '../models/motion-option-definition';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
@@ -19,10 +16,7 @@ class TestMotionDefinition implements MotionDefinition<TestMotionOptions> {
   readonly category: MotionCategory;
   readonly optionDefinitions: ReadonlyArray<MotionOptionDefinition> = [];
 
-  constructor(
-    type = 'test-motion',
-    category: MotionCategory = 'custom'
-  ) {
+  constructor(type = 'test-motion', category: MotionCategory = 'custom') {
     this.type = type;
     this.label = `Test ${type}`;
     this.description = `Test motion definition for ${type}`;
@@ -39,9 +33,7 @@ class TestMotionDefinition implements MotionDefinition<TestMotionOptions> {
     return this.getDefaultOptions();
   }
 
-  buildTimeline(
-    _context: MotionBuildContext<TestMotionOptions>
-  ): MotionTimelineDefinition {
+  buildTimeline(_context: MotionBuildContext<TestMotionOptions>): MotionTimelineDefinition {
     return {
       tracks: []
     };

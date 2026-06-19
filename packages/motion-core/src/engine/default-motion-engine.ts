@@ -11,17 +11,10 @@ export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly normalizer: MotionConfigNormalizer;
 };
 
-export class DefaultMotionEngine<TTarget = unknown>
-  implements MotionEngine<TTarget>
-{
-  constructor(
-    private readonly dependencies: DefaultMotionEngineDependencies<TTarget>
-  ) {}
+export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTarget> {
+  constructor(private readonly dependencies: DefaultMotionEngineDependencies<TTarget>) {}
 
-  async play(
-    target: TTarget,
-    config: MotionConfig
-  ): Promise<MotionPlaybackResult> {
+  async play(target: TTarget, config: MotionConfig): Promise<MotionPlaybackResult> {
     const normalizedConfig = this.dependencies.normalizer.normalize(config);
 
     if (!normalizedConfig.enabled) {
@@ -73,7 +66,7 @@ export class DefaultMotionEngine<TTarget = unknown>
     }
   }
 
-    async cancel(target: TTarget): Promise<MotionPlaybackResult> {
+  async cancel(target: TTarget): Promise<MotionPlaybackResult> {
     if (!this.dependencies.driver.cancel) {
       return {
         status: 'skipped',

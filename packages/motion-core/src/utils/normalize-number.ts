@@ -7,13 +7,9 @@ export type NormalizeNumberOptions = {
   readonly integer?: boolean;
 };
 
-export function normalizeNumber(
-  value: unknown,
-  options: NormalizeNumberOptions
-): number {
-  const numberValue = typeof value === 'number' && Number.isFinite(value)
-    ? value
-    : options.defaultValue;
+export function normalizeNumber(value: unknown, options: NormalizeNumberOptions): number {
+  const numberValue =
+    typeof value === 'number' && Number.isFinite(value) ? value : options.defaultValue;
 
   const clampedValue =
     typeof options.min === 'number' && typeof options.max === 'number'

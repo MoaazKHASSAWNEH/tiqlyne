@@ -12,16 +12,10 @@ export type { MotionRegistry } from './contracts/motion-registry';
 
 export { DefaultMotionRegistry } from './registry/default-motion-registry';
 
-export type {
-  MotionDriver,
-  MotionPlayOptions
-} from './contracts/motion-driver';
+export type { MotionDriver, MotionPlayOptions } from './contracts/motion-driver';
 
 export { NoopMotionDriver } from './drivers/noop-motion-driver';
-export {
-  TestMotionDriver,
-  type TestMotionDriverCall
-} from './drivers/test-motion-driver';
+export { TestMotionDriver, type TestMotionDriverCall } from './drivers/test-motion-driver';
 
 export type { MotionEngine } from './contracts/motion-engine';
 
@@ -44,10 +38,7 @@ export type {
   MotionOptionType,
   MotionOptionUnit
 } from './models/motion-option-definition';
-export type {
-  MotionPlaybackResult,
-  MotionPlaybackStatus
-} from './models/motion-playback-result';
+export type { MotionPlaybackResult, MotionPlaybackStatus } from './models/motion-playback-result';
 export type { MotionTargetReference } from './models/motion-target';
 export type {
   MotionStepDefinition,

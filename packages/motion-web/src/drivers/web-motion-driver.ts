@@ -142,10 +142,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
     }
   }
 
-  private resolveTarget(
-    root: Element,
-    target: TimelineTargetReference
-  ): Element | null {
+  private resolveTarget(root: Element, target: TimelineTargetReference): Element | null {
     switch (target.type) {
       case 'self':
         return root;
