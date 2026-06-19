@@ -1,3 +1,13 @@
+export type { MotionConfigNormalizer } from './contracts/motion-config-normalizer';
+
+export { DefaultMotionConfigNormalizer } from './normalizer/default-motion-config-normalizer';
+
+export { clamp } from './utils/clamp';
+export { isRecord } from './utils/is-record';
+export { normalizeBoolean } from './utils/normalize-boolean';
+export { normalizeNumber } from './utils/normalize-number';
+export { normalizeString } from './utils/normalize-string';
+
 export type { MotionDefinition, MotionBuildContext } from './contracts/motion-definition';
 
 export { BaseMotionDefinition } from './base/base-motion-definition';
