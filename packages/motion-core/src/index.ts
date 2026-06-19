@@ -23,6 +23,15 @@ export {
   type TestMotionDriverCall
 } from './drivers/test-motion-driver';
 
+export type { MotionEngine } from './contracts/motion-engine';
+
+export {
+  DefaultMotionEngine,
+  type DefaultMotionEngineDependencies
+} from './engine/default-motion-engine';
+
+export { MotionEngineError } from './engine/motion-engine-error';
+
 export type { MotionDefinition, MotionBuildContext } from './contracts/motion-definition';
 
 export { BaseMotionDefinition } from './base/base-motion-definition';

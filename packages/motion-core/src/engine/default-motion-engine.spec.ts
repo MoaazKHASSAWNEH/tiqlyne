@@ -1,0 +1,239 @@
+import { describe, expect, it } from 'vitest';
+import type {
+  MotionBuildContext,
+  MotionDefinition
+} from '../contracts/motion-definition';
+import { TestMotionDriver } from '../drivers/test-motion-driver';
+import type { MotionCategory } from '../models/motion-category';
+import type { MotionOptionDefinition } from '../models/motion-option-definition';
+import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import { DefaultMotionConfigNormalizer } from '../normalizer/default-motion-config-normalizer';
+import { DefaultMotionRegistry } from '../registry/default-motion-registry';
+import { DefaultMotionEngine } from './default-motion-engine';
+
+type TestOptions = {
+  readonly intensity: number;
+};
+
+class TestMotionDefinition implements MotionDefinition<TestOptions> {
+  readonly type = 'test-motion';
+  readonly label = 'Test motion';
+  readonly description = 'A test motion definition.';
+  readonly category: MotionCategory = 'custom';
+  readonly optionDefinitions: ReadonlyArray<MotionOptionDefinition> = [];
+
+  getDefaultOptions(): TestOptions {
+    return {
+      intensity: 1
+    };
+  }
+
+  normalizeOptions(options: Record<string, unknown> | undefined): TestOptions {
+    const intensity =
+      typeof options?.['intensity'] === 'number' ? options['intensity'] : 1;
+
+    return {
+      intensity
+    };
+  }
+
+  validateOptions(options: TestOptions): ReadonlyArray<string> {
+    if (options.intensity < 0) {
+      return ['intensity must be greater than or equal to 0'];
+    }
+
+    return [];
+  }
+
+  buildTimeline(
+    context: MotionBuildContext<TestOptions>
+  ): MotionTimelineDefinition {
+    return {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: context.duration,
+              delay: context.delay,
+              easing: context.easing,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: context.options.intensity
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+}
+
+class ThrowingMotionDefinition extends TestMotionDefinition {
+  override readonly type = 'throwing-motion';
+
+  override buildTimeline(): MotionTimelineDefinition {
+    throw new Error('Timeline build failed');
+  }
+}
+
+function createEngine() {
+  const registry = new DefaultMotionRegistry();
+  const driver = new TestMotionDriver<string>();
+  const normalizer = new DefaultMotionConfigNormalizer();
+
+  const engine = new DefaultMotionEngine<string>({
+    registry,
+    driver,
+    normalizer
+  });
+
+  return {
+    registry,
+    driver,
+    engine
+  };
+}
+
+describe('DefaultMotionEngine', () => {
+  it('skips disabled motion config', async () => {
+    const { engine, driver } = createEngine();
+
+    const result = await engine.play('target-1', {
+      id: 'motion_001',
+      type: 'test-motion',
+      trigger: 'onEnter',
+      enabled: false
+    });
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'motion-disabled'
+    });
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('skips unknown motion type', async () => {
+    const { engine, driver } = createEngine();
+
+    const result = await engine.play('target-1', {
+      id: 'motion_002',
+      type: 'unknown-motion',
+      trigger: 'onEnter'
+    });
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'unknown-motion-type'
+    });
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('plays a registered motion definition', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_003',
+      type: 'test-motion',
+      trigger: 'onClick',
+      duration: 400,
+      delay: 50,
+      easing: 'ease-out',
+      options: {
+        intensity: 0.8
+      },
+      respectReducedMotion: false
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(driver.getCalls()).toHaveLength(1);
+
+    const [call] = driver.getCalls();
+
+    expect(call).toEqual({
+      target: 'target-1',
+      timeline: {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: 400,
+                delay: 50,
+                easing: 'ease-out',
+                keyframes: [
+                  {
+                    opacity: 0
+                  },
+                  {
+                    opacity: 0.8
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      options: {
+        trigger: 'onClick',
+        respectReducedMotion: false
+      }
+    });
+  });
+
+  it('returns failed result when options are invalid', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_004',
+      type: 'test-motion',
+      trigger: 'onEnter',
+      options: {
+        intensity: -1
+      }
+    });
+
+    expect(result).toEqual({
+      status: 'failed',
+      reason: 'invalid-motion-options',
+      error: ['intensity must be greater than or equal to 0']
+    });
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('returns failed result when timeline building throws', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new ThrowingMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_005',
+      type: 'throwing-motion',
+      trigger: 'onEnter'
+    });
+
+    expect(result.status).toBe('failed');
+    expect(result.reason).toBe('motion-engine-error');
+    expect(result.error).toBeInstanceOf(Error);
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+});
