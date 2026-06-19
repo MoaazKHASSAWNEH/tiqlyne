@@ -4,7 +4,8 @@ import { WebMotionDriver } from './web-motion-driver';
 
 const defaultPlayOptions = {
   trigger: 'onClick',
-  respectReducedMotion: true
+  respectReducedMotion: true,
+  reducedMotionStrategy: 'skip'
 } satisfies MotionPlayOptions;
 
 describe('WebMotionDriver', () => {
@@ -52,6 +53,61 @@ describe('WebMotionDriver', () => {
     });
 
     expect(target.animate).not.toHaveBeenCalled();
+  });
+
+  it('preserves playback when reduced motion is enabled and strategy is preserve', async () => {
+    const driver = new WebMotionDriver({
+      reducedMotion: true
+    });
+
+    const target = new FakeElement();
+
+    const result = await driver.play(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve'
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledTimes(1);
+  });
+
+  it('simplifies playback when reduced motion is enabled and strategy is simplify', async () => {
+    const driver = new WebMotionDriver({
+      reducedMotion: true
+    });
+
+    const target = new FakeElement();
+
+    const result = await driver.play(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'simplify'
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 150,
+        delay: 0,
+        easing: 'ease-out',
+        fill: 'both'
+      }
+    );
   });
 
   it('does not skip playback when reduced motion is disabled', async () => {

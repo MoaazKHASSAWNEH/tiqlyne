@@ -1,9 +1,11 @@
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import type { ReducedMotionStrategy } from '../models/reduced-motion-strategy';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 
 export type MotionPlayOptions = {
   readonly trigger: string;
   readonly respectReducedMotion: boolean;
+  readonly reducedMotionStrategy: ReducedMotionStrategy;
 };
 
 export interface MotionDriver<TTarget = unknown> {

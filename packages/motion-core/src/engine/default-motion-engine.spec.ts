@@ -185,7 +185,8 @@ describe('DefaultMotionEngine', () => {
       },
       options: {
         trigger: 'onClick',
-        respectReducedMotion: false
+        respectReducedMotion: false,
+        reducedMotionStrategy: 'skip'
       }
     });
   });

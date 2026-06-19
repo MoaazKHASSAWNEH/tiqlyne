@@ -12,7 +12,8 @@ describe('NoopMotionDriver', () => {
       },
       {
         trigger: 'onEnter',
-        respectReducedMotion: true
+        respectReducedMotion: true,
+        reducedMotionStrategy: 'skip'
       }
     );
 

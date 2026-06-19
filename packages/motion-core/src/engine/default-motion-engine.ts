@@ -55,7 +55,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
       return await this.dependencies.driver.play(target, timeline, {
         trigger: normalizedConfig.trigger,
-        respectReducedMotion: normalizedConfig.respectReducedMotion
+        respectReducedMotion: normalizedConfig.respectReducedMotion,
+        reducedMotionStrategy: normalizedConfig.reducedMotionStrategy
       });
     } catch (error: unknown) {
       return {

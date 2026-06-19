@@ -2,7 +2,8 @@ import type {
   MotionDriver,
   MotionPlayOptions,
   MotionPlaybackResult,
-  MotionTimelineDefinition
+  MotionTimelineDefinition,
+  MotionKeyframe
 } from '@structifyx/motion-core';
 import { toWebKeyframes } from '../utils/to-web-keyframes';
 
@@ -21,14 +22,22 @@ export class WebMotionDriver implements MotionDriver<Element> {
     timeline: MotionTimelineDefinition,
     options: MotionPlayOptions
   ): Promise<MotionPlaybackResult> {
-    if (options.respectReducedMotion && this.options.reducedMotion === true) {
+    const shouldApplyReducedMotion =
+      options.respectReducedMotion && this.options.reducedMotion === true;
+
+    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'skip') {
       return {
         status: 'skipped',
         reason: 'reduced-motion'
       };
     }
 
-    const trackTargets = this.resolveTrackTargets(target, timeline);
+    const playableTimeline =
+      shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
+        ? this.simplifyTimeline(timeline)
+        : timeline;
+
+    const trackTargets = this.resolveTrackTargets(target, playableTimeline);
 
     if (!trackTargets) {
       return {
@@ -43,7 +52,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
     const animations: Animation[] = [];
 
-    for (const track of timeline.tracks) {
+    for (const track of playableTimeline.tracks) {
       const trackTarget = this.resolveTarget(target, track.target);
 
       if (!trackTarget) {
@@ -112,6 +121,36 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return {
       status: 'finished',
       reason: 'web-driver-reset'
+    };
+  }
+
+  private simplifyTimeline(timeline: MotionTimelineDefinition): MotionTimelineDefinition {
+    return {
+      tracks: timeline.tracks.map((track) => ({
+        target: track.target,
+        steps: track.steps.map((step) => ({
+          keyframes: step.keyframes.map((keyframe) => this.simplifyKeyframe(keyframe)),
+          duration: Math.min(step.duration, 150),
+          delay: 0,
+          easing: 'ease-out',
+          fill: step.fill ?? 'both'
+        }))
+      }))
+    };
+  }
+
+  private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
+    return {
+      ...(keyframe.opacity !== undefined
+        ? {
+            opacity: keyframe.opacity
+          }
+        : {}),
+      ...(keyframe.offset !== undefined
+        ? {
+            offset: keyframe.offset
+          }
+        : {})
     };
   }
 
