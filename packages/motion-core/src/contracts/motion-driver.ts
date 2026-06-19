@@ -14,4 +14,10 @@ export interface MotionDriver<TTarget = unknown> {
     timeline: MotionTimelineDefinition,
     options: MotionPlayOptions
   ): Promise<MotionPlaybackResult>;
+
+  cancel?(target: TTarget): Promise<MotionPlaybackResult>;
+
+  finish?(target: TTarget): Promise<MotionPlaybackResult>;
+
+  reset?(target: TTarget): Promise<MotionPlaybackResult>;
 }

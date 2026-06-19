@@ -72,4 +72,37 @@ export class DefaultMotionEngine<TTarget = unknown>
       };
     }
   }
+
+    async cancel(target: TTarget): Promise<MotionPlaybackResult> {
+    if (!this.dependencies.driver.cancel) {
+      return {
+        status: 'skipped',
+        reason: 'driver-cancel-not-supported'
+      };
+    }
+
+    return await this.dependencies.driver.cancel(target);
+  }
+
+  async finish(target: TTarget): Promise<MotionPlaybackResult> {
+    if (!this.dependencies.driver.finish) {
+      return {
+        status: 'skipped',
+        reason: 'driver-finish-not-supported'
+      };
+    }
+
+    return await this.dependencies.driver.finish(target);
+  }
+
+  async reset(target: TTarget): Promise<MotionPlaybackResult> {
+    if (!this.dependencies.driver.reset) {
+      return {
+        status: 'skipped',
+        reason: 'driver-reset-not-supported'
+      };
+    }
+
+    return await this.dependencies.driver.reset(target);
+  }
 }

@@ -1,0 +1,20 @@
+{
+  "name": "@structifyx/motion-example-vanilla",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -p tsconfig.json && vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@structifyx/motion-core": "workspace:*",
+    "@structifyx/motion-pack-basic": "workspace:*",
+    "@structifyx/motion-web": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

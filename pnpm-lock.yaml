@@ -18,6 +18,22 @@ importers:
         specifier: ^3.2.0
         version: 3.2.6(@types/node@24.13.2)
 
+  examples/vanilla:
+    dependencies:
+      '@structifyx/motion-core':
+        specifier: workspace:*
+        version: link:../../packages/motion-core
+      '@structifyx/motion-pack-basic':
+        specifier: workspace:*
+        version: link:../../packages/motion-pack-basic
+      '@structifyx/motion-web':
+        specifier: workspace:*
+        version: link:../../packages/motion-web
+    devDependencies:
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.5(@types/node@24.13.2)
+
   packages/motion-core: {}
 
   packages/motion-pack-basic:

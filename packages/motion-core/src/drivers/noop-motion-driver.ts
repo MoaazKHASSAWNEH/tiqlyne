@@ -18,4 +18,25 @@ export class NoopMotionDriver<TTarget = unknown> implements MotionDriver<TTarget
       reason: 'noop-driver'
     };
   }
+
+  async cancel(_target: TTarget): Promise<MotionPlaybackResult> {
+    return {
+      status: 'skipped',
+      reason: 'noop-driver'
+    };
+  }
+
+  async finish(_target: TTarget): Promise<MotionPlaybackResult> {
+    return {
+      status: 'skipped',
+      reason: 'noop-driver'
+    };
+  }
+
+  async reset(_target: TTarget): Promise<MotionPlaybackResult> {
+    return {
+      status: 'skipped',
+      reason: 'noop-driver'
+    };
+  }
 }

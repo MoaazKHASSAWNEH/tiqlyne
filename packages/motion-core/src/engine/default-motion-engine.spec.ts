@@ -236,4 +236,58 @@ describe('DefaultMotionEngine', () => {
 
     expect(driver.getCalls()).toHaveLength(0);
   });
+
+    it('delegates cancel to the driver', async () => {
+    const { engine, driver } = createEngine();
+
+    const result = await engine.cancel('target-1');
+
+    expect(result).toEqual({
+      status: 'cancelled',
+      reason: 'test-driver-cancel'
+    });
+
+    expect(driver.getControlCalls()).toEqual([
+      {
+        action: 'cancel',
+        target: 'target-1'
+      }
+    ]);
+  });
+
+  it('delegates finish to the driver', async () => {
+    const { engine, driver } = createEngine();
+
+    const result = await engine.finish('target-1');
+
+    expect(result).toEqual({
+      status: 'finished',
+      reason: 'test-driver-finish'
+    });
+
+    expect(driver.getControlCalls()).toEqual([
+      {
+        action: 'finish',
+        target: 'target-1'
+      }
+    ]);
+  });
+
+  it('delegates reset to the driver', async () => {
+    const { engine, driver } = createEngine();
+
+    const result = await engine.reset('target-1');
+
+    expect(result).toEqual({
+      status: 'finished',
+      reason: 'test-driver-reset'
+    });
+
+    expect(driver.getControlCalls()).toEqual([
+      {
+        action: 'reset',
+        target: 'target-1'
+      }
+    ]);
+  });
 });

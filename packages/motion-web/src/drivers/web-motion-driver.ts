@@ -8,6 +8,7 @@ import { toWebKeyframes } from '../utils/to-web-keyframes';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
+  readonly cancelPreviousAnimations?: boolean;
 };
 
 export class WebMotionDriver implements MotionDriver<Element> {
@@ -25,6 +26,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
         status: 'skipped',
         reason: 'reduced-motion'
       };
+    }
+
+    const trackTargets = this.resolveTrackTargets(target, timeline);
+
+    if (!trackTargets) {
+      return {
+        status: 'failed',
+        reason: 'target-not-found'
+      };
+    }
+
+    if (this.options.cancelPreviousAnimations !== false) {
+      this.cancelAnimations(trackTargets);
     }
 
     const animations: Animation[] = [];
@@ -63,6 +77,68 @@ export class WebMotionDriver implements MotionDriver<Element> {
         reason: 'web-animation-error',
         error
       };
+    }
+  }
+
+  async cancel(target: Element): Promise<MotionPlaybackResult> {
+    target.getAnimations({ subtree: true }).forEach((animation) => {
+      animation.cancel();
+    });
+
+    return {
+      status: 'cancelled',
+      reason: 'web-driver-cancel'
+    };
+  }
+
+  async finish(target: Element): Promise<MotionPlaybackResult> {
+    target.getAnimations({ subtree: true }).forEach((animation) => {
+      animation.finish();
+    });
+
+    return {
+      status: 'finished',
+      reason: 'web-driver-finish'
+    };
+  }
+
+  async reset(target: Element): Promise<MotionPlaybackResult> {
+    target.getAnimations({ subtree: true }).forEach((animation) => {
+      animation.cancel();
+    });
+
+    target.removeAttribute('style');
+
+    return {
+      status: 'finished',
+      reason: 'web-driver-reset'
+    };
+  }
+
+  private resolveTrackTargets(
+    root: Element,
+    timeline: MotionTimelineDefinition
+  ): ReadonlyArray<Element> | null {
+    const targets: Element[] = [];
+
+    for (const track of timeline.tracks) {
+      const target = this.resolveTarget(root, track.target);
+
+      if (!target) {
+        return null;
+      }
+
+      targets.push(target);
+    }
+
+    return targets;
+  }
+
+  private cancelAnimations(targets: ReadonlyArray<Element>): void {
+    for (const target of targets) {
+      target.getAnimations({ subtree: true }).forEach((animation) => {
+        animation.cancel();
+      });
     }
   }
 
