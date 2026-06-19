@@ -12,6 +12,17 @@ export type { MotionRegistry } from './contracts/motion-registry';
 
 export { DefaultMotionRegistry } from './registry/default-motion-registry';
 
+export type {
+  MotionDriver,
+  MotionPlayOptions
+} from './contracts/motion-driver';
+
+export { NoopMotionDriver } from './drivers/noop-motion-driver';
+export {
+  TestMotionDriver,
+  type TestMotionDriverCall
+} from './drivers/test-motion-driver';
+
 export type { MotionDefinition, MotionBuildContext } from './contracts/motion-definition';
 
 export { BaseMotionDefinition } from './base/base-motion-definition';
