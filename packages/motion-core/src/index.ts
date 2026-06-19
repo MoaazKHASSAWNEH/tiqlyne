@@ -8,6 +8,10 @@ export { normalizeBoolean } from './utils/normalize-boolean';
 export { normalizeNumber } from './utils/normalize-number';
 export { normalizeString } from './utils/normalize-string';
 
+export type { MotionRegistry } from './contracts/motion-registry';
+
+export { DefaultMotionRegistry } from './registry/default-motion-registry';
+
 export type { MotionDefinition, MotionBuildContext } from './contracts/motion-definition';
 
 export { BaseMotionDefinition } from './base/base-motion-definition';
