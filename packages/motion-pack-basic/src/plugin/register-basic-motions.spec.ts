@@ -8,13 +8,20 @@ import { describe, expect, it } from 'vitest';
 import { registerBasicMotions } from './register-basic-motions';
 
 describe('registerBasicMotions', () => {
-  it('registers fade-in motion into the registry', () => {
+  it('registers basic motions into the registry', () => {
     const registry = new DefaultMotionRegistry();
 
     registerBasicMotions(registry);
 
     expect(registry.has('fade-in')).toBe(true);
-    expect(registry.get('fade-in')?.type).toBe('fade-in');
+    expect(registry.has('fade-out')).toBe(true);
+    expect(registry.has('slide-in')).toBe(true);
+
+    expect(registry.getAll().map((motion) => motion.type)).toEqual([
+      'fade-in',
+      'fade-out',
+      'slide-in'
+    ]);
   });
 
   it('allows the engine to play fade-in motion', async () => {
