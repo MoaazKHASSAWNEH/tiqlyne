@@ -20,4 +20,6 @@ export interface MotionPlaybackController {
   cancel(): Promise<MotionPlaybackResult>;
   finish(): Promise<MotionPlaybackResult>;
   on(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void;
+
+  once(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void;
 }

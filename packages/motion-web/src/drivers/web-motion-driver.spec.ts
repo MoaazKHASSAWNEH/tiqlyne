@@ -756,6 +756,52 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual(['second:pause:paused']);
   });
+
+  it('emits playback event once with once listener', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.once('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.pause();
+    await playback.resume();
+    await playback.pause();
+
+    expect(events).toEqual(['pause:paused']);
+  });
+
+  it('does not emit once listener after unsubscribe', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    const unsubscribe = playback.once('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    unsubscribe();
+
+    await playback.pause();
+
+    expect(events).toEqual([]);
+  });
 });
 
 class FakeElement {

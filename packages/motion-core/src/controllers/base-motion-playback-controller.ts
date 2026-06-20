@@ -27,6 +27,15 @@ export abstract class BaseMotionPlaybackController {
     };
   }
 
+  once(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void {
+    const unsubscribe = this.on(type, (event) => {
+      unsubscribe();
+      listener(event);
+    });
+
+    return unsubscribe;
+  }
+
   protected emit(
     type: MotionPlaybackEventType,
     status: MotionPlaybackControllerStatus,
