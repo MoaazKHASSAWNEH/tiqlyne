@@ -54,4 +54,7 @@ export type {
   MotionDiagnosticMetadata
 } from './models/motion-diagnostic';
 
+export type { MotionTriggerType } from './models/motion-trigger';
+export { isMotionTriggerType, motionTriggerTypes } from './models/motion-trigger';
+
 export const motionCoreVersion = '0.1.0';

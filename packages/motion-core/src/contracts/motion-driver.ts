@@ -1,9 +1,10 @@
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import type { ReducedMotionStrategy } from '../models/reduced-motion-strategy';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type { MotionTriggerType } from '../models/motion-trigger';
 
 export type MotionPlayOptions = {
-  readonly trigger: string;
+  readonly trigger: MotionTriggerType;
   readonly respectReducedMotion: boolean;
   readonly reducedMotionStrategy: ReducedMotionStrategy;
   readonly reducedMotionTimeline?: MotionTimelineDefinition;

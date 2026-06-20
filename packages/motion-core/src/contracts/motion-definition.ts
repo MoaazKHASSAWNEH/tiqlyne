@@ -1,3 +1,4 @@
+import type { MotionTriggerType } from '../models/motion-trigger';
 import type { MotionCategory } from '../models/motion-category';
 import type { MotionOptionDefinition } from '../models/motion-option-definition';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
@@ -7,7 +8,7 @@ export type MotionBuildContext<TOptions extends object> = {
   readonly duration: number;
   readonly delay: number;
   readonly easing: string;
-  readonly trigger: string;
+  readonly trigger: MotionTriggerType;
 };
 
 export interface MotionDefinition<TOptions extends object = object> {

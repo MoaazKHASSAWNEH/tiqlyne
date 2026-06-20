@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DefaultMotionConfigNormalizer } from './default-motion-config-normalizer';
+import type { MotionConfig } from '../models/motion-config';
 
 describe('DefaultMotionConfigNormalizer', () => {
   it('normalizes a minimal motion config with default values', () => {
@@ -115,10 +116,22 @@ describe('DefaultMotionConfigNormalizer', () => {
     const result = normalizer.normalize({
       id: 'motion_005',
       type: 'shake',
-      trigger: 'onValidationError',
+      trigger: 'manual',
       priority: 4.7
     });
 
     expect(result.priority).toBe(5);
+  });
+
+  it('normalizes invalid trigger to onEnter', () => {
+    const normalizer = new DefaultMotionConfigNormalizer();
+
+    const config = normalizer.normalize({
+      id: 'motion_001',
+      type: 'fade-in',
+      trigger: 'invalid-trigger'
+    } as unknown as MotionConfig);
+
+    expect(config.trigger).toBe('onEnter');
   });
 });

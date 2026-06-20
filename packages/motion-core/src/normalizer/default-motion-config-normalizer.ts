@@ -6,6 +6,8 @@ import { isRecord } from '../utils/is-record';
 import { normalizeBoolean } from '../utils/normalize-boolean';
 import { normalizeNumber } from '../utils/normalize-number';
 import { normalizeString } from '../utils/normalize-string';
+import { isMotionTriggerType } from '../models/motion-trigger';
+import type { MotionTriggerType } from '../models/motion-trigger';
 
 const DEFAULT_ID = 'motion_unknown';
 const DEFAULT_TYPE = 'unknown';
@@ -29,7 +31,7 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
     return {
       id: normalizeString(config.id, DEFAULT_ID),
       type: normalizeString(config.type, DEFAULT_TYPE),
-      trigger: normalizeString(config.trigger, DEFAULT_TRIGGER),
+      trigger: this.normalizeTrigger(config.trigger),
       enabled: normalizeBoolean(config.enabled, true),
       duration: normalizeNumber(config.duration, {
         defaultValue: 300,
@@ -51,6 +53,10 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
       }),
       metadata: isRecord(config.metadata) ? config.metadata : {}
     };
+  }
+
+  private normalizeTrigger(value: unknown): MotionTriggerType {
+    return isMotionTriggerType(value) ? value : 'onEnter';
   }
 
   private normalizeReducedMotionStrategy(value: unknown): ReducedMotionStrategy {

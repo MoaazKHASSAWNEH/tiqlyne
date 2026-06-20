@@ -70,7 +70,7 @@ describe('FadeOutMotion', () => {
       duration: 250,
       delay: 30,
       easing: 'ease-in',
-      trigger: 'onExit'
+      trigger: 'onLeave'
     });
 
     expect(timeline).toEqual({

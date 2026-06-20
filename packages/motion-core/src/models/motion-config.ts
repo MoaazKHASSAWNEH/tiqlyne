@@ -1,9 +1,10 @@
+import type { MotionTriggerType } from './motion-trigger';
 import type { ReducedMotionStrategy } from './reduced-motion-strategy';
 
 export type MotionConfig = {
   readonly id: string;
   readonly type: string;
-  readonly trigger: string;
+  readonly trigger?: MotionTriggerType;
   readonly enabled?: boolean;
   readonly duration?: number;
   readonly delay?: number;
