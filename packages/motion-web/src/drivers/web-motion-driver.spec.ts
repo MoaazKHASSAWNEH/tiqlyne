@@ -923,6 +923,50 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual([]);
   });
+
+  it('marks playback controller as not disposed by default', () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    expect(playback.disposed).toBe(false);
+  });
+
+  it('marks playback controller as disposed after dispose', () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    playback.dispose();
+
+    expect(playback.disposed).toBe(true);
+  });
+
+  it('keeps playback controller disposed after multiple dispose calls', () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    playback.dispose();
+    playback.dispose();
+
+    expect(playback.disposed).toBe(true);
+  });
 });
 
 class FakeElement {

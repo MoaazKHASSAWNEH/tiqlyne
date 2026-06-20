@@ -8,13 +8,17 @@ import type { MotionPlaybackResult } from '../models/motion-playback-result';
 
 export abstract class BaseMotionPlaybackController {
   private readonly listeners = new Map<MotionPlaybackEventType, Set<MotionPlaybackEventListener>>();
-  private disposed = false;
+  private isDisposed = false;
 
   abstract readonly id: string;
   abstract readonly status: MotionPlaybackControllerStatus;
 
+  get disposed(): boolean {
+    return this.isDisposed;
+  }
+
   on(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void {
-    if (this.disposed) {
+    if (this.isDisposed) {
       return (): void => {};
     }
 
@@ -44,7 +48,7 @@ export abstract class BaseMotionPlaybackController {
   }
 
   dispose(): void {
-    this.disposed = true;
+    this.isDisposed = true;
     this.listeners.clear();
   }
 
@@ -53,7 +57,7 @@ export abstract class BaseMotionPlaybackController {
     status: MotionPlaybackControllerStatus,
     result?: MotionPlaybackResult
   ): void {
-    if (this.disposed) {
+    if (this.isDisposed) {
       return;
     }
 

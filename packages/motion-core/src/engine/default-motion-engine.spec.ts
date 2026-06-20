@@ -147,6 +147,7 @@ class NativePlaybackTestDriver implements MotionDriver<string> {
   readonly controller: MotionPlaybackController = {
     id: 'native-controller',
     status: 'running',
+    disposed: false,
     finished: Promise.resolve({
       status: 'finished'
     }),
