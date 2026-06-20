@@ -802,6 +802,57 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual([]);
   });
+
+  it('does not emit events after playback controller is disposed', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.on('resume', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.dispose();
+
+    await playback.pause();
+    await playback.resume();
+
+    expect(events).toEqual([]);
+  });
+
+  it('does not emit once listeners after playback controller is disposed', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.once('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.dispose();
+
+    await playback.pause();
+
+    expect(events).toEqual([]);
+  });
 });
 
 class FakeElement {

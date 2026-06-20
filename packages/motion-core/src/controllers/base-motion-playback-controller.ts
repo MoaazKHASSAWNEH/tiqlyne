@@ -36,6 +36,10 @@ export abstract class BaseMotionPlaybackController {
     return unsubscribe;
   }
 
+  dispose(): void {
+    this.listeners.clear();
+  }
+
   protected emit(
     type: MotionPlaybackEventType,
     status: MotionPlaybackControllerStatus,
