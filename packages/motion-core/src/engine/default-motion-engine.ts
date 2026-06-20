@@ -4,6 +4,8 @@ import type { MotionEngine } from '../contracts/motion-engine';
 import type { MotionRegistry } from '../contracts/motion-registry';
 import type { MotionConfig } from '../models/motion-config';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import { PromiseMotionPlaybackController } from '../controllers/promise-motion-playback-controller';
+import type { MotionPlaybackController } from '../models/motion-playback-controller';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -111,5 +113,18 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
 
     return await this.dependencies.driver.reset(target);
+  }
+
+  createPlayback(target: TTarget, config: MotionConfig): MotionPlaybackController {
+    const playbackId = config.id ?? 'motion_unknown';
+
+    const finished = this.play(target, config);
+
+    return new PromiseMotionPlaybackController(
+      playbackId,
+      finished,
+      () => this.cancel(target),
+      () => this.finish(target)
+    );
   }
 }

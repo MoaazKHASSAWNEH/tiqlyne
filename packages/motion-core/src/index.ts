@@ -64,4 +64,11 @@ export {
   motionConflictStrategies
 } from './models/motion-conflict-strategy';
 
+export type {
+  MotionPlaybackController,
+  MotionPlaybackControllerStatus
+} from './models/motion-playback-controller';
+
+export { PromiseMotionPlaybackController } from './controllers/promise-motion-playback-controller';
+
 export const motionCoreVersion = '0.1.0';

@@ -1,0 +1,44 @@
+import type {
+  MotionPlaybackController,
+  MotionPlaybackControllerStatus
+} from '../models/motion-playback-controller';
+import type { MotionPlaybackResult } from '../models/motion-playback-result';
+
+export class PromiseMotionPlaybackController implements MotionPlaybackController {
+  private currentStatus: MotionPlaybackControllerStatus = 'running';
+
+  constructor(
+    readonly id: string,
+    readonly finished: Promise<MotionPlaybackResult>,
+    private readonly cancelHandler: () => Promise<MotionPlaybackResult>,
+    private readonly finishHandler: () => Promise<MotionPlaybackResult>
+  ) {
+    this.finished
+      .then((result) => {
+        this.currentStatus = result.status;
+      })
+      .catch(() => {
+        this.currentStatus = 'failed';
+      });
+  }
+
+  get status(): MotionPlaybackControllerStatus {
+    return this.currentStatus;
+  }
+
+  async cancel(): Promise<MotionPlaybackResult> {
+    const result = await this.cancelHandler();
+
+    this.currentStatus = result.status;
+
+    return result;
+  }
+
+  async finish(): Promise<MotionPlaybackResult> {
+    const result = await this.finishHandler();
+
+    this.currentStatus = result.status;
+
+    return result;
+  }
+}

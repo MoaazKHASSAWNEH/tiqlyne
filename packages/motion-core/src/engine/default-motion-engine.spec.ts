@@ -385,4 +385,77 @@ describe('DefaultMotionEngine', () => {
       }
     ]);
   });
+
+  it('creates a playback controller', async () => {
+    const { engine, registry } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const playback = engine.createPlayback('target-1', {
+      id: 'motion_playback_001',
+      type: 'test-motion',
+      trigger: 'onClick'
+    });
+
+    expect(playback.id).toBe('motion_playback_001');
+    expect(playback.status).toBe('running');
+
+    await expect(playback.finished).resolves.toEqual({
+      status: 'finished'
+    });
+
+    expect(playback.status).toBe('finished');
+  });
+
+  it('cancels a playback controller', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const playback = engine.createPlayback('target-1', {
+      id: 'motion_playback_cancel_001',
+      type: 'test-motion',
+      trigger: 'onClick'
+    });
+
+    const result = await playback.cancel();
+
+    expect(result).toEqual({
+      status: 'cancelled',
+      reason: 'test-driver-cancel'
+    });
+
+    expect(playback.status).toBe('cancelled');
+
+    expect(driver.getControlCalls()).toContainEqual({
+      action: 'cancel',
+      target: 'target-1'
+    });
+  });
+
+  it('finishes a playback controller', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const playback = engine.createPlayback('target-1', {
+      id: 'motion_playback_finish_001',
+      type: 'test-motion',
+      trigger: 'onClick'
+    });
+
+    const result = await playback.finish();
+
+    expect(result).toEqual({
+      status: 'finished',
+      reason: 'test-driver-finish'
+    });
+
+    expect(playback.status).toBe('finished');
+
+    expect(driver.getControlCalls()).toContainEqual({
+      action: 'finish',
+      target: 'target-1'
+    });
+  });
 });

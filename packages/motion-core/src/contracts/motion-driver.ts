@@ -3,6 +3,7 @@ import type { ReducedMotionStrategy } from '../models/reduced-motion-strategy';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import type { MotionTriggerType } from '../models/motion-trigger';
 import type { MotionConflictStrategy } from '../models/motion-conflict-strategy';
+import type { MotionPlaybackController } from '../models/motion-playback-controller';
 
 export type MotionPlayOptions = {
   readonly trigger: MotionTriggerType;
@@ -11,6 +12,8 @@ export type MotionPlayOptions = {
   readonly reducedMotionTimeline?: MotionTimelineDefinition;
   readonly conflictStrategy: MotionConflictStrategy;
 };
+
+export type MotionCreatePlaybackOptions = MotionPlayOptions;
 
 export interface MotionDriver<TTarget = unknown> {
   readonly name: string;
@@ -26,4 +29,10 @@ export interface MotionDriver<TTarget = unknown> {
   finish?(target: TTarget): Promise<MotionPlaybackResult>;
 
   reset?(target: TTarget): Promise<MotionPlaybackResult>;
+
+  createPlayback?(
+    target: TTarget,
+    timeline: MotionTimelineDefinition,
+    options: MotionCreatePlaybackOptions
+  ): MotionPlaybackController;
 }
