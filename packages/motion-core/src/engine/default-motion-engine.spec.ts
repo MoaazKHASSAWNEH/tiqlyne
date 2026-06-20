@@ -7,6 +7,9 @@ import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import { DefaultMotionConfigNormalizer } from '../normalizer/default-motion-config-normalizer';
 import { DefaultMotionRegistry } from '../registry/default-motion-registry';
 import { DefaultMotionEngine } from './default-motion-engine';
+import type { MotionDriver, MotionPlayOptions } from '../contracts/motion-driver';
+import type { MotionPlaybackController } from '../models/motion-playback-controller';
+import type { MotionPlaybackResult } from '../models/motion-playback-result';
 
 type TestOptions = {
   readonly intensity: number;
@@ -124,6 +127,68 @@ function createEngine() {
     driver,
     engine
   };
+}
+
+class NativePlaybackTestDriver implements MotionDriver<string> {
+  readonly name = 'native-playback-test';
+
+  readonly playCalls: Array<{
+    readonly target: string;
+    readonly timeline: MotionTimelineDefinition;
+    readonly options: MotionPlayOptions;
+  }> = [];
+
+  readonly createPlaybackCalls: Array<{
+    readonly target: string;
+    readonly timeline: MotionTimelineDefinition;
+    readonly options: MotionPlayOptions;
+  }> = [];
+
+  readonly controller: MotionPlaybackController = {
+    id: 'native-controller',
+    status: 'running',
+    finished: Promise.resolve({
+      status: 'finished'
+    }),
+    cancel: async (): Promise<MotionPlaybackResult> => ({
+      status: 'cancelled',
+      reason: 'native-controller-cancel'
+    }),
+    finish: async (): Promise<MotionPlaybackResult> => ({
+      status: 'finished',
+      reason: 'native-controller-finish'
+    })
+  };
+
+  async play(
+    target: string,
+    timeline: MotionTimelineDefinition,
+    options: MotionPlayOptions
+  ): Promise<MotionPlaybackResult> {
+    this.playCalls.push({
+      target,
+      timeline,
+      options
+    });
+
+    return {
+      status: 'finished'
+    };
+  }
+
+  createPlayback(
+    target: string,
+    timeline: MotionTimelineDefinition,
+    options: MotionPlayOptions
+  ): MotionPlaybackController {
+    this.createPlaybackCalls.push({
+      target,
+      timeline,
+      options
+    });
+
+    return this.controller;
+  }
 }
 
 describe('DefaultMotionEngine', () => {
@@ -456,6 +521,75 @@ describe('DefaultMotionEngine', () => {
     expect(driver.getControlCalls()).toContainEqual({
       action: 'finish',
       target: 'target-1'
+    });
+  });
+
+  it('delegates playback creation to the driver when supported', async () => {
+    const registry = new DefaultMotionRegistry();
+    const driver = new NativePlaybackTestDriver();
+    const normalizer = new DefaultMotionConfigNormalizer();
+
+    const engine = new DefaultMotionEngine<string>({
+      registry,
+      driver,
+      normalizer
+    });
+
+    registry.register(new TestMotionDefinition());
+
+    const playback = engine.createPlayback('target-1', {
+      id: 'motion_native_playback_001',
+      type: 'test-motion',
+      trigger: 'onClick',
+      duration: 400,
+      delay: 50,
+      easing: 'ease-out',
+      conflictStrategy: 'parallel',
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(playback).toBe(driver.controller);
+    expect(driver.playCalls).toHaveLength(0);
+    expect(driver.createPlaybackCalls).toHaveLength(1);
+
+    expect(driver.createPlaybackCalls[0]).toEqual({
+      target: 'target-1',
+      timeline: {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: 400,
+                delay: 50,
+                easing: 'ease-out',
+                keyframes: [
+                  {
+                    opacity: 0
+                  },
+                  {
+                    opacity: 0.8
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      options: {
+        trigger: 'onClick',
+        respectReducedMotion: true,
+        reducedMotionStrategy: 'skip',
+        conflictStrategy: 'parallel'
+      }
+    });
+
+    await expect(playback.finished).resolves.toEqual({
+      status: 'finished'
     });
   });
 });
