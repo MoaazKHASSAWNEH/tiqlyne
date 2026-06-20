@@ -706,6 +706,56 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual(['finish:finished']);
   });
+
+  it('does not emit events to unsubscribed playback listeners', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    const unsubscribe = playback.on('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    unsubscribe();
+
+    await playback.pause();
+
+    expect(events).toEqual([]);
+  });
+
+  it('keeps other playback listeners after one listener is unsubscribed', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    const unsubscribeFirst = playback.on('pause', (event) => {
+      events.push(`first:${event.type}:${event.status}`);
+    });
+
+    playback.on('pause', (event) => {
+      events.push(`second:${event.type}:${event.status}`);
+    });
+
+    unsubscribeFirst();
+
+    await playback.pause();
+
+    expect(events).toEqual(['second:pause:paused']);
+  });
 });
 
 class FakeElement {
