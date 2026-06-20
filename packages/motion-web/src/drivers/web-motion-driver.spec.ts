@@ -853,6 +853,76 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual([]);
   });
+
+  it('does not register new playback listeners after dispose', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.dispose();
+
+    playback.on('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.pause();
+
+    expect(events).toEqual([]);
+  });
+
+  it('does not register new once playback listeners after dispose', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.dispose();
+
+    playback.once('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.pause();
+
+    expect(events).toEqual([]);
+  });
+
+  it('allows disposing playback controller multiple times', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.dispose();
+    playback.dispose();
+
+    await playback.pause();
+
+    expect(events).toEqual([]);
+  });
 });
 
 class FakeElement {

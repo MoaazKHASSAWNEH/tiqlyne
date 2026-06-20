@@ -8,11 +8,16 @@ import type { MotionPlaybackResult } from '../models/motion-playback-result';
 
 export abstract class BaseMotionPlaybackController {
   private readonly listeners = new Map<MotionPlaybackEventType, Set<MotionPlaybackEventListener>>();
+  private disposed = false;
 
   abstract readonly id: string;
   abstract readonly status: MotionPlaybackControllerStatus;
 
   on(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void {
+    if (this.disposed) {
+      return (): void => {};
+    }
+
     const listeners = this.listeners.get(type) ?? new Set<MotionPlaybackEventListener>();
 
     listeners.add(listener);
@@ -28,7 +33,9 @@ export abstract class BaseMotionPlaybackController {
   }
 
   once(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void {
-    const unsubscribe = this.on(type, (event) => {
+    let unsubscribe: () => void = (): void => {};
+
+    unsubscribe = this.on(type, (event) => {
       unsubscribe();
       listener(event);
     });
@@ -37,6 +44,7 @@ export abstract class BaseMotionPlaybackController {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.listeners.clear();
   }
 
@@ -45,6 +53,10 @@ export abstract class BaseMotionPlaybackController {
     status: MotionPlaybackControllerStatus,
     result?: MotionPlaybackResult
   ): void {
+    if (this.disposed) {
+      return;
+    }
+
     const listeners = this.listeners.get(type);
 
     if (!listeners) {
