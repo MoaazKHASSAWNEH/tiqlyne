@@ -89,7 +89,19 @@ describe('WebMotionDriver', () => {
     });
 
     expect(result).toEqual({
-      status: 'finished'
+      status: 'finished',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'reduced-motion-fallback-used',
+          message:
+            'Generic reduced motion fallback was used because no motion-specific reduced timeline was provided.',
+          source: 'web',
+          metadata: {
+            strategy: 'simplify'
+          }
+        }
+      ]
     });
 
     expect(target.animate).toHaveBeenCalledWith(

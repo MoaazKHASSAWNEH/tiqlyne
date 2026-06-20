@@ -80,9 +80,7 @@ class ThrowingMotionDefinition extends TestMotionDefinition {
 class ReducedMotionAwareMotionDefinition extends TestMotionDefinition {
   override readonly type = 'reduced-aware-motion';
 
-  buildReducedMotionTimeline(
-    context: MotionBuildContext<TestOptions>
-  ): MotionTimelineDefinition {
+  buildReducedMotionTimeline(context: MotionBuildContext<TestOptions>): MotionTimelineDefinition {
     return {
       tracks: [
         {

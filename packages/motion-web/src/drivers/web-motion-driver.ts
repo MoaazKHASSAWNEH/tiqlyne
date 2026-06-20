@@ -1,4 +1,5 @@
 import type {
+  MotionDiagnostic,
   MotionDriver,
   MotionPlayOptions,
   MotionPlaybackResult,
@@ -31,6 +32,15 @@ export class WebMotionDriver implements MotionDriver<Element> {
         reason: 'reduced-motion'
       };
     }
+
+    const shouldUseGenericReducedMotionFallback =
+      shouldApplyReducedMotion &&
+      options.reducedMotionStrategy === 'simplify' &&
+      options.reducedMotionTimeline === undefined;
+
+    const diagnostics = shouldUseGenericReducedMotionFallback
+      ? [this.createGenericReducedMotionFallbackDiagnostic()]
+      : [];
 
     const playableTimeline =
       shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
@@ -78,7 +88,12 @@ export class WebMotionDriver implements MotionDriver<Element> {
       await Promise.all(animations.map((animation) => animation.finished));
 
       return {
-        status: 'finished'
+        status: 'finished',
+        ...(diagnostics.length > 0
+          ? {
+              diagnostics
+            }
+          : {})
       };
     } catch (error: unknown) {
       return {
@@ -121,6 +136,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return {
       status: 'finished',
       reason: 'web-driver-reset'
+    };
+  }
+
+  private createGenericReducedMotionFallbackDiagnostic(): MotionDiagnostic {
+    return {
+      level: 'warning',
+      code: 'reduced-motion-fallback-used',
+      message:
+        'Generic reduced motion fallback was used because no motion-specific reduced timeline was provided.',
+      source: this.name,
+      metadata: {
+        strategy: 'simplify'
+      }
     };
   }
 

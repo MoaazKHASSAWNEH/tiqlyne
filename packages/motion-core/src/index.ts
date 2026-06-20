@@ -48,4 +48,10 @@ export type {
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
 
+export type {
+  MotionDiagnostic,
+  MotionDiagnosticLevel,
+  MotionDiagnosticMetadata
+} from './models/motion-diagnostic';
+
 export const motionCoreVersion = '0.1.0';
