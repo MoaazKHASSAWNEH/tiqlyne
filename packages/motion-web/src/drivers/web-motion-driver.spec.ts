@@ -587,6 +587,37 @@ describe('WebMotionDriver', () => {
     expect(playback.status).toBe('cancelled');
     expect(createdAnimation.finish).not.toHaveBeenCalled();
   });
+
+  it('emits playback events', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('pause', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.on('resume', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.on('cancel', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.pause();
+    await playback.resume();
+    await playback.cancel();
+
+    expect(events).toEqual(['pause:paused', 'resume:running', 'cancel:cancelled']);
+  });
 });
 
 class FakeElement {

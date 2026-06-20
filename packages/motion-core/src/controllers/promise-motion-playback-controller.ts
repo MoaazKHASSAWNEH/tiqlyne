@@ -4,8 +4,12 @@ import type {
 } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import { isTerminalPlaybackStatus } from '../utils/is-terminal-playback-status';
+import { BaseMotionPlaybackController } from './base-motion-playback-controller';
 
-export class PromiseMotionPlaybackController implements MotionPlaybackController {
+export class PromiseMotionPlaybackController
+  extends BaseMotionPlaybackController
+  implements MotionPlaybackController
+{
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -14,12 +18,18 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
     private readonly cancelHandler: () => Promise<MotionPlaybackResult>,
     private readonly finishHandler: () => Promise<MotionPlaybackResult>
   ) {
+    super();
+
+    this.emit('start', this.currentStatus);
+
     this.finished
       .then((result) => {
         this.currentStatus = result.status;
+        this.emitResult(result);
       })
       .catch(() => {
         this.currentStatus = 'failed';
+        this.emit('fail', this.currentStatus);
       });
   }
 
@@ -38,6 +48,8 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
     };
 
     this.currentStatus = result.status;
+
+    this.emitResult(result);
 
     return result;
   }
@@ -58,6 +70,8 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
 
     this.currentStatus = result.status;
 
+    this.emitResult(result);
+
     return result;
   }
 
@@ -69,6 +83,8 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
     const result = await this.cancelHandler();
 
     this.currentStatus = result.status;
+
+    this.emitResult(result);
 
     return result;
   }
@@ -82,6 +98,8 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
 
     this.currentStatus = result.status;
 
+    this.emitResult(result);
+
     return result;
   }
 
@@ -90,5 +108,33 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
       status: 'skipped',
       reason: `playback-${action}-not-allowed-from-${this.currentStatus}`
     };
+  }
+
+  private emitResult(result: MotionPlaybackResult): void {
+    switch (result.status) {
+      case 'finished':
+        this.emit('finish', this.currentStatus, result);
+        break;
+
+      case 'cancelled':
+        this.emit('cancel', this.currentStatus, result);
+        break;
+
+      case 'skipped':
+        this.emit('skip', this.currentStatus, result);
+        break;
+
+      case 'failed':
+        this.emit('fail', this.currentStatus, result);
+        break;
+
+      case 'paused':
+        this.emit('pause', this.currentStatus, result);
+        break;
+
+      case 'running':
+        this.emit('resume', this.currentStatus, result);
+        break;
+    }
   }
 }

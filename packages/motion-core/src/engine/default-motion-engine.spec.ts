@@ -150,6 +150,9 @@ class NativePlaybackTestDriver implements MotionDriver<string> {
     finished: Promise.resolve({
       status: 'finished'
     }),
+    on: () => {
+      return (): void => {};
+    },
     pause: async (): Promise<MotionPlaybackResult> => ({
       status: 'paused',
       reason: 'native-controller-pause'

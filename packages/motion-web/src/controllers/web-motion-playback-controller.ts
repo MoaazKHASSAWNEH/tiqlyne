@@ -1,11 +1,15 @@
 import {
+  BaseMotionPlaybackController,
   isTerminalPlaybackStatus,
   type MotionPlaybackController,
   type MotionPlaybackControllerStatus,
   type MotionPlaybackResult
 } from '@structifyx/motion-core';
 
-export class WebMotionPlaybackController implements MotionPlaybackController {
+export class WebMotionPlaybackController
+  extends BaseMotionPlaybackController
+  implements MotionPlaybackController
+{
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -13,6 +17,10 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
     private readonly animations: ReadonlyArray<Animation>,
     readonly finished: Promise<MotionPlaybackResult>
   ) {
+    super();
+
+    this.emit('start', this.currentStatus);
+
     this.finished
       .then((result) => {
         this.currentStatus = result.status;
@@ -46,6 +54,8 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
 
     this.currentStatus = result.status;
 
+    this.emit('pause', this.currentStatus, result);
+
     return result;
   }
 
@@ -69,6 +79,8 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
 
     this.currentStatus = result.status;
 
+    this.emit('resume', this.currentStatus, result);
+
     return result;
   }
 
@@ -88,6 +100,8 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
 
     this.currentStatus = result.status;
 
+    this.emit('cancel', this.currentStatus, result);
+
     return result;
   }
 
@@ -106,6 +120,8 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
     };
 
     this.currentStatus = result.status;
+
+    this.emit('finish', this.currentStatus, result);
 
     return result;
   }

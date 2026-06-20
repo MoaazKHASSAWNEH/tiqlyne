@@ -1,3 +1,11 @@
+export { BaseMotionPlaybackController } from './controllers/base-motion-playback-controller';
+
+export type {
+  MotionPlaybackEvent,
+  MotionPlaybackEventListener,
+  MotionPlaybackEventType
+} from './models/motion-playback-event';
+
 export type { MotionConfigNormalizer } from './contracts/motion-config-normalizer';
 
 export { DefaultMotionConfigNormalizer } from './normalizer/default-motion-config-normalizer';
