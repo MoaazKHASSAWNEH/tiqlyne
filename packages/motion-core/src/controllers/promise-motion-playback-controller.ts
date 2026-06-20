@@ -24,12 +24,14 @@ export class PromiseMotionPlaybackController
 
     this.finished
       .then((result) => {
-        this.currentStatus = result.status;
-        this.emitResult(result);
+        this.applyFinishedResult(result);
       })
-      .catch(() => {
-        this.currentStatus = 'failed';
-        this.emit('fail', this.currentStatus);
+      .catch((error: unknown) => {
+        this.applyFinishedResult({
+          status: 'failed',
+          reason: 'playback-finished-promise-rejected',
+          error
+        });
       });
   }
 
@@ -101,6 +103,16 @@ export class PromiseMotionPlaybackController
     this.emitResult(result);
 
     return result;
+  }
+
+  private applyFinishedResult(result: MotionPlaybackResult): void {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return;
+    }
+
+    this.currentStatus = result.status;
+
+    this.emitResult(result);
   }
 
   private createInvalidTransitionResult(action: string): MotionPlaybackResult {

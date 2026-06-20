@@ -23,10 +23,14 @@ export class WebMotionPlaybackController
 
     this.finished
       .then((result) => {
-        this.currentStatus = result.status;
+        this.applyFinishedResult(result);
       })
-      .catch(() => {
-        this.currentStatus = 'failed';
+      .catch((error: unknown) => {
+        this.applyFinishedResult({
+          status: 'failed',
+          reason: 'web-playback-finished-promise-rejected',
+          error
+        });
       });
   }
 
@@ -54,7 +58,7 @@ export class WebMotionPlaybackController
 
     this.currentStatus = result.status;
 
-    this.emit('pause', this.currentStatus, result);
+    this.emitResult(result);
 
     return result;
   }
@@ -79,7 +83,7 @@ export class WebMotionPlaybackController
 
     this.currentStatus = result.status;
 
-    this.emit('resume', this.currentStatus, result);
+    this.emitResult(result);
 
     return result;
   }
@@ -100,7 +104,7 @@ export class WebMotionPlaybackController
 
     this.currentStatus = result.status;
 
-    this.emit('cancel', this.currentStatus, result);
+    this.emitResult(result);
 
     return result;
   }
@@ -121,9 +125,47 @@ export class WebMotionPlaybackController
 
     this.currentStatus = result.status;
 
-    this.emit('finish', this.currentStatus, result);
+    this.emitResult(result);
 
     return result;
+  }
+
+  private applyFinishedResult(result: MotionPlaybackResult): void {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return;
+    }
+
+    this.currentStatus = result.status;
+
+    this.emitResult(result);
+  }
+
+  private emitResult(result: MotionPlaybackResult): void {
+    switch (result.status) {
+      case 'finished':
+        this.emit('finish', this.currentStatus, result);
+        break;
+
+      case 'cancelled':
+        this.emit('cancel', this.currentStatus, result);
+        break;
+
+      case 'skipped':
+        this.emit('skip', this.currentStatus, result);
+        break;
+
+      case 'failed':
+        this.emit('fail', this.currentStatus, result);
+        break;
+
+      case 'paused':
+        this.emit('pause', this.currentStatus, result);
+        break;
+
+      case 'running':
+        this.emit('resume', this.currentStatus, result);
+        break;
+    }
   }
 
   private createInvalidTransitionResult(action: string): MotionPlaybackResult {

@@ -618,6 +618,94 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual(['pause:paused', 'resume:running', 'cancel:cancelled']);
   });
+
+  it('emits finish when playback finishes automatically', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('finish', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.finished;
+
+    expect(events).toEqual(['finish:finished']);
+  });
+
+  it('emits skip when playback is skipped automatically', async () => {
+    const driver = new WebMotionDriver({
+      reducedMotion: true
+    });
+
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('skip', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.finished;
+
+    expect(events).toEqual(['skip:skipped']);
+  });
+
+  it('emits fail when playback fails automatically', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createChildTimeline('icon'),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('fail', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.finished;
+
+    expect(events).toEqual(['fail:failed']);
+  });
+
+  it('does not emit finish twice when playback is finished manually', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('finish', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    await playback.finish();
+    await playback.finished;
+
+    expect(events).toEqual(['finish:finished']);
+  });
 });
 
 class FakeElement {
