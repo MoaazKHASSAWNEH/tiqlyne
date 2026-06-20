@@ -476,6 +476,8 @@ describe('WebMotionDriver', () => {
 
     const createdAnimation = target.getLastAnimation();
 
+    await playback.pause();
+
     const result = await playback.resume();
 
     expect(result).toEqual({
@@ -486,6 +488,104 @@ describe('WebMotionDriver', () => {
     expect(playback.status).toBe('running');
     expect(previousAnimation.play).not.toHaveBeenCalled();
     expect(createdAnimation.play).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not resume a playback that is not paused', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    const result = await playback.resume();
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'web-playback-resume-not-allowed-from-running'
+    });
+
+    expect(playback.status).toBe('running');
+    expect(createdAnimation.play).not.toHaveBeenCalled();
+  });
+
+  it('does not pause a cancelled playback', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    await playback.cancel();
+
+    const result = await playback.pause();
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'web-playback-pause-not-allowed-from-cancelled'
+    });
+
+    expect(playback.status).toBe('cancelled');
+    expect(createdAnimation.pause).not.toHaveBeenCalled();
+  });
+
+  it('does not resume a finished playback', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    await playback.finish();
+
+    const result = await playback.resume();
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'web-playback-resume-not-allowed-from-finished'
+    });
+
+    expect(playback.status).toBe('finished');
+    expect(createdAnimation.play).not.toHaveBeenCalled();
+  });
+
+  it('does not finish a cancelled playback', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    await playback.cancel();
+
+    const result = await playback.finish();
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'web-playback-finish-not-allowed-from-cancelled'
+    });
+
+    expect(playback.status).toBe('cancelled');
+    expect(createdAnimation.finish).not.toHaveBeenCalled();
   });
 });
 

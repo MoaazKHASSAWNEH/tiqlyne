@@ -3,6 +3,7 @@ export type { MotionConfigNormalizer } from './contracts/motion-config-normalize
 export { DefaultMotionConfigNormalizer } from './normalizer/default-motion-config-normalizer';
 
 export { clamp } from './utils/clamp';
+export { isTerminalPlaybackStatus } from './utils/is-terminal-playback-status';
 export { isRecord } from './utils/is-record';
 export { normalizeBoolean } from './utils/normalize-boolean';
 export { normalizeNumber } from './utils/normalize-number';

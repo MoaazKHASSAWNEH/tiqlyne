@@ -1,7 +1,8 @@
-import type {
-  MotionPlaybackController,
-  MotionPlaybackControllerStatus,
-  MotionPlaybackResult
+import {
+  isTerminalPlaybackStatus,
+  type MotionPlaybackController,
+  type MotionPlaybackControllerStatus,
+  type MotionPlaybackResult
 } from '@structifyx/motion-core';
 
 export class WebMotionPlaybackController implements MotionPlaybackController {
@@ -26,6 +27,14 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
   }
 
   async pause(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('pause');
+    }
+
+    if (this.currentStatus === 'paused') {
+      return this.createInvalidTransitionResult('pause');
+    }
+
     for (const animation of this.animations) {
       animation.pause();
     }
@@ -41,6 +50,14 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
   }
 
   async resume(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('resume');
+    }
+
+    if (this.currentStatus !== 'paused') {
+      return this.createInvalidTransitionResult('resume');
+    }
+
     for (const animation of this.animations) {
       animation.play();
     }
@@ -56,6 +73,10 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
   }
 
   async cancel(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('cancel');
+    }
+
     for (const animation of this.animations) {
       animation.cancel();
     }
@@ -71,6 +92,10 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
   }
 
   async finish(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('finish');
+    }
+
     for (const animation of this.animations) {
       animation.finish();
     }
@@ -83,5 +108,12 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
     this.currentStatus = result.status;
 
     return result;
+  }
+
+  private createInvalidTransitionResult(action: string): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: `web-playback-${action}-not-allowed-from-${this.currentStatus}`
+    };
   }
 }

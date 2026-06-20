@@ -3,6 +3,7 @@ import type {
   MotionPlaybackControllerStatus
 } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import { isTerminalPlaybackStatus } from '../utils/is-terminal-playback-status';
 
 export class PromiseMotionPlaybackController implements MotionPlaybackController {
   private currentStatus: MotionPlaybackControllerStatus = 'running';
@@ -27,6 +28,10 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
   }
 
   async pause(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('pause');
+    }
+
     const result: MotionPlaybackResult = {
       status: 'skipped',
       reason: 'playback-pause-not-supported'
@@ -38,6 +43,14 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
   }
 
   async resume(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('resume');
+    }
+
+    if (this.currentStatus !== 'paused') {
+      return this.createInvalidTransitionResult('resume');
+    }
+
     const result: MotionPlaybackResult = {
       status: 'skipped',
       reason: 'playback-resume-not-supported'
@@ -49,6 +62,10 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
   }
 
   async cancel(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('cancel');
+    }
+
     const result = await this.cancelHandler();
 
     this.currentStatus = result.status;
@@ -57,10 +74,21 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
   }
 
   async finish(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('finish');
+    }
+
     const result = await this.finishHandler();
 
     this.currentStatus = result.status;
 
     return result;
+  }
+
+  private createInvalidTransitionResult(action: string): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: `playback-${action}-not-allowed-from-${this.currentStatus}`
+    };
   }
 }
