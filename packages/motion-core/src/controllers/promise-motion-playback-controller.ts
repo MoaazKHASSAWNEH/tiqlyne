@@ -26,6 +26,28 @@ export class PromiseMotionPlaybackController implements MotionPlaybackController
     return this.currentStatus;
   }
 
+  async pause(): Promise<MotionPlaybackResult> {
+    const result: MotionPlaybackResult = {
+      status: 'skipped',
+      reason: 'playback-pause-not-supported'
+    };
+
+    this.currentStatus = result.status;
+
+    return result;
+  }
+
+  async resume(): Promise<MotionPlaybackResult> {
+    const result: MotionPlaybackResult = {
+      status: 'skipped',
+      reason: 'playback-resume-not-supported'
+    };
+
+    this.currentStatus = result.status;
+
+    return result;
+  }
+
   async cancel(): Promise<MotionPlaybackResult> {
     const result = await this.cancelHandler();
 

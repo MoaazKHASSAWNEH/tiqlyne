@@ -431,6 +431,62 @@ describe('WebMotionDriver', () => {
     expect(previousAnimation.finish).not.toHaveBeenCalled();
     expect(createdAnimation.finish).toHaveBeenCalledTimes(1);
   });
+
+  it('pauses only animations created by the native playback controller', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const previousAnimation = createAnimationMock('running');
+
+    target.setAnimations([previousAnimation]);
+
+    const playback = driver.createPlayback(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'parallel'
+    });
+
+    const createdAnimation = target.getLastAnimation();
+
+    const result = await playback.pause();
+
+    expect(result).toEqual({
+      status: 'paused',
+      reason: 'web-playback-pause'
+    });
+
+    expect(playback.status).toBe('paused');
+    expect(previousAnimation.pause).not.toHaveBeenCalled();
+    expect(createdAnimation.pause).toHaveBeenCalledTimes(1);
+  });
+
+  it('resumes only animations created by the native playback controller', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const previousAnimation = createAnimationMock('paused');
+
+    target.setAnimations([previousAnimation]);
+
+    const playback = driver.createPlayback(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'parallel'
+    });
+
+    const createdAnimation = target.getLastAnimation();
+
+    const result = await playback.resume();
+
+    expect(result).toEqual({
+      status: 'running',
+      reason: 'web-playback-resume'
+    });
+
+    expect(playback.status).toBe('running');
+    expect(previousAnimation.play).not.toHaveBeenCalled();
+    expect(createdAnimation.play).toHaveBeenCalledTimes(1);
+  });
 });
 
 class FakeElement {
@@ -487,6 +543,8 @@ function createAnimationMock(playState: AnimationPlayState = 'finished'): Animat
   const animation = {
     playState,
     finished: Promise.resolve(),
+    pause: vi.fn((): void => {}),
+    play: vi.fn((): void => {}),
     cancel: vi.fn((): void => {}),
     finish: vi.fn((): void => {})
   };

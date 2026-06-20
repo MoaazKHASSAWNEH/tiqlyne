@@ -25,6 +25,36 @@ export class WebMotionPlaybackController implements MotionPlaybackController {
     return this.currentStatus;
   }
 
+  async pause(): Promise<MotionPlaybackResult> {
+    for (const animation of this.animations) {
+      animation.pause();
+    }
+
+    const result: MotionPlaybackResult = {
+      status: 'paused',
+      reason: 'web-playback-pause'
+    };
+
+    this.currentStatus = result.status;
+
+    return result;
+  }
+
+  async resume(): Promise<MotionPlaybackResult> {
+    for (const animation of this.animations) {
+      animation.play();
+    }
+
+    const result: MotionPlaybackResult = {
+      status: 'running',
+      reason: 'web-playback-resume'
+    };
+
+    this.currentStatus = result.status;
+
+    return result;
+  }
+
   async cancel(): Promise<MotionPlaybackResult> {
     for (const animation of this.animations) {
       animation.cancel();

@@ -1,6 +1,12 @@
 import type { MotionDiagnostic } from './motion-diagnostic';
 
-export type MotionPlaybackStatus = 'finished' | 'cancelled' | 'skipped' | 'failed';
+export type MotionPlaybackStatus =
+  | 'finished'
+  | 'cancelled'
+  | 'skipped'
+  | 'failed'
+  | 'paused'
+  | 'running';
 
 export type MotionPlaybackResult = {
   readonly status: MotionPlaybackStatus;
