@@ -3,6 +3,7 @@ import {
   DefaultMotionEngine,
   DefaultMotionRegistry,
   type MotionConfig,
+  type MotionPlaybackController,
   type MotionPlaybackResult,
   type ReducedMotionStrategy
 } from '@structifyx/motion-core';
@@ -31,13 +32,25 @@ const reducedMotionStrategySelect = getElementByIdOrThrow(
 ) as HTMLSelectElement;
 
 const reducedMotionStatus = getElementByIdOrThrow('reducedMotionStatus');
-
-writeReducedMotionStatus();
+const playbackStatus = getElementByIdOrThrow('playbackStatus');
 
 const fadeInButton = getElementByIdOrThrow('fadeInButton');
 const fadeOutButton = getElementByIdOrThrow('fadeOutButton');
 const slideInButton = getElementByIdOrThrow('slideInButton');
 const resetButton = getElementByIdOrThrow('resetButton');
+
+const createPlaybackButton = getElementByIdOrThrow('createPlaybackButton');
+const pausePlaybackButton = getElementByIdOrThrow('pausePlaybackButton');
+const resumePlaybackButton = getElementByIdOrThrow('resumePlaybackButton');
+const finishPlaybackButton = getElementByIdOrThrow('finishPlaybackButton');
+const cancelPlaybackButton = getElementByIdOrThrow('cancelPlaybackButton');
+const disposePlaybackButton = getElementByIdOrThrow('disposePlaybackButton');
+
+let currentPlayback: MotionPlaybackController | null = null;
+const playbackEvents: string[] = [];
+
+writeReducedMotionStatus();
+writePlaybackStatus();
 
 fadeInButton.addEventListener('click', () => {
   void playMotion({
@@ -92,25 +105,237 @@ resetButton.addEventListener('click', () => {
   void resetMotion();
 });
 
+createPlaybackButton.addEventListener('click', () => {
+  createPlayback();
+});
+
+pausePlaybackButton.addEventListener('click', () => {
+  void runPlaybackAction('pause');
+});
+
+resumePlaybackButton.addEventListener('click', () => {
+  void runPlaybackAction('resume');
+});
+
+finishPlaybackButton.addEventListener('click', () => {
+  void runPlaybackAction('finish');
+});
+
+cancelPlaybackButton.addEventListener('click', () => {
+  void runPlaybackAction('cancel');
+});
+
+disposePlaybackButton.addEventListener('click', () => {
+  disposeCurrentPlayback();
+});
+
 async function resetMotion(): Promise<void> {
+  disposeCurrentPlayback();
+
   const result = await engine.reset(target);
 
-  writeLog(result);
+  writeLog({
+    action: 'reset',
+    result
+  });
+
+  writePlaybackStatus();
 }
 
 async function playMotion(config: MotionConfig): Promise<void> {
+  disposeCurrentPlayback();
+
   writeLog({
-    status: 'finished',
-    reason: `playing ${config.type}`
+    action: 'play',
+    message: `Playing ${config.type}`,
+    config
   });
 
   const result = await engine.play(target, config);
 
-  writeLog(result);
+  writeLog({
+    action: 'play:finished',
+    result
+  });
+
+  writePlaybackStatus();
 }
 
-function writeLog(result: MotionPlaybackResult): void {
-  log.textContent = JSON.stringify(result, null, 2);
+function createPlayback(): void {
+  disposeCurrentPlayback();
+
+  playbackEvents.length = 0;
+
+  const playback = engine.createPlayback(target, {
+    id: 'example_controlled_slide_in',
+    type: 'slide-in',
+    trigger: 'manual',
+    duration: 1600,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    respectReducedMotion: true,
+    reducedMotionStrategy: getReducedMotionStrategy(),
+    options: {
+      direction: 'bottom',
+      distance: 72,
+      fade: true
+    }
+  });
+
+  currentPlayback = playback;
+
+  attachPlaybackListeners(playback);
+  writePlaybackStatus();
+
+  writeLog({
+    action: 'createPlayback',
+    playback: createPlaybackSnapshot(playback),
+    events: playbackEvents
+  });
+
+  void playback.finished.then((result) => {
+    if (currentPlayback !== playback) {
+      return;
+    }
+
+    writeLog({
+      action: 'playback.finished',
+      playback: createPlaybackSnapshot(playback),
+      events: playbackEvents,
+      result
+    });
+
+    writePlaybackStatus();
+  });
+}
+
+function attachPlaybackListeners(playback: MotionPlaybackController): void {
+  playback.on('pause', (event) => {
+    pushPlaybackEvent(`${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
+  playback.on('resume', (event) => {
+    pushPlaybackEvent(`${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
+  playback.on('cancel', (event) => {
+    pushPlaybackEvent(`${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
+  playback.on('finish', (event) => {
+    pushPlaybackEvent(`${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
+  playback.on('skip', (event) => {
+    pushPlaybackEvent(`${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
+  playback.on('fail', (event) => {
+    pushPlaybackEvent(`${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
+  playback.once('finish', (event) => {
+    pushPlaybackEvent(`once:${event.type}:${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+}
+
+async function runPlaybackAction(action: 'pause' | 'resume' | 'finish' | 'cancel'): Promise<void> {
+  const playback = currentPlayback;
+
+  if (!playback) {
+    writeLog({
+      action,
+      message: 'No playback controller. Click "Create Playback" first.'
+    });
+
+    return;
+  }
+
+  if (playback.disposed) {
+    writeLog({
+      action,
+      message: 'Playback controller is disposed. Create a new playback first.',
+      playback: createPlaybackSnapshot(playback)
+    });
+
+    return;
+  }
+
+  const result = await playback[action]();
+
+  writeLog({
+    action,
+    playback: createPlaybackSnapshot(playback),
+    events: playbackEvents,
+    result
+  });
+
+  writePlaybackStatus();
+}
+
+function disposeCurrentPlayback(): void {
+  if (!currentPlayback) {
+    writePlaybackStatus();
+    return;
+  }
+
+  const playback = currentPlayback;
+
+  playback.dispose();
+
+  writeLog({
+    action: 'dispose',
+    playback: createPlaybackSnapshot(playback),
+    events: playbackEvents
+  });
+
+  writePlaybackStatus();
+}
+
+function pushPlaybackEvent(event: string): void {
+  playbackEvents.push(event);
+  writePlaybackStatus();
+}
+
+function writePlaybackEventLog(playback: MotionPlaybackController): void {
+  writeLog({
+    action: 'playback:event',
+    playback: createPlaybackSnapshot(playback),
+    events: playbackEvents
+  });
+}
+
+function createPlaybackSnapshot(playback: MotionPlaybackController): {
+  readonly id: string;
+  readonly status: string;
+  readonly disposed: boolean;
+} {
+  return {
+    id: playback.id,
+    status: playback.status,
+    disposed: playback.disposed
+  };
+}
+
+function writeLog(value: unknown): void {
+  log.textContent = JSON.stringify(value, null, 2);
+}
+
+function writePlaybackStatus(): void {
+  if (!currentPlayback) {
+    playbackStatus.textContent = 'Aucun playback controller actif.';
+    return;
+  }
+
+  playbackStatus.textContent = `Playback status: ${currentPlayback.status} | disposed: ${
+    currentPlayback.disposed ? 'true' : 'false'
+  }`;
 }
 
 function getReducedMotionStrategy(): ReducedMotionStrategy {

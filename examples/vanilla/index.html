@@ -18,12 +18,41 @@
           animations dans le navigateur.
         </p>
 
-        <div class="actions" aria-label="Actions d’animation">
-          <button id="fadeInButton" type="button">Fade In</button>
-          <button id="fadeOutButton" type="button">Fade Out</button>
-          <button id="slideInButton" type="button">Slide In</button>
-          <button id="resetButton" type="button">Reset</button>
-        </div>
+        <section class="demo-section" aria-labelledby="simpleMotionTitle">
+          <h2 id="simpleMotionTitle">Animations simples</h2>
+
+          <p class="section-description">
+            Ces boutons utilisent <code>engine.play(...)</code> et attendent directement le résultat
+            final.
+          </p>
+
+          <div class="actions" aria-label="Actions d’animation simples">
+            <button id="fadeInButton" type="button">Fade In</button>
+            <button id="fadeOutButton" type="button">Fade Out</button>
+            <button id="slideInButton" type="button">Slide In</button>
+            <button id="resetButton" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="demo-section" aria-labelledby="playbackTitle">
+          <h2 id="playbackTitle">Playback Controller</h2>
+
+          <p class="section-description">
+            Ces boutons utilisent <code>engine.createPlayback(...)</code> pour tester le cycle de
+            vie complet : pause, reprise, annulation, fin forcée et nettoyage.
+          </p>
+
+          <div class="actions" aria-label="Actions du playback controller">
+            <button id="createPlaybackButton" type="button">Create Playback</button>
+            <button id="pausePlaybackButton" type="button">Pause</button>
+            <button id="resumePlaybackButton" type="button">Resume</button>
+            <button id="finishPlaybackButton" type="button">Finish</button>
+            <button id="cancelPlaybackButton" type="button">Cancel</button>
+            <button id="disposePlaybackButton" type="button">Dispose</button>
+          </div>
+
+          <p id="playbackStatus" class="status" aria-live="polite"></p>
+        </section>
 
         <div class="settings" aria-label="Réglages d’accessibilité">
           <label for="reducedMotionStrategySelect">Stratégie reduced motion</label>
@@ -46,7 +75,10 @@
           </p>
         </article>
 
-        <pre id="log" class="log" aria-live="polite"></pre>
+        <section class="log-section" aria-labelledby="logTitle">
+          <h2 id="logTitle">Journal</h2>
+          <pre id="log" class="log" aria-live="polite"></pre>
+        </section>
       </section>
     </main>
 

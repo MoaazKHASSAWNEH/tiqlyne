@@ -38,6 +38,13 @@ button:focus-visible {
   outline-offset: 4px;
 }
 
+code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.4rem;
+  color: #bbf7d0;
+  background: #020617;
+}
+
 .page {
   display: grid;
   min-height: 100vh;
@@ -46,7 +53,7 @@ button:focus-visible {
 }
 
 .panel {
-  width: min(920px, 100%);
+  width: min(980px, 100%);
   padding: 2rem;
   border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 28px;
@@ -68,17 +75,34 @@ h1 {
   line-height: 1;
 }
 
+h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
 .description {
   max-width: 720px;
   color: #cbd5e1;
   font-size: 1.1rem;
 }
 
+.section-description {
+  max-width: 760px;
+  margin: 0 0 1rem;
+  color: #cbd5e1;
+}
+
+.demo-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin: 2rem 0;
+  margin: 1rem 0;
 }
 
 .card {
@@ -105,9 +129,14 @@ h1 {
   margin: 0 0 0.75rem;
 }
 
-.log {
-  min-height: 96px;
+.log-section {
   margin-top: 2rem;
+}
+
+.log {
+  min-height: 180px;
+  max-height: 360px;
+  margin: 0;
   padding: 1rem;
   overflow: auto;
   border-radius: 16px;
@@ -119,7 +148,7 @@ h1 {
   display: grid;
   gap: 0.5rem;
   max-width: 420px;
-  margin: -1rem 0 2rem;
+  margin: 2rem 0;
 }
 
 .settings label {
