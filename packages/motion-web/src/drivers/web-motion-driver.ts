@@ -37,7 +37,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
     const playback = this.createWebPlayback(target, timeline, options);
 
     return new WebMotionPlaybackController(
-      crypto.randomUUID(),
+      this.createPlaybackId(),
       playback.animations,
       playback.finished
     );
