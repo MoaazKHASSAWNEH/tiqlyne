@@ -4,4 +4,4 @@ dist-types
 coverage
 .env
 .DS_Store
-*.logdist-types
+*.log
