@@ -2,12 +2,14 @@ import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import type { ReducedMotionStrategy } from '../models/reduced-motion-strategy';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import type { MotionTriggerType } from '../models/motion-trigger';
+import type { MotionConflictStrategy } from '../models/motion-conflict-strategy';
 
 export type MotionPlayOptions = {
   readonly trigger: MotionTriggerType;
   readonly respectReducedMotion: boolean;
   readonly reducedMotionStrategy: ReducedMotionStrategy;
   readonly reducedMotionTimeline?: MotionTimelineDefinition;
+  readonly conflictStrategy: MotionConflictStrategy;
 };
 
 export interface MotionDriver<TTarget = unknown> {

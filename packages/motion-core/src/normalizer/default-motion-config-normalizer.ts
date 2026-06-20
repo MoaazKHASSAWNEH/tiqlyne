@@ -8,6 +8,10 @@ import { normalizeNumber } from '../utils/normalize-number';
 import { normalizeString } from '../utils/normalize-string';
 import { isMotionTriggerType } from '../models/motion-trigger';
 import type { MotionTriggerType } from '../models/motion-trigger';
+import {
+  isMotionConflictStrategy,
+  type MotionConflictStrategy
+} from '../models/motion-conflict-strategy';
 
 const DEFAULT_ID = 'motion_unknown';
 const DEFAULT_TYPE = 'unknown';
@@ -47,12 +51,17 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
       options: isRecord(config.options) ? config.options : {},
       respectReducedMotion: normalizeBoolean(config.respectReducedMotion, true),
       reducedMotionStrategy: this.normalizeReducedMotionStrategy(config.reducedMotionStrategy),
+      conflictStrategy: this.normalizeConflictStrategy(config.conflictStrategy),
       priority: normalizeNumber(config.priority, {
         defaultValue: 0,
         integer: true
       }),
       metadata: isRecord(config.metadata) ? config.metadata : {}
     };
+  }
+
+  private normalizeConflictStrategy(value: unknown): MotionConflictStrategy {
+    return isMotionConflictStrategy(value) ? value : 'replace';
   }
 
   private normalizeTrigger(value: unknown): MotionTriggerType {

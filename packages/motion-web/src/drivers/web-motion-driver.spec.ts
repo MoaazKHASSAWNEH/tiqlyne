@@ -5,7 +5,8 @@ import { WebMotionDriver } from './web-motion-driver';
 const defaultPlayOptions = {
   trigger: 'onClick',
   respectReducedMotion: true,
-  reducedMotionStrategy: 'skip'
+  reducedMotionStrategy: 'skip',
+  conflictStrategy: 'replace'
 } satisfies MotionPlayOptions;
 
 describe('WebMotionDriver', () => {
@@ -65,7 +66,8 @@ describe('WebMotionDriver', () => {
     const result = await driver.play(asElement(target), createSelfTimeline(), {
       trigger: 'onClick',
       respectReducedMotion: true,
-      reducedMotionStrategy: 'preserve'
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'replace'
     });
 
     expect(result).toEqual({
@@ -85,7 +87,8 @@ describe('WebMotionDriver', () => {
     const result = await driver.play(asElement(target), createSelfTimeline(), {
       trigger: 'onClick',
       respectReducedMotion: true,
-      reducedMotionStrategy: 'simplify'
+      reducedMotionStrategy: 'simplify',
+      conflictStrategy: 'replace'
     });
 
     expect(result).toEqual({
@@ -133,7 +136,8 @@ describe('WebMotionDriver', () => {
       trigger: 'onClick',
       respectReducedMotion: true,
       reducedMotionStrategy: 'simplify',
-      reducedMotionTimeline: createReducedTimeline()
+      reducedMotionTimeline: createReducedTimeline(),
+      conflictStrategy: 'replace'
     });
 
     expect(result).toEqual({
@@ -307,6 +311,49 @@ describe('WebMotionDriver', () => {
     expect(previousAnimation.cancel).not.toHaveBeenCalled();
     expect(target.animate).toHaveBeenCalledTimes(1);
   });
+
+  it('does not cancel active animations when conflict strategy is parallel', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const previousAnimation = createAnimationMock('running');
+
+    target.setAnimations([previousAnimation]);
+
+    const result = await driver.play(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'parallel'
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(previousAnimation.cancel).not.toHaveBeenCalled();
+    expect(target.animate).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips playback when conflict strategy is ignore and an animation is active', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    target.setActiveAnimation();
+
+    const result = await driver.play(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'ignore'
+    });
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'motion-conflict-ignored'
+    });
+
+    expect(target.animate).not.toHaveBeenCalled();
+  });
 });
 
 class FakeElement {
@@ -340,13 +387,18 @@ class FakeElement {
     this.animations = [...animations];
   }
 
+  setActiveAnimation(): void {
+    this.animations.push(createAnimationMock('running'));
+  }
+
   querySelector(selector: string): Element | null {
     return this.queryResults.get(selector) ?? null;
   }
 }
 
-function createAnimationMock(): Animation {
+function createAnimationMock(playState: AnimationPlayState = 'finished'): Animation {
   const animation = {
+    playState,
     finished: Promise.resolve(),
     cancel: vi.fn((): void => {}),
     finish: vi.fn((): void => {})

@@ -217,7 +217,8 @@ describe('DefaultMotionEngine', () => {
       options: {
         trigger: 'onClick',
         respectReducedMotion: false,
-        reducedMotionStrategy: 'skip'
+        reducedMotionStrategy: 'skip',
+        conflictStrategy: 'replace'
       }
     });
   });
@@ -268,6 +269,26 @@ describe('DefaultMotionEngine', () => {
         }
       ]
     });
+  });
+
+  it('passes conflict strategy to the driver', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_conflict_001',
+      type: 'test-motion',
+      trigger: 'onClick',
+      conflictStrategy: 'ignore'
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(driver.getCalls()).toHaveLength(1);
+    expect(driver.getCalls()[0]?.options.conflictStrategy).toBe('ignore');
   });
 
   it('returns failed result when options are invalid', async () => {

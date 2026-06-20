@@ -64,6 +64,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         trigger: normalizedConfig.trigger,
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
+        conflictStrategy: normalizedConfig.conflictStrategy,
         ...(reducedMotionTimeline !== undefined
           ? {
               reducedMotionTimeline

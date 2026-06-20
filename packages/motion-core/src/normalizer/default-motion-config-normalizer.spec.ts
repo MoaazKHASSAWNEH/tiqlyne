@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DefaultMotionConfigNormalizer } from './default-motion-config-normalizer';
 import type { MotionConfig } from '../models/motion-config';
+import { DefaultMotionConfigNormalizer } from './default-motion-config-normalizer';
 
 describe('DefaultMotionConfigNormalizer', () => {
   it('normalizes a minimal motion config with default values', () => {
@@ -23,6 +23,7 @@ describe('DefaultMotionConfigNormalizer', () => {
       options: {},
       respectReducedMotion: true,
       reducedMotionStrategy: 'skip',
+      conflictStrategy: 'replace',
       priority: 0,
       metadata: {}
     });
@@ -45,6 +46,7 @@ describe('DefaultMotionConfigNormalizer', () => {
       },
       respectReducedMotion: false,
       reducedMotionStrategy: 'simplify',
+      conflictStrategy: 'parallel',
       priority: 10,
       metadata: {
         source: 'builder'
@@ -65,6 +67,7 @@ describe('DefaultMotionConfigNormalizer', () => {
       },
       respectReducedMotion: false,
       reducedMotionStrategy: 'simplify',
+      conflictStrategy: 'parallel',
       priority: 10,
       metadata: {
         source: 'builder'
@@ -99,7 +102,8 @@ describe('DefaultMotionConfigNormalizer', () => {
       easing: '',
       options: [] as unknown as Record<string, unknown>,
       metadata: [] as unknown as Record<string, unknown>,
-      reducedMotionStrategy: 'invalid' as never
+      reducedMotionStrategy: 'invalid' as never,
+      conflictStrategy: 'invalid' as never
     });
 
     expect(result.duration).toBe(300);
@@ -108,6 +112,7 @@ describe('DefaultMotionConfigNormalizer', () => {
     expect(result.options).toEqual({});
     expect(result.metadata).toEqual({});
     expect(result.reducedMotionStrategy).toBe('skip');
+    expect(result.conflictStrategy).toBe('replace');
   });
 
   it('rounds priority to an integer', () => {
@@ -127,7 +132,7 @@ describe('DefaultMotionConfigNormalizer', () => {
     const normalizer = new DefaultMotionConfigNormalizer();
 
     const config = normalizer.normalize({
-      id: 'motion_001',
+      id: 'motion_006',
       type: 'fade-in',
       trigger: 'invalid-trigger'
     } as unknown as MotionConfig);

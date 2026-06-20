@@ -13,7 +13,8 @@ describe('TestMotionDriver', () => {
     const result = await driver.play('target-1', timeline, {
       trigger: 'onClick',
       respectReducedMotion: false,
-      reducedMotionStrategy: 'skip'
+      reducedMotionStrategy: 'skip',
+      conflictStrategy: 'replace'
     });
 
     expect(result).toEqual({
@@ -27,7 +28,8 @@ describe('TestMotionDriver', () => {
         options: {
           trigger: 'onClick',
           respectReducedMotion: false,
-          reducedMotionStrategy: 'skip'
+          reducedMotionStrategy: 'skip',
+          conflictStrategy: 'replace'
         }
       }
     ]);
@@ -44,7 +46,8 @@ describe('TestMotionDriver', () => {
       {
         trigger: 'onEnter',
         respectReducedMotion: true,
-        reducedMotionStrategy: 'skip'
+        reducedMotionStrategy: 'skip',
+        conflictStrategy: 'replace'
       }
     );
 

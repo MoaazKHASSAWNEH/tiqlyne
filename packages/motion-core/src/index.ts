@@ -57,4 +57,11 @@ export type {
 export type { MotionTriggerType } from './models/motion-trigger';
 export { isMotionTriggerType, motionTriggerTypes } from './models/motion-trigger';
 
+export type { MotionConflictStrategy } from './models/motion-conflict-strategy';
+
+export {
+  isMotionConflictStrategy,
+  motionConflictStrategies
+} from './models/motion-conflict-strategy';
+
 export const motionCoreVersion = '0.1.0';

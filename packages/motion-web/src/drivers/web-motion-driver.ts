@@ -4,7 +4,8 @@ import type {
   MotionPlayOptions,
   MotionPlaybackResult,
   MotionTimelineDefinition,
-  MotionKeyframe
+  MotionKeyframe,
+  MotionConflictStrategy
 } from '@structifyx/motion-core';
 import { toWebKeyframes } from '../utils/to-web-keyframes';
 
@@ -56,7 +57,16 @@ export class WebMotionDriver implements MotionDriver<Element> {
       };
     }
 
-    if (this.options.cancelPreviousAnimations !== false) {
+    const conflictStrategy = this.getEffectiveConflictStrategy(options);
+
+    if (conflictStrategy === 'ignore' && this.hasActiveAnimations(trackTargets)) {
+      return {
+        status: 'skipped',
+        reason: 'motion-conflict-ignored'
+      };
+    }
+
+    if (conflictStrategy === 'replace') {
       this.cancelAnimations(trackTargets);
     }
 
@@ -223,6 +233,30 @@ export class WebMotionDriver implements MotionDriver<Element> {
       case 'named':
         return document.querySelector(`[data-motion-name="${target.name}"]`);
     }
+  }
+
+  private getEffectiveConflictStrategy(options: MotionPlayOptions): MotionConflictStrategy {
+    if (this.options.cancelPreviousAnimations === false && options.conflictStrategy === 'replace') {
+      return 'parallel';
+    }
+
+    return options.conflictStrategy;
+  }
+
+  private hasActiveAnimations(targets: ReadonlyArray<Element>): boolean {
+    return targets.some((target) =>
+      target
+        .getAnimations({
+          subtree: true
+        })
+        .some((animation) => this.isActiveAnimation(animation))
+    );
+  }
+
+  private isActiveAnimation(animation: Animation): boolean {
+    return (
+      animation.playState === 'running' || animation.playState === 'paused' || animation.pending
+    );
   }
 }
 
