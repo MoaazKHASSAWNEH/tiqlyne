@@ -354,6 +354,83 @@ describe('WebMotionDriver', () => {
 
     expect(target.animate).not.toHaveBeenCalled();
   });
+
+  it('creates a native playback controller', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    expect(playback.id).toBeTruthy();
+    expect(playback.status).toBe('running');
+    expect(target.animate).toHaveBeenCalledTimes(1);
+
+    await expect(playback.finished).resolves.toEqual({
+      status: 'finished'
+    });
+
+    expect(playback.status).toBe('finished');
+  });
+
+  it('cancels only animations created by the native playback controller', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const previousAnimation = createAnimationMock('running');
+
+    target.setAnimations([previousAnimation]);
+
+    const playback = driver.createPlayback(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'parallel'
+    });
+
+    const createdAnimation = target.getLastAnimation();
+
+    const result = await playback.cancel();
+
+    expect(result).toEqual({
+      status: 'cancelled',
+      reason: 'web-playback-cancel'
+    });
+
+    expect(playback.status).toBe('cancelled');
+    expect(previousAnimation.cancel).not.toHaveBeenCalled();
+    expect(createdAnimation.cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('finishes only animations created by the native playback controller', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const previousAnimation = createAnimationMock('running');
+
+    target.setAnimations([previousAnimation]);
+
+    const playback = driver.createPlayback(asElement(target), createSelfTimeline(), {
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'preserve',
+      conflictStrategy: 'parallel'
+    });
+
+    const createdAnimation = target.getLastAnimation();
+
+    const result = await playback.finish();
+
+    expect(result).toEqual({
+      status: 'finished',
+      reason: 'web-playback-finish'
+    });
+
+    expect(playback.status).toBe('finished');
+    expect(previousAnimation.finish).not.toHaveBeenCalled();
+    expect(createdAnimation.finish).toHaveBeenCalledTimes(1);
+  });
 });
 
 class FakeElement {
@@ -393,6 +470,16 @@ class FakeElement {
 
   querySelector(selector: string): Element | null {
     return this.queryResults.get(selector) ?? null;
+  }
+
+  getLastAnimation(): Animation {
+    const animation = this.animations.at(-1);
+
+    if (!animation) {
+      throw new Error('No animation found.');
+    }
+
+    return animation;
   }
 }
 

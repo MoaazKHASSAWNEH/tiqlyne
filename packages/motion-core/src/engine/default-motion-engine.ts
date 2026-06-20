@@ -116,15 +116,70 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
   }
 
   createPlayback(target: TTarget, config: MotionConfig): MotionPlaybackController {
-    const playbackId = config.id ?? 'motion_unknown';
+    const normalizedConfig = this.dependencies.normalizer.normalize(config);
+    const playbackId = normalizedConfig.id;
 
-    const finished = this.play(target, config);
+    const fallback = (): MotionPlaybackController => {
+      const finished = this.play(target, config);
 
-    return new PromiseMotionPlaybackController(
-      playbackId,
-      finished,
-      () => this.cancel(target),
-      () => this.finish(target)
-    );
+      return new PromiseMotionPlaybackController(
+        playbackId,
+        finished,
+        () => this.cancel(target),
+        () => this.finish(target)
+      );
+    };
+
+    if (!normalizedConfig.enabled) {
+      return fallback();
+    }
+
+    const definition = this.dependencies.registry.get(normalizedConfig.type);
+
+    if (!definition) {
+      return fallback();
+    }
+
+    try {
+      const options = definition.normalizeOptions(normalizedConfig.options);
+      const validationErrors = definition.validateOptions?.(options) ?? [];
+
+      if (validationErrors.length > 0) {
+        return fallback();
+      }
+
+      const buildContext = {
+        options,
+        duration: normalizedConfig.duration,
+        delay: normalizedConfig.delay,
+        easing: normalizedConfig.easing,
+        trigger: normalizedConfig.trigger
+      };
+
+      const timeline = definition.buildTimeline(buildContext);
+
+      const reducedMotionTimeline =
+        normalizedConfig.reducedMotionStrategy === 'simplify'
+          ? definition.buildReducedMotionTimeline?.(buildContext)
+          : undefined;
+
+      if (!this.dependencies.driver.createPlayback) {
+        return fallback();
+      }
+
+      return this.dependencies.driver.createPlayback(target, timeline, {
+        trigger: normalizedConfig.trigger,
+        respectReducedMotion: normalizedConfig.respectReducedMotion,
+        reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
+        conflictStrategy: normalizedConfig.conflictStrategy,
+        ...(reducedMotionTimeline !== undefined
+          ? {
+              reducedMotionTimeline
+            }
+          : {})
+      });
+    } catch {
+      return fallback();
+    }
   }
 }

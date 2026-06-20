@@ -3,11 +3,13 @@ import type {
   MotionDriver,
   MotionPlayOptions,
   MotionPlaybackResult,
+  MotionPlaybackController,
   MotionTimelineDefinition,
   MotionKeyframe,
   MotionConflictStrategy
 } from '@structifyx/motion-core';
 import { toWebKeyframes } from '../utils/to-web-keyframes';
+import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -24,94 +26,21 @@ export class WebMotionDriver implements MotionDriver<Element> {
     timeline: MotionTimelineDefinition,
     options: MotionPlayOptions
   ): Promise<MotionPlaybackResult> {
-    const shouldApplyReducedMotion =
-      options.respectReducedMotion && this.options.reducedMotion === true;
+    return await this.createWebPlayback(target, timeline, options).finished;
+  }
 
-    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'skip') {
-      return {
-        status: 'skipped',
-        reason: 'reduced-motion'
-      };
-    }
+  createPlayback(
+    target: Element,
+    timeline: MotionTimelineDefinition,
+    options: MotionPlayOptions
+  ): MotionPlaybackController {
+    const playback = this.createWebPlayback(target, timeline, options);
 
-    const shouldUseGenericReducedMotionFallback =
-      shouldApplyReducedMotion &&
-      options.reducedMotionStrategy === 'simplify' &&
-      options.reducedMotionTimeline === undefined;
-
-    const diagnostics = shouldUseGenericReducedMotionFallback
-      ? [this.createGenericReducedMotionFallbackDiagnostic()]
-      : [];
-
-    const playableTimeline =
-      shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
-        ? (options.reducedMotionTimeline ?? this.simplifyTimeline(timeline))
-        : timeline;
-
-    const trackTargets = this.resolveTrackTargets(target, playableTimeline);
-
-    if (!trackTargets) {
-      return {
-        status: 'failed',
-        reason: 'target-not-found'
-      };
-    }
-
-    const conflictStrategy = this.getEffectiveConflictStrategy(options);
-
-    if (conflictStrategy === 'ignore' && this.hasActiveAnimations(trackTargets)) {
-      return {
-        status: 'skipped',
-        reason: 'motion-conflict-ignored'
-      };
-    }
-
-    if (conflictStrategy === 'replace') {
-      this.cancelAnimations(trackTargets);
-    }
-
-    const animations: Animation[] = [];
-
-    for (const track of playableTimeline.tracks) {
-      const trackTarget = this.resolveTarget(target, track.target);
-
-      if (!trackTarget) {
-        return {
-          status: 'failed',
-          reason: 'target-not-found'
-        };
-      }
-
-      for (const step of track.steps) {
-        const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
-          duration: step.duration,
-          delay: step.delay ?? 0,
-          easing: step.easing ?? 'ease',
-          fill: step.fill ?? 'both'
-        });
-
-        animations.push(animation);
-      }
-    }
-
-    try {
-      await Promise.all(animations.map((animation) => animation.finished));
-
-      return {
-        status: 'finished',
-        ...(diagnostics.length > 0
-          ? {
-              diagnostics
-            }
-          : {})
-      };
-    } catch (error: unknown) {
-      return {
-        status: 'failed',
-        reason: 'web-animation-error',
-        error
-      };
-    }
+    return new WebMotionPlaybackController(
+      crypto.randomUUID(),
+      playback.animations,
+      playback.finished
+    );
   }
 
   async cancel(target: Element): Promise<MotionPlaybackResult> {
@@ -257,6 +186,123 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return (
       animation.playState === 'running' || animation.playState === 'paused' || animation.pending
     );
+  }
+
+  private createWebPlayback(
+    target: Element,
+    timeline: MotionTimelineDefinition,
+    options: MotionPlayOptions
+  ): {
+    readonly animations: ReadonlyArray<Animation>;
+    readonly finished: Promise<MotionPlaybackResult>;
+  } {
+    const shouldApplyReducedMotion =
+      options.respectReducedMotion && this.options.reducedMotion === true;
+
+    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'skip') {
+      return {
+        animations: [],
+        finished: Promise.resolve({
+          status: 'skipped',
+          reason: 'reduced-motion'
+        })
+      };
+    }
+
+    const shouldUseGenericReducedMotionFallback =
+      shouldApplyReducedMotion &&
+      options.reducedMotionStrategy === 'simplify' &&
+      options.reducedMotionTimeline === undefined;
+
+    const diagnostics = shouldUseGenericReducedMotionFallback
+      ? [this.createGenericReducedMotionFallbackDiagnostic()]
+      : [];
+
+    const playableTimeline =
+      shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
+        ? (options.reducedMotionTimeline ?? this.simplifyTimeline(timeline))
+        : timeline;
+
+    const trackTargets = this.resolveTrackTargets(target, playableTimeline);
+
+    if (!trackTargets) {
+      return {
+        animations: [],
+        finished: Promise.resolve({
+          status: 'failed',
+          reason: 'target-not-found'
+        })
+      };
+    }
+
+    const conflictStrategy = this.getEffectiveConflictStrategy(options);
+
+    if (conflictStrategy === 'ignore' && this.hasActiveAnimations(trackTargets)) {
+      return {
+        animations: [],
+        finished: Promise.resolve({
+          status: 'skipped',
+          reason: 'motion-conflict-ignored'
+        })
+      };
+    }
+
+    if (conflictStrategy === 'replace') {
+      this.cancelAnimations(trackTargets);
+    }
+
+    const animations: Animation[] = [];
+
+    for (const track of playableTimeline.tracks) {
+      const trackTarget = this.resolveTarget(target, track.target);
+
+      if (!trackTarget) {
+        return {
+          animations,
+          finished: Promise.resolve({
+            status: 'failed',
+            reason: 'target-not-found'
+          })
+        };
+      }
+
+      for (const step of track.steps) {
+        const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
+          duration: step.duration,
+          delay: step.delay ?? 0,
+          easing: step.easing ?? 'ease',
+          fill: step.fill ?? 'both'
+        });
+
+        animations.push(animation);
+      }
+    }
+
+    return {
+      animations,
+      finished: Promise.all(animations.map((animation) => animation.finished))
+        .then(
+          (): MotionPlaybackResult => ({
+            status: 'finished',
+            ...(diagnostics.length > 0
+              ? {
+                  diagnostics
+                }
+              : {})
+          })
+        )
+        .catch(
+          (error: unknown): MotionPlaybackResult => ({
+            status: 'failed',
+            reason: 'web-animation-error',
+            error
+          })
+        )
+    };
+  }
+
+  private createPlaybackId(): string {
+    return globalThis.crypto?.randomUUID?.() ?? `web_playback_${Date.now()}`;
   }
 }
 
