@@ -80,4 +80,14 @@ export abstract class BaseMotionPlaybackController {
       listener(event);
     }
   }
+
+  protected emitStatusChange(
+    type: Exclude<MotionPlaybackEventType, 'start' | 'statusChange'>,
+    status: MotionPlaybackControllerStatus,
+    previousStatus: MotionPlaybackControllerStatus,
+    result: MotionPlaybackResult
+  ): void {
+    this.emit(type, status, previousStatus, result);
+    this.emit('statusChange', status, previousStatus, result);
+  }
 }

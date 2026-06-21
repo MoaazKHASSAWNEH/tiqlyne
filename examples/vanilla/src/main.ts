@@ -239,6 +239,11 @@ function attachPlaybackListeners(playback: MotionPlaybackController): void {
     writePlaybackEventLog(playback);
   });
 
+  playback.on('statusChange', (event) => {
+    pushPlaybackEvent(`statusChange:${event.previousStatus}->${event.status}`);
+    writePlaybackEventLog(playback);
+  });
+
   playback.once('finish', (event) => {
     pushPlaybackEvent(`once:${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);

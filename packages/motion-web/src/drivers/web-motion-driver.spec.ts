@@ -1031,6 +1031,95 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual(['running->finished']);
   });
+
+  it('emits statusChange when playback is paused', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('statusChange', (event) => {
+      events.push(`${event.type}:${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.pause();
+
+    expect(events).toEqual(['statusChange:running->paused']);
+  });
+
+  it('emits statusChange when playback is resumed', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('statusChange', (event) => {
+      events.push(`${event.type}:${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.pause();
+    await playback.resume();
+
+    expect(events).toEqual(['statusChange:running->paused', 'statusChange:paused->running']);
+  });
+
+  it('emits specific event and statusChange for the same transition', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('pause', (event) => {
+      events.push(`specific:${event.previousStatus}->${event.status}`);
+    });
+
+    playback.on('statusChange', (event) => {
+      events.push(`global:${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.pause();
+
+    expect(events).toEqual(['specific:running->paused', 'global:running->paused']);
+  });
+
+  it('emits statusChange when playback finishes automatically', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('statusChange', (event) => {
+      events.push(`${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.finished;
+
+    expect(events).toEqual(['running->finished']);
+  });
 });
 
 class FakeElement {

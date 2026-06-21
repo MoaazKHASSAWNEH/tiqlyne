@@ -3,6 +3,7 @@ import type { MotionPlaybackResult } from './motion-playback-result';
 
 export type MotionPlaybackEventType =
   | 'start'
+  | 'statusChange'
   | 'pause'
   | 'resume'
   | 'cancel'

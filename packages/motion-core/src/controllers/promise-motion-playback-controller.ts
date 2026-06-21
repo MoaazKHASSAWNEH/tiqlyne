@@ -138,27 +138,27 @@ export class PromiseMotionPlaybackController
   ): void {
     switch (result.status) {
       case 'finished':
-        this.emit('finish', this.currentStatus, previousStatus, result);
+        this.emitStatusChange('finish', this.currentStatus, previousStatus, result);
         break;
 
       case 'cancelled':
-        this.emit('cancel', this.currentStatus, previousStatus, result);
+        this.emitStatusChange('cancel', this.currentStatus, previousStatus, result);
         break;
 
       case 'skipped':
-        this.emit('skip', this.currentStatus, previousStatus, result);
+        this.emitStatusChange('skip', this.currentStatus, previousStatus, result);
         break;
 
       case 'failed':
-        this.emit('fail', this.currentStatus, previousStatus, result);
+        this.emitStatusChange('fail', this.currentStatus, previousStatus, result);
         break;
 
       case 'paused':
-        this.emit('pause', this.currentStatus, previousStatus, result);
+        this.emitStatusChange('pause', this.currentStatus, previousStatus, result);
         break;
 
       case 'running':
-        this.emit('resume', this.currentStatus, previousStatus, result);
+        this.emitStatusChange('resume', this.currentStatus, previousStatus, result);
         break;
     }
   }
