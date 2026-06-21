@@ -967,6 +967,70 @@ describe('WebMotionDriver', () => {
 
     expect(playback.disposed).toBe(true);
   });
+
+  it('includes previous status in pause playback event', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('pause', (event) => {
+      events.push(`${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.pause();
+
+    expect(events).toEqual(['running->paused']);
+  });
+
+  it('includes previous status in resume playback event', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('resume', (event) => {
+      events.push(`${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.pause();
+    await playback.resume();
+
+    expect(events).toEqual(['paused->running']);
+  });
+
+  it('includes previous status in automatic finish playback event', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const events: string[] = [];
+
+    playback.on('finish', (event) => {
+      events.push(`${event.previousStatus}->${event.status}`);
+    });
+
+    await playback.finished;
+
+    expect(events).toEqual(['running->finished']);
+  });
 });
 
 class FakeElement {

@@ -14,6 +14,7 @@ export type MotionPlaybackEvent = {
   readonly type: MotionPlaybackEventType;
   readonly playbackId: string;
   readonly status: MotionPlaybackControllerStatus;
+  readonly previousStatus: MotionPlaybackControllerStatus;
   readonly result?: MotionPlaybackResult;
 };
 

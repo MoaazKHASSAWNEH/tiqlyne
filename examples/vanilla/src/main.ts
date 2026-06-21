@@ -210,37 +210,37 @@ function createPlayback(): void {
 
 function attachPlaybackListeners(playback: MotionPlaybackController): void {
   playback.on('pause', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.status}`);
+    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 
   playback.on('resume', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.status}`);
+    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 
   playback.on('cancel', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.status}`);
+    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 
   playback.on('finish', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.status}`);
+    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 
   playback.on('skip', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.status}`);
+    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 
   playback.on('fail', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.status}`);
+    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 
   playback.once('finish', (event) => {
-    pushPlaybackEvent(`once:${event.type}:${event.status}`);
+    pushPlaybackEvent(`once:${event.type}:${event.previousStatus}->${event.status}`);
     writePlaybackEventLog(playback);
   });
 }

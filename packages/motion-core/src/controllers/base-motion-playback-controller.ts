@@ -55,6 +55,7 @@ export abstract class BaseMotionPlaybackController {
   protected emit(
     type: MotionPlaybackEventType,
     status: MotionPlaybackControllerStatus,
+    previousStatus: MotionPlaybackControllerStatus,
     result?: MotionPlaybackResult
   ): void {
     if (this.isDisposed) {
@@ -71,6 +72,7 @@ export abstract class BaseMotionPlaybackController {
       type,
       playbackId: this.id,
       status,
+      previousStatus,
       ...(result !== undefined ? { result } : {})
     };
 

@@ -20,7 +20,7 @@ export class PromiseMotionPlaybackController
   ) {
     super();
 
-    this.emit('start', this.currentStatus);
+    this.emit('start', this.currentStatus, this.currentStatus);
 
     this.finished
       .then((result) => {
@@ -49,9 +49,11 @@ export class PromiseMotionPlaybackController
       reason: 'playback-pause-not-supported'
     };
 
+    const previousStatus = this.currentStatus;
+
     this.currentStatus = result.status;
 
-    this.emitResult(result);
+    this.emitResult(result, previousStatus);
 
     return result;
   }
@@ -70,9 +72,11 @@ export class PromiseMotionPlaybackController
       reason: 'playback-resume-not-supported'
     };
 
+    const previousStatus = this.currentStatus;
+
     this.currentStatus = result.status;
 
-    this.emitResult(result);
+    this.emitResult(result, previousStatus);
 
     return result;
   }
@@ -84,9 +88,11 @@ export class PromiseMotionPlaybackController
 
     const result = await this.cancelHandler();
 
+    const previousStatus = this.currentStatus;
+
     this.currentStatus = result.status;
 
-    this.emitResult(result);
+    this.emitResult(result, previousStatus);
 
     return result;
   }
@@ -98,9 +104,11 @@ export class PromiseMotionPlaybackController
 
     const result = await this.finishHandler();
 
+    const previousStatus = this.currentStatus;
+
     this.currentStatus = result.status;
 
-    this.emitResult(result);
+    this.emitResult(result, previousStatus);
 
     return result;
   }
@@ -110,9 +118,11 @@ export class PromiseMotionPlaybackController
       return;
     }
 
+    const previousStatus = this.currentStatus;
+
     this.currentStatus = result.status;
 
-    this.emitResult(result);
+    this.emitResult(result, previousStatus);
   }
 
   private createInvalidTransitionResult(action: string): MotionPlaybackResult {
@@ -122,30 +132,33 @@ export class PromiseMotionPlaybackController
     };
   }
 
-  private emitResult(result: MotionPlaybackResult): void {
+  private emitResult(
+    result: MotionPlaybackResult,
+    previousStatus: MotionPlaybackControllerStatus
+  ): void {
     switch (result.status) {
       case 'finished':
-        this.emit('finish', this.currentStatus, result);
+        this.emit('finish', this.currentStatus, previousStatus, result);
         break;
 
       case 'cancelled':
-        this.emit('cancel', this.currentStatus, result);
+        this.emit('cancel', this.currentStatus, previousStatus, result);
         break;
 
       case 'skipped':
-        this.emit('skip', this.currentStatus, result);
+        this.emit('skip', this.currentStatus, previousStatus, result);
         break;
 
       case 'failed':
-        this.emit('fail', this.currentStatus, result);
+        this.emit('fail', this.currentStatus, previousStatus, result);
         break;
 
       case 'paused':
-        this.emit('pause', this.currentStatus, result);
+        this.emit('pause', this.currentStatus, previousStatus, result);
         break;
 
       case 'running':
-        this.emit('resume', this.currentStatus, result);
+        this.emit('resume', this.currentStatus, previousStatus, result);
         break;
     }
   }
