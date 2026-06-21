@@ -1120,6 +1120,79 @@ describe('WebMotionDriver', () => {
 
     expect(events).toEqual(['running->finished']);
   });
+
+  it('includes timestamp in playback events', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const timestamps: number[] = [];
+
+    playback.on('pause', (event) => {
+      timestamps.push(event.timestamp);
+    });
+
+    await playback.pause();
+
+    expect(timestamps).toHaveLength(1);
+    expect(typeof timestamps[0]).toBe('number');
+    expect(timestamps[0]).toBeGreaterThan(0);
+  });
+
+  it('includes timestamp in statusChange playback event', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const timestamps: number[] = [];
+
+    playback.on('statusChange', (event) => {
+      timestamps.push(event.timestamp);
+    });
+
+    await playback.pause();
+
+    expect(timestamps).toHaveLength(1);
+    expect(typeof timestamps[0]).toBe('number');
+    expect(timestamps[0]).toBeGreaterThan(0);
+  });
+
+  it('includes timestamp in specific and statusChange events', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const timestamps: number[] = [];
+
+    playback.on('pause', (event) => {
+      timestamps.push(event.timestamp);
+    });
+
+    playback.on('statusChange', (event) => {
+      timestamps.push(event.timestamp);
+    });
+
+    await playback.pause();
+
+    expect(timestamps).toHaveLength(2);
+    expect(timestamps[0]).toBeGreaterThan(0);
+    expect(timestamps[1]).toBeGreaterThan(0);
+  });
 });
 
 class FakeElement {

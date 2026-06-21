@@ -73,6 +73,7 @@ export abstract class BaseMotionPlaybackController {
       playbackId: this.id,
       status,
       previousStatus,
+      timestamp: Date.now(),
       ...(result !== undefined ? { result } : {})
     };
 

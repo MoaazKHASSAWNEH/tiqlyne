@@ -210,42 +210,42 @@ function createPlayback(): void {
 
 function attachPlaybackListeners(playback: MotionPlaybackController): void {
   playback.on('pause', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.on('resume', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.on('cancel', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.on('finish', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.on('skip', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.on('fail', (event) => {
-    pushPlaybackEvent(`${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.on('statusChange', (event) => {
-    pushPlaybackEvent(`statusChange:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(formatPlaybackEvent(event));
     writePlaybackEventLog(playback);
   });
 
   playback.once('finish', (event) => {
-    pushPlaybackEvent(`once:${event.type}:${event.previousStatus}->${event.status}`);
+    pushPlaybackEvent(`once:${formatPlaybackEvent(event)}`);
     writePlaybackEventLog(playback);
   });
 }
@@ -369,4 +369,15 @@ function getElementByIdOrThrow(id: string): HTMLElement {
   }
 
   return element;
+}
+
+function formatPlaybackEvent(event: {
+  readonly type: string;
+  readonly previousStatus: string;
+  readonly status: string;
+  readonly timestamp: number;
+}): string {
+  return `${event.type}:${event.previousStatus}->${event.status} @ ${new Date(
+    event.timestamp
+  ).toLocaleTimeString()}`;
 }
