@@ -128,7 +128,19 @@ export class PromiseMotionPlaybackController
   private createInvalidTransitionResult(action: string): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: `playback-${action}-not-allowed-from-${this.currentStatus}`
+      reason: `playback-${action}-not-allowed-from-${this.currentStatus}`,
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: `Cannot run "${action}" while playback is "${this.currentStatus}".`,
+          source: 'promise-motion-playback-controller',
+          metadata: {
+            action,
+            currentStatus: this.currentStatus
+          }
+        }
+      ]
     };
   }
 

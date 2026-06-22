@@ -504,9 +504,21 @@ describe('WebMotionDriver', () => {
 
     const result = await playback.resume();
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       status: 'skipped',
-      reason: 'web-playback-resume-not-allowed-from-running'
+      reason: 'web-playback-resume-not-allowed-from-running',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: 'Cannot run "resume" while playback is "running".',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            action: 'resume',
+            currentStatus: 'running'
+          }
+        }
+      ]
     });
 
     expect(playback.status).toBe('running');
@@ -529,9 +541,21 @@ describe('WebMotionDriver', () => {
 
     const result = await playback.pause();
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       status: 'skipped',
-      reason: 'web-playback-pause-not-allowed-from-cancelled'
+      reason: 'web-playback-pause-not-allowed-from-cancelled',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: 'Cannot run "pause" while playback is "cancelled".',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            action: 'pause',
+            currentStatus: 'cancelled'
+          }
+        }
+      ]
     });
 
     expect(playback.status).toBe('cancelled');
@@ -554,9 +578,21 @@ describe('WebMotionDriver', () => {
 
     const result = await playback.resume();
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       status: 'skipped',
-      reason: 'web-playback-resume-not-allowed-from-finished'
+      reason: 'web-playback-resume-not-allowed-from-finished',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: 'Cannot run "resume" while playback is "finished".',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            action: 'resume',
+            currentStatus: 'finished'
+          }
+        }
+      ]
     });
 
     expect(playback.status).toBe('finished');
@@ -579,13 +615,57 @@ describe('WebMotionDriver', () => {
 
     const result = await playback.finish();
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       status: 'skipped',
-      reason: 'web-playback-finish-not-allowed-from-cancelled'
+      reason: 'web-playback-finish-not-allowed-from-cancelled',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: 'Cannot run "finish" while playback is "cancelled".',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            action: 'finish',
+            currentStatus: 'cancelled'
+          }
+        }
+      ]
     });
 
     expect(playback.status).toBe('cancelled');
     expect(createdAnimation.finish).not.toHaveBeenCalled();
+  });
+
+  it('returns diagnostic when playback transition is invalid', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    await playback.finish();
+
+    const result = await playback.pause();
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'web-playback-pause-not-allowed-from-finished',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: 'Cannot run "pause" while playback is "finished".',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            action: 'pause',
+            currentStatus: 'finished'
+          }
+        }
+      ]
+    });
   });
 
   it('emits playback events', async () => {

@@ -179,7 +179,19 @@ export class WebMotionPlaybackController
   private createInvalidTransitionResult(action: string): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: `web-playback-${action}-not-allowed-from-${this.currentStatus}`
+      reason: `web-playback-${action}-not-allowed-from-${this.currentStatus}`,
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-invalid-transition',
+          message: `Cannot run "${action}" while playback is "${this.currentStatus}".`,
+          source: 'web-motion-playback-controller',
+          metadata: {
+            action,
+            currentStatus: this.currentStatus
+          }
+        }
+      ]
     };
   }
 }
