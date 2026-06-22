@@ -416,9 +416,9 @@ export class WebMotionDriver implements MotionDriver<Element> {
       }
     } else {
       for (const track of playableTimeline.tracks) {
-        const trackTarget = this.resolveTarget(target, track.target);
+        const trackTargets = this.resolveTargets(target, track.target);
 
-        if (!trackTarget) {
+        if (trackTargets.length === 0) {
           return {
             animations,
             finished: Promise.resolve({
@@ -429,12 +429,21 @@ export class WebMotionDriver implements MotionDriver<Element> {
         }
 
         for (const step of track.steps) {
-          const animation = trackTarget.animate(
-            toWebKeyframes(step.keyframes),
-            toWebStepTimingOptions(step)
-          );
+          for (const [targetIndex, trackTarget] of trackTargets.entries()) {
+            const timing = toWebStepTimingOptions(step);
+            const staggerOffset = resolveStaggerOffset(
+              track.stagger,
+              targetIndex,
+              trackTargets.length
+            );
 
-          animations.push(animation);
+            const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
+              ...timing,
+              delay: Number(timing.delay ?? 0) + staggerOffset
+            });
+
+            animations.push(animation);
+          }
         }
       }
     }

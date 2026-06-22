@@ -651,6 +651,104 @@ describe('WebMotionDriver', () => {
     );
   });
 
+  it('applies track stagger to multiple selector targets without execution plan', async () => {
+    const driver = new WebMotionDriver();
+    const root = new FakeElement();
+    const first = new FakeElement();
+    const second = new FakeElement();
+    const third = new FakeElement();
+
+    root.setQueryAllResult('.item', [asElement(first), asElement(second), asElement(third)]);
+
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'selector',
+            selector: '.item'
+          },
+          stagger: {
+            each: 80,
+            from: 'end'
+          },
+          steps: [
+            {
+              duration: 100,
+              delay: 20,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const result = await driver.play(asElement(root), timeline, {
+      ...defaultPlayOptions
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(first.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 180,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(second.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 100,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(third.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 20,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+  });
+
   it('uses execution plan reduced motion timeline when simplifying playback', async () => {
     const driver = new WebMotionDriver({
       reducedMotion: true
