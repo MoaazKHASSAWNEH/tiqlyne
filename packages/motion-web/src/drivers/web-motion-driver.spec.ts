@@ -1273,6 +1273,59 @@ describe('WebMotionDriver', () => {
     expect(timestamps[0]).toBeGreaterThan(0);
     expect(timestamps[1]).toBeGreaterThan(0);
   });
+
+  it('fails playback when timeline is invalid', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const result = await driver.play(
+      asElement(target),
+      {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: -1,
+                keyframes: []
+              }
+            ]
+          }
+        ]
+      },
+      defaultPlayOptions
+    );
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'invalid-timeline',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'timeline-empty-keyframes',
+          source: 'motion-timeline-validator',
+          metadata: {
+            trackIndex: 0,
+            stepIndex: 0
+          }
+        },
+        {
+          level: 'error',
+          code: 'timeline-invalid-duration',
+          source: 'motion-timeline-validator',
+          metadata: {
+            trackIndex: 0,
+            stepIndex: 0,
+            duration: -1
+          }
+        }
+      ]
+    });
+
+    expect(target.animate).not.toHaveBeenCalled();
+  });
 });
 
 class FakeElement {

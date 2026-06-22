@@ -1,12 +1,13 @@
-import type {
-  MotionDiagnostic,
-  MotionDriver,
-  MotionPlayOptions,
-  MotionPlaybackResult,
-  MotionPlaybackController,
-  MotionTimelineDefinition,
-  MotionKeyframe,
-  MotionConflictStrategy
+import {
+  validateMotionTimeline,
+  type MotionDiagnostic,
+  type MotionDriver,
+  type MotionPlayOptions,
+  type MotionPlaybackResult,
+  type MotionPlaybackController,
+  type MotionTimelineDefinition,
+  type MotionKeyframe,
+  type MotionConflictStrategy
 } from '@structifyx/motion-core';
 import { toWebKeyframes } from '../utils/to-web-keyframes';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
@@ -222,6 +223,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
       shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
         ? (options.reducedMotionTimeline ?? this.simplifyTimeline(timeline))
         : timeline;
+
+    const validation = validateMotionTimeline(playableTimeline);
+
+    if (!validation.valid) {
+      return {
+        animations: [],
+        finished: Promise.resolve({
+          status: 'failed',
+          reason: 'invalid-timeline',
+          diagnostics: validation.diagnostics
+        })
+      };
+    }
 
     const trackTargets = this.resolveTrackTargets(target, playableTimeline);
 

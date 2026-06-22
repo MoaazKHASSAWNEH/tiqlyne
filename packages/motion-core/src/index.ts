@@ -80,4 +80,8 @@ export type {
 
 export { PromiseMotionPlaybackController } from './controllers/promise-motion-playback-controller';
 
+export { validateMotionTimeline } from './validators/validate-motion-timeline';
+
+export type { MotionValidationResult } from './models/motion-validation-result';
+
 export const motionCoreVersion = '0.1.0';
