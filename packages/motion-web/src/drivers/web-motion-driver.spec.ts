@@ -228,6 +228,100 @@ describe('WebMotionDriver', () => {
     );
   });
 
+  it('uses scheduled task start time when execution plan is provided', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 0.5
+                }
+              ]
+            },
+            {
+              duration: 200,
+              delay: 50,
+              easing: 'linear',
+              fill: 'both',
+              keyframes: [
+                {
+                  opacity: 0.5
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const result = await driver.play(asElement(target), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledTimes(2);
+
+    expect(target.animate).toHaveBeenNthCalledWith(
+      1,
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 0.5
+        }
+      ],
+      {
+        duration: 100,
+        delay: 0,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(target.animate).toHaveBeenNthCalledWith(
+      2,
+      [
+        {
+          opacity: 0.5
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 200,
+        delay: 150,
+        easing: 'linear',
+        fill: 'both'
+      }
+    );
+  });
+
   it('uses execution plan reduced motion timeline when simplifying playback', async () => {
     const driver = new WebMotionDriver({
       reducedMotion: true

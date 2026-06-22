@@ -8,7 +8,9 @@ import {
   type MotionPlaybackController,
   type MotionTimelineDefinition,
   type MotionKeyframe,
-  type MotionConflictStrategy
+  type MotionConflictStrategy,
+  type ScheduledMotionTask,
+  type ScheduledMotionTimeline
 } from '@structifyx/motion-core';
 import { toWebKeyframes } from '../utils/to-web-keyframes';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
@@ -141,6 +143,55 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return options.executionPlan;
   }
 
+  private resolveScheduledTimeline(
+    executionPlan: MotionExecutionPlan | undefined,
+    shouldApplyReducedMotion: boolean,
+    options: MotionPlayOptions
+  ): ScheduledMotionTimeline | undefined {
+    if (!executionPlan) {
+      return undefined;
+    }
+
+    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
+      return executionPlan.scheduledReducedMotionTimeline;
+    }
+
+    return executionPlan.scheduledTimeline;
+  }
+
+  private resolveScheduledTaskTarget(
+    root: Element,
+    scheduledTimeline: ScheduledMotionTimeline,
+    task: ScheduledMotionTask
+  ): Element | null {
+    const track = scheduledTimeline.source.tracks[task.trackIndex];
+
+    if (!track) {
+      return null;
+    }
+
+    return this.resolveTarget(root, track.target);
+  }
+
+  private createAnimationFromScheduledTask(
+    root: Element,
+    scheduledTimeline: ScheduledMotionTimeline,
+    task: ScheduledMotionTask
+  ): Animation | null {
+    const taskTarget = this.resolveScheduledTaskTarget(root, scheduledTimeline, task);
+
+    if (!taskTarget) {
+      return null;
+    }
+
+    return taskTarget.animate(toWebKeyframes(task.step.keyframes), {
+      duration: task.duration,
+      delay: task.startTime,
+      easing: task.step.easing ?? 'ease',
+      fill: task.step.fill ?? 'both'
+    });
+  }
+
   private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
     return {
       ...(keyframe.opacity !== undefined
@@ -265,7 +316,11 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
     const activeExecutionPlan = this.resolveActiveExecutionPlan(options, shouldApplyReducedMotion);
 
-    void activeExecutionPlan;
+    const scheduledTimeline = this.resolveScheduledTimeline(
+      activeExecutionPlan,
+      shouldApplyReducedMotion,
+      options
+    );
 
     const shouldValidateTimeline =
       shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
@@ -317,28 +372,46 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
     const animations: Animation[] = [];
 
-    for (const track of playableTimeline.tracks) {
-      const trackTarget = this.resolveTarget(target, track.target);
+    if (scheduledTimeline !== undefined) {
+      for (const task of scheduledTimeline.tasks) {
+        const animation = this.createAnimationFromScheduledTask(target, scheduledTimeline, task);
 
-      if (!trackTarget) {
-        return {
-          animations,
-          finished: Promise.resolve({
-            status: 'failed',
-            reason: 'target-not-found'
-          })
-        };
-      }
-
-      for (const step of track.steps) {
-        const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
-          duration: step.duration,
-          delay: step.delay ?? 0,
-          easing: step.easing ?? 'ease',
-          fill: step.fill ?? 'both'
-        });
+        if (!animation) {
+          return {
+            animations,
+            finished: Promise.resolve({
+              status: 'failed',
+              reason: 'target-not-found'
+            })
+          };
+        }
 
         animations.push(animation);
+      }
+    } else {
+      for (const track of playableTimeline.tracks) {
+        const trackTarget = this.resolveTarget(target, track.target);
+
+        if (!trackTarget) {
+          return {
+            animations,
+            finished: Promise.resolve({
+              status: 'failed',
+              reason: 'target-not-found'
+            })
+          };
+        }
+
+        for (const step of track.steps) {
+          const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
+            duration: step.duration,
+            delay: step.delay ?? 0,
+            easing: step.easing ?? 'ease',
+            fill: step.fill ?? 'both'
+          });
+
+          animations.push(animation);
+        }
       }
     }
 
