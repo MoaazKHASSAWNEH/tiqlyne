@@ -26,7 +26,7 @@ export function simplifyWebTimeline(timeline: MotionTimelineDefinition): MotionT
       target: track.target,
       steps: track.steps.map((step) => {
         const duration =
-          step.duration ?? timeline.defaults?.duration ?? track.defaults?.duration ?? 0;
+          step.duration ?? track.defaults?.duration ?? timeline.defaults?.duration ?? 0;
 
         return {
           keyframes: step.keyframes.map((keyframe) => simplifyWebKeyframe(keyframe)),
