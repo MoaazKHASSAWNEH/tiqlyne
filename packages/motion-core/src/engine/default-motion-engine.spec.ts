@@ -343,7 +343,8 @@ describe('DefaultMotionEngine', () => {
         trigger: 'onClick',
         respectReducedMotion: false,
         reducedMotionStrategy: 'skip',
-        conflictStrategy: 'replace'
+        conflictStrategy: 'replace',
+        timelineValidated: true
       }
     });
   });
@@ -363,6 +364,9 @@ describe('DefaultMotionEngine', () => {
         intensity: 0.8
       }
     });
+
+    expect(driver.getCalls()[0]?.options.timelineValidated).toBe(true);
+    expect(driver.getCalls()[0]?.options.reducedMotionTimelineValidated).toBe(true);
 
     expect(result).toEqual({
       status: 'finished'
@@ -749,6 +753,7 @@ describe('DefaultMotionEngine', () => {
         trigger: 'onClick',
         respectReducedMotion: true,
         reducedMotionStrategy: 'skip',
+        timelineValidated: true,
         conflictStrategy: 'parallel'
       }
     });
@@ -756,5 +761,31 @@ describe('DefaultMotionEngine', () => {
     await expect(playback.finished).resolves.toEqual({
       status: 'finished'
     });
+  });
+
+  it('passes validated reduced motion timeline flag to native playback driver', async () => {
+    const registry = new DefaultMotionRegistry();
+    const driver = new NativePlaybackTestDriver();
+    const normalizer = new DefaultMotionConfigNormalizer();
+
+    const engine = new DefaultMotionEngine<string>({
+      registry,
+      driver,
+      normalizer
+    });
+
+    registry.register(new ReducedMotionAwareMotionDefinition());
+
+    engine.createPlayback('target-1', {
+      id: 'motion_native_reduced_playback_001',
+      type: 'reduced-aware-motion',
+      trigger: 'onClick',
+      duration: 400,
+      reducedMotionStrategy: 'simplify'
+    });
+
+    expect(driver.createPlaybackCalls).toHaveLength(1);
+    expect(driver.createPlaybackCalls[0]?.options.timelineValidated).toBe(true);
+    expect(driver.createPlaybackCalls[0]?.options.reducedMotionTimelineValidated).toBe(true);
   });
 });

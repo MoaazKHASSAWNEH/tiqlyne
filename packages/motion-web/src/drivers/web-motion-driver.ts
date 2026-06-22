@@ -224,17 +224,24 @@ export class WebMotionDriver implements MotionDriver<Element> {
         ? (options.reducedMotionTimeline ?? this.simplifyTimeline(timeline))
         : timeline;
 
-    const validation = validateMotionTimeline(playableTimeline);
+    const shouldValidateTimeline =
+      shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
+        ? options.reducedMotionTimelineValidated !== true
+        : options.timelineValidated !== true;
 
-    if (!validation.valid) {
-      return {
-        animations: [],
-        finished: Promise.resolve({
-          status: 'failed',
-          reason: 'invalid-timeline',
-          diagnostics: validation.diagnostics
-        })
-      };
+    if (shouldValidateTimeline) {
+      const validation = validateMotionTimeline(playableTimeline);
+
+      if (!validation.valid) {
+        return {
+          animations: [],
+          finished: Promise.resolve({
+            status: 'failed',
+            reason: 'invalid-timeline',
+            diagnostics: validation.diagnostics
+          })
+        };
+      }
     }
 
     const trackTargets = this.resolveTrackTargets(target, playableTimeline);

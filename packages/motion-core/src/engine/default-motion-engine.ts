@@ -86,9 +86,11 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
         conflictStrategy: normalizedConfig.conflictStrategy,
+        timelineValidated: true,
         ...(reducedMotionTimeline !== undefined
           ? {
-              reducedMotionTimeline
+              reducedMotionTimeline,
+              reducedMotionTimelineValidated: true
             }
           : {})
       });
@@ -205,9 +207,11 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
         conflictStrategy: normalizedConfig.conflictStrategy,
+        timelineValidated: true,
         ...(reducedMotionTimeline !== undefined
           ? {
-              reducedMotionTimeline
+              reducedMotionTimeline,
+              reducedMotionTimelineValidated: true
             }
           : {})
       });

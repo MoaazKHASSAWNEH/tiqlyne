@@ -11,6 +11,20 @@ export type MotionPlayOptions = {
   readonly reducedMotionStrategy: ReducedMotionStrategy;
   readonly reducedMotionTimeline?: MotionTimelineDefinition;
   readonly conflictStrategy: MotionConflictStrategy;
+
+  /**
+   * Internal optimization flag.
+   * When true, the main timeline has already been validated by the core engine.
+   * Drivers may skip their own validation for this timeline.
+   */
+  readonly timelineValidated?: boolean;
+
+  /**
+   * Internal optimization flag.
+   * When true, the reduced motion timeline has already been validated by the core engine.
+   * Drivers may skip their own validation for this timeline.
+   */
+  readonly reducedMotionTimelineValidated?: boolean;
 };
 
 export type MotionCreatePlaybackOptions = MotionPlayOptions;

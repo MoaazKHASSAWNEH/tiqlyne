@@ -1326,6 +1326,40 @@ describe('WebMotionDriver', () => {
 
     expect(target.animate).not.toHaveBeenCalled();
   });
+
+  it('skips timeline validation when timeline is already validated', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const result = await driver.play(
+      asElement(target),
+      {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: 100,
+                keyframes: []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        ...defaultPlayOptions,
+        timelineValidated: true
+      }
+    );
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledTimes(1);
+  });
 });
 
 class FakeElement {
