@@ -8,4 +8,6 @@ export {
   toWebStepTimingOptions
 } from './utils/to-web-timing-options';
 
+export { resolveStaggerOffset } from './utils/resolve-stagger-offset';
+
 export const motionWebVersion = '0.1.0';

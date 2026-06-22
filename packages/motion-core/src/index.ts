@@ -49,10 +49,13 @@ export type {
 } from './models/motion-option-definition';
 export type { MotionPlaybackResult, MotionPlaybackStatus } from './models/motion-playback-result';
 export type { MotionTargetReference } from './models/motion-target';
+
 export type {
+  MotionStaggerDefinition,
+  MotionStaggerFrom,
   MotionStepDefinition,
-  MotionTimelineDefinition,
-  MotionTrackDefinition
+  MotionTrackDefinition,
+  MotionTimelineDefinition
 } from './models/motion-timeline';
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
