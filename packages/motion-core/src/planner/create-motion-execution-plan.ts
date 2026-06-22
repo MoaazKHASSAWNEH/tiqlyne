@@ -2,6 +2,7 @@ import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionExecutionPlan } from '../models/motion-execution-plan';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import { scheduleMotionTimeline } from '../scheduler/schedule-motion-timeline';
 
 export type CreateMotionExecutionPlanInput = {
   readonly timeline: MotionTimelineDefinition;
@@ -13,15 +14,22 @@ export function createMotionExecutionPlan(
   input: CreateMotionExecutionPlanInput
 ): MotionExecutionPlan {
   const preparedTimeline = prepareMotionTimeline(input.timeline);
+  const scheduledTimeline = scheduleMotionTimeline(preparedTimeline);
 
   const preparedReducedMotionTimeline =
     input.reducedMotionTimeline !== undefined
       ? prepareMotionTimeline(input.reducedMotionTimeline)
       : undefined;
 
+  const scheduledReducedMotionTimeline =
+    preparedReducedMotionTimeline !== undefined
+      ? scheduleMotionTimeline(preparedReducedMotionTimeline)
+      : undefined;
+
   return {
     timeline: input.timeline,
     preparedTimeline,
+    scheduledTimeline,
     ...(input.reducedMotionTimeline !== undefined
       ? {
           reducedMotionTimeline: input.reducedMotionTimeline
@@ -30,6 +38,11 @@ export function createMotionExecutionPlan(
     ...(preparedReducedMotionTimeline !== undefined
       ? {
           preparedReducedMotionTimeline
+        }
+      : {}),
+    ...(scheduledReducedMotionTimeline !== undefined
+      ? {
+          scheduledReducedMotionTimeline
         }
       : {}),
     diagnostics: input.diagnostics ?? []

@@ -98,4 +98,11 @@ export type { CreateMotionExecutionPlanInput } from './planner/create-motion-exe
 
 export type { MotionExecutionPlan } from './models/motion-execution-plan';
 
+export { scheduleMotionTimeline } from './scheduler/schedule-motion-timeline';
+
+export type {
+  ScheduledMotionTask,
+  ScheduledMotionTimeline
+} from './models/scheduled-motion-timeline';
+
 export const motionCoreVersion = '0.1.0';
