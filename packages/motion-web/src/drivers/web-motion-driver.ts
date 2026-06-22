@@ -19,6 +19,11 @@ import {
 } from '../utils/to-web-timing-options';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
 import { resolveStaggerOffset } from '../utils/resolve-stagger-offset';
+import {
+  resolveWebTarget,
+  resolveWebTargets,
+  resolveWebTrackTargets
+} from '../utils/resolve-web-targets';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -175,7 +180,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return null;
     }
 
-    const taskTargets = this.resolveTargets(root, track.target);
+    const taskTargets = resolveWebTargets(root, track.target);
 
     if (taskTargets.length === 0) {
       return null;
@@ -207,68 +212,11 @@ export class WebMotionDriver implements MotionDriver<Element> {
     };
   }
 
-  private resolveTrackTargets(
-    root: Element,
-    timeline: MotionTimelineDefinition
-  ): ReadonlyArray<Element> | null {
-    const targets: Element[] = [];
-
-    for (const track of timeline.tracks) {
-      const resolvedTargets = this.resolveTargets(root, track.target);
-
-      if (resolvedTargets.length === 0) {
-        return null;
-      }
-
-      targets.push(...resolvedTargets);
-    }
-
-    return targets;
-  }
-
   private cancelAnimations(targets: ReadonlyArray<Element>): void {
     for (const target of targets) {
       target.getAnimations({ subtree: true }).forEach((animation) => {
         animation.cancel();
       });
-    }
-  }
-
-  private resolveTarget(root: Element, target: TimelineTargetReference): Element | null {
-    switch (target.type) {
-      case 'self':
-        return root;
-
-      case 'child':
-        return root.querySelector(`[data-motion-child="${target.name}"]`);
-
-      case 'selector':
-        return root.querySelector(target.selector);
-
-      case 'named':
-        return document.querySelector(`[data-motion-name="${target.name}"]`);
-    }
-  }
-
-  private resolveTargets(root: Element, target: TimelineTargetReference): ReadonlyArray<Element> {
-    switch (target.type) {
-      case 'self':
-        return [root];
-
-      case 'child': {
-        const element = root.querySelector(`[data-motion-child="${target.name}"]`);
-
-        return element ? [element] : [];
-      }
-
-      case 'selector':
-        return Array.from(root.querySelectorAll(target.selector));
-
-      case 'named': {
-        const element = document.querySelector(`[data-motion-name="${target.name}"]`);
-
-        return element ? [element] : [];
-      }
     }
   }
 
@@ -364,7 +312,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       }
     }
 
-    const trackTargets = this.resolveTrackTargets(target, playableTimeline);
+    const trackTargets = resolveWebTrackTargets(target, playableTimeline);
 
     if (!trackTargets) {
       return {
@@ -416,7 +364,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       }
     } else {
       for (const track of playableTimeline.tracks) {
-        const trackTargets = this.resolveTargets(target, track.target);
+        const trackTargets = resolveWebTargets(target, track.target);
 
         if (trackTargets.length === 0) {
           return {
@@ -475,5 +423,3 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return globalThis.crypto?.randomUUID?.() ?? `web_playback_${Date.now()}`;
   }
 }
-
-type TimelineTargetReference = MotionTimelineDefinition['tracks'][number]['target'];

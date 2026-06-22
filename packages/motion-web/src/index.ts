@@ -10,4 +10,10 @@ export {
 
 export { resolveStaggerOffset } from './utils/resolve-stagger-offset';
 
+export {
+  resolveWebTarget,
+  resolveWebTargets,
+  resolveWebTrackTargets
+} from './utils/resolve-web-targets';
+
 export const motionWebVersion = '0.1.0';
