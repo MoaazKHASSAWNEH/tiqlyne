@@ -111,4 +111,6 @@ export type { CreateMotionExecutionPlanSummaryInput } from './planner/create-mot
 
 export type { MotionExecutionPlanSummary } from './models/motion-execution-plan-summary';
 
+export { MotionPlanningError } from './engine/motion-planning-error';
+
 export const motionCoreVersion = '0.1.0';

@@ -398,6 +398,83 @@ describe('DefaultMotionEngine', () => {
     expect(driver.createPlaybackCalls[0]?.options.timelineValidated).toBe(true);
   });
 
+  it('creates an execution plan without playing the motion', () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const plan = engine.plan({
+      id: 'motion_plan_001',
+      type: 'test-motion',
+      trigger: 'onClick',
+      duration: 400,
+      delay: 50,
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(plan.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 450,
+      hasReducedMotionTimeline: false
+    });
+
+    expect(plan.scheduledTimeline.tasks).toHaveLength(1);
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('creates an execution plan with reduced motion timeline', () => {
+    const { engine, registry } = createEngine();
+
+    registry.register(new ReducedMotionAwareMotionDefinition());
+
+    const plan = engine.plan({
+      id: 'motion_plan_reduced_001',
+      type: 'reduced-aware-motion',
+      trigger: 'onClick',
+      duration: 400,
+      reducedMotionStrategy: 'simplify',
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(plan.summary.hasReducedMotionTimeline).toBe(true);
+    expect(plan.summary.reducedMotionTotalDuration).toBe(120);
+    expect(plan.scheduledReducedMotionTimeline?.tasks).toHaveLength(1);
+  });
+
+  it('throws planning error for unknown motion type', () => {
+    const { engine } = createEngine();
+
+    expect(() =>
+      engine.plan({
+        id: 'motion_plan_unknown_001',
+        type: 'unknown-motion',
+        trigger: 'onClick'
+      })
+    ).toThrow('Unknown motion type.');
+  });
+
+  it('throws planning error for invalid motion options', () => {
+    const { engine, registry } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    expect(() =>
+      engine.plan({
+        id: 'motion_plan_invalid_options_001',
+        type: 'test-motion',
+        trigger: 'onClick',
+        options: {
+          intensity: -1
+        }
+      })
+    ).toThrow('Motion options are invalid.');
+  });
+
   it('passes a reduced motion timeline to the driver when strategy is simplify', async () => {
     const { engine, registry, driver } = createEngine();
 

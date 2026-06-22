@@ -9,6 +9,8 @@ import { PromiseMotionPlaybackController } from '../controllers/promise-motion-p
 import type { MotionPlaybackController } from '../models/motion-playback-controller';
 import { validateMotionTimeline } from '../validators/validate-motion-timeline';
 import { createMotionExecutionPlan } from '../planner/create-motion-execution-plan';
+import type { MotionExecutionPlan } from '../models/motion-execution-plan';
+import { MotionPlanningError } from './motion-planning-error';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -39,57 +41,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
 
     try {
-      const options = definition.normalizeOptions(normalizedConfig.options);
-      const validationErrors = definition.validateOptions?.(options) ?? [];
-
-      if (validationErrors.length > 0) {
-        return {
-          status: 'failed',
-          reason: 'invalid-motion-options',
-          error: validationErrors
-        };
-      }
-
-      const buildContext = {
-        options,
-        duration: normalizedConfig.duration,
-        delay: normalizedConfig.delay,
-        easing: normalizedConfig.easing,
-        trigger: normalizedConfig.trigger
-      };
-
-      const timeline = definition.buildTimeline(buildContext);
-
-      const timelineValidationResult = this.validateTimeline(timeline);
-
-      if (timelineValidationResult) {
-        return timelineValidationResult;
-      }
-
-      const reducedMotionTimeline =
-        normalizedConfig.reducedMotionStrategy === 'simplify'
-          ? definition.buildReducedMotionTimeline?.(buildContext)
-          : undefined;
-
-      if (reducedMotionTimeline !== undefined) {
-        const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
-
-        if (reducedTimelineValidationResult) {
-          return {
-            ...reducedTimelineValidationResult,
-            reason: 'invalid-reduced-motion-timeline'
-          };
-        }
-      }
-
-      const executionPlan = createMotionExecutionPlan({
-        timeline,
-        ...(reducedMotionTimeline !== undefined
-          ? {
-              reducedMotionTimeline
-            }
-          : {})
-      });
+      const executionPlan = this.plan(config);
 
       return await this.dependencies.driver.play(target, executionPlan.timeline, {
         trigger: normalizedConfig.trigger,
@@ -97,7 +49,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
         conflictStrategy: normalizedConfig.conflictStrategy,
         timelineValidated: true,
-        ...(reducedMotionTimeline !== undefined
+        ...(executionPlan.reducedMotionTimeline !== undefined
           ? {
               reducedMotionTimeline: executionPlan.reducedMotionTimeline,
               reducedMotionTimelineValidated: true
@@ -105,12 +57,101 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
           : {})
       });
     } catch (error: unknown) {
+      if (error instanceof MotionPlanningError) {
+        return {
+          status: 'failed',
+          reason: error.code,
+          ...(error.diagnostics.length > 0
+            ? {
+                diagnostics: error.diagnostics
+              }
+            : {}),
+          ...(error.validationErrors.length > 0
+            ? {
+                error: error.validationErrors
+              }
+            : {})
+        };
+      }
+
       return {
         status: 'failed',
         reason: 'motion-engine-error',
         error
       };
     }
+  }
+
+  plan(config: MotionConfig): MotionExecutionPlan {
+    const normalizedConfig = this.dependencies.normalizer.normalize(config);
+
+    if (!normalizedConfig.enabled) {
+      throw new MotionPlanningError('Motion is disabled.', 'motion-disabled');
+    }
+
+    const definition = this.dependencies.registry.get(normalizedConfig.type);
+
+    if (!definition) {
+      throw new MotionPlanningError('Unknown motion type.', 'unknown-motion-type');
+    }
+
+    const options = definition.normalizeOptions(normalizedConfig.options);
+    const validationErrors = definition.validateOptions?.(options) ?? [];
+
+    if (validationErrors.length > 0) {
+      throw new MotionPlanningError(
+        'Motion options are invalid.',
+        'invalid-motion-options',
+        [],
+        validationErrors
+      );
+    }
+
+    const buildContext = {
+      options,
+      duration: normalizedConfig.duration,
+      delay: normalizedConfig.delay,
+      easing: normalizedConfig.easing,
+      trigger: normalizedConfig.trigger
+    };
+
+    const timeline = definition.buildTimeline(buildContext);
+
+    const timelineValidationResult = this.validateTimeline(timeline);
+
+    if (timelineValidationResult) {
+      throw new MotionPlanningError(
+        'Motion timeline is invalid.',
+        'invalid-timeline',
+        timelineValidationResult.diagnostics ?? []
+      );
+    }
+
+    const reducedMotionTimeline =
+      normalizedConfig.reducedMotionStrategy === 'simplify'
+        ? definition.buildReducedMotionTimeline?.(buildContext)
+        : undefined;
+
+    if (reducedMotionTimeline !== undefined) {
+      const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
+
+      if (reducedTimelineValidationResult) {
+        throw new MotionPlanningError(
+          'Reduced motion timeline is invalid.',
+          'invalid-reduced-motion-timeline',
+          reducedTimelineValidationResult.diagnostics ?? []
+        );
+      }
+    }
+
+    return createMotionExecutionPlan({
+      timeline,
+      ...(reducedMotionTimeline !== undefined
+        ? {
+            reducedMotionTimeline
+          }
+        : {})
+    });
   }
 
   async cancel(target: TTarget): Promise<MotionPlaybackResult> {
@@ -172,50 +213,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
 
     try {
-      const options = definition.normalizeOptions(normalizedConfig.options);
-      const validationErrors = definition.validateOptions?.(options) ?? [];
-
-      if (validationErrors.length > 0) {
-        return fallback();
-      }
-
-      const buildContext = {
-        options,
-        duration: normalizedConfig.duration,
-        delay: normalizedConfig.delay,
-        easing: normalizedConfig.easing,
-        trigger: normalizedConfig.trigger
-      };
-
-      const timeline = definition.buildTimeline(buildContext);
-
-      const timelineValidationResult = this.validateTimeline(timeline);
-
-      if (timelineValidationResult) {
-        return fallback();
-      }
-
-      const reducedMotionTimeline =
-        normalizedConfig.reducedMotionStrategy === 'simplify'
-          ? definition.buildReducedMotionTimeline?.(buildContext)
-          : undefined;
-
-      if (reducedMotionTimeline !== undefined) {
-        const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
-
-        if (reducedTimelineValidationResult) {
-          return fallback();
-        }
-      }
-
-      const executionPlan = createMotionExecutionPlan({
-        timeline,
-        ...(reducedMotionTimeline !== undefined
-          ? {
-              reducedMotionTimeline
-            }
-          : {})
-      });
+      const executionPlan = this.plan(config);
 
       if (!this.dependencies.driver.createPlayback) {
         return fallback();
@@ -227,7 +225,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
         conflictStrategy: normalizedConfig.conflictStrategy,
         timelineValidated: true,
-        ...(reducedMotionTimeline !== undefined
+        ...(executionPlan.reducedMotionTimeline !== undefined
           ? {
               reducedMotionTimeline: executionPlan.reducedMotionTimeline,
               reducedMotionTimelineValidated: true
