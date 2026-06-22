@@ -84,4 +84,12 @@ export { validateMotionTimeline } from './validators/validate-motion-timeline';
 
 export type { MotionValidationResult } from './models/motion-validation-result';
 
+export { prepareMotionTimeline } from './compiler/prepare-motion-timeline';
+
+export type {
+  PreparedMotionStep,
+  PreparedMotionTimeline,
+  PreparedMotionTrack
+} from './models/prepared-motion-timeline';
+
 export const motionCoreVersion = '0.1.0';
