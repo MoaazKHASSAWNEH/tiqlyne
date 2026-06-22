@@ -19,11 +19,7 @@ import {
 } from '../utils/to-web-timing-options';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
 import { resolveStaggerOffset } from '../utils/resolve-stagger-offset';
-import {
-  resolveWebTarget,
-  resolveWebTargets,
-  resolveWebTrackTargets
-} from '../utils/resolve-web-targets';
+import { resolveWebTargets, resolveWebTrackTargets } from '../utils/resolve-web-targets';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
