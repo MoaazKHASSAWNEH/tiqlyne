@@ -16,4 +16,9 @@ export {
   resolveWebTrackTargets
 } from './utils/resolve-web-targets';
 
+export {
+  createWebAnimationFromStep,
+  createWebAnimationsFromScheduledTask
+} from './utils/create-web-animation';
+
 export const motionWebVersion = '0.1.0';

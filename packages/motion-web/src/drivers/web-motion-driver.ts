@@ -12,14 +12,13 @@ import {
   type ScheduledMotionTask,
   type ScheduledMotionTimeline
 } from '@structifyx/motion-core';
-import { toWebKeyframes } from '../utils/to-web-keyframes';
-import {
-  toWebScheduledTaskTimingOptions,
-  toWebStepTimingOptions
-} from '../utils/to-web-timing-options';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
 import { resolveStaggerOffset } from '../utils/resolve-stagger-offset';
 import { resolveWebTargets, resolveWebTrackTargets } from '../utils/resolve-web-targets';
+import {
+  createWebAnimationFromStep,
+  createWebAnimationsFromScheduledTask
+} from '../utils/create-web-animation';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -182,15 +181,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return null;
     }
 
-    return taskTargets.map((taskTarget, targetIndex) => {
-      const timing = toWebScheduledTaskTimingOptions(task);
-      const staggerOffset = resolveStaggerOffset(track.stagger, targetIndex, taskTargets.length);
-
-      return taskTarget.animate(toWebKeyframes(task.step.keyframes), {
-        ...timing,
-        delay: Number(timing.delay ?? 0) + staggerOffset
-      });
-    });
+    return createWebAnimationsFromScheduledTask(taskTargets, task, track.stagger);
   }
 
   private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
@@ -374,17 +365,12 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
         for (const step of track.steps) {
           for (const [targetIndex, trackTarget] of trackTargets.entries()) {
-            const timing = toWebStepTimingOptions(step);
             const staggerOffset = resolveStaggerOffset(
               track.stagger,
               targetIndex,
               trackTargets.length
             );
-
-            const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
-              ...timing,
-              delay: Number(timing.delay ?? 0) + staggerOffset
-            });
+            const animation = createWebAnimationFromStep(trackTarget, step, staggerOffset);
 
             animations.push(animation);
           }
