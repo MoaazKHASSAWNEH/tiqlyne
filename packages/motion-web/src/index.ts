@@ -30,4 +30,13 @@ export {
   createSkippedWebPlayback
 } from './utils/create-web-playback-result';
 
+export {
+  createGenericReducedMotionFallbackDiagnostic,
+  resolveWebActiveExecutionPlan,
+  resolveWebPlayableTimeline,
+  resolveWebReducedMotionDiagnostics,
+  resolveWebScheduledTimeline,
+  simplifyWebTimeline
+} from './utils/resolve-web-reduced-motion';
+
 export const motionWebVersion = '0.1.0';

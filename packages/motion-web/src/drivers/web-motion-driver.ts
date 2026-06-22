@@ -1,13 +1,10 @@
 import {
   validateMotionTimeline,
-  type MotionExecutionPlan,
-  type MotionDiagnostic,
   type MotionDriver,
   type MotionPlayOptions,
   type MotionPlaybackResult,
   type MotionPlaybackController,
   type MotionTimelineDefinition,
-  type MotionKeyframe,
   type MotionConflictStrategy,
   type ScheduledMotionTask,
   type ScheduledMotionTimeline
@@ -25,6 +22,12 @@ import {
   createFinishedWebPlayback,
   createSkippedWebPlayback
 } from '../utils/create-web-playback-result';
+import {
+  resolveWebActiveExecutionPlan,
+  resolveWebPlayableTimeline,
+  resolveWebReducedMotionDiagnostics,
+  resolveWebScheduledTimeline
+} from '../utils/resolve-web-reduced-motion';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -93,83 +96,6 @@ export class WebMotionDriver implements MotionDriver<Element> {
     };
   }
 
-  private createGenericReducedMotionFallbackDiagnostic(): MotionDiagnostic {
-    return {
-      level: 'warning',
-      code: 'reduced-motion-fallback-used',
-      message:
-        'Generic reduced motion fallback was used because no motion-specific reduced timeline was provided.',
-      source: this.name,
-      metadata: {
-        strategy: 'simplify'
-      }
-    };
-  }
-
-  private simplifyTimeline(timeline: MotionTimelineDefinition): MotionTimelineDefinition {
-    return {
-      tracks: timeline.tracks.map((track) => ({
-        target: track.target,
-        steps: track.steps.map((step) => ({
-          keyframes: step.keyframes.map((keyframe) => this.simplifyKeyframe(keyframe)),
-          duration: Math.min(step.duration, 150),
-          delay: 0,
-          easing: 'ease-out',
-          fill: step.fill ?? 'both'
-        }))
-      }))
-    };
-  }
-
-  private resolvePlayableTimeline(
-    timeline: MotionTimelineDefinition,
-    options: MotionPlayOptions,
-    shouldApplyReducedMotion: boolean
-  ): MotionTimelineDefinition {
-    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
-      return (
-        options.executionPlan?.reducedMotionTimeline ??
-        options.reducedMotionTimeline ??
-        this.simplifyTimeline(timeline)
-      );
-    }
-
-    return options.executionPlan?.timeline ?? timeline;
-  }
-
-  private resolveActiveExecutionPlan(
-    options: MotionPlayOptions,
-    shouldApplyReducedMotion: boolean
-  ): MotionExecutionPlan | undefined {
-    if (!options.executionPlan) {
-      return undefined;
-    }
-
-    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
-      return options.executionPlan.scheduledReducedMotionTimeline !== undefined
-        ? options.executionPlan
-        : undefined;
-    }
-
-    return options.executionPlan;
-  }
-
-  private resolveScheduledTimeline(
-    executionPlan: MotionExecutionPlan | undefined,
-    shouldApplyReducedMotion: boolean,
-    options: MotionPlayOptions
-  ): ScheduledMotionTimeline | undefined {
-    if (!executionPlan) {
-      return undefined;
-    }
-
-    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
-      return executionPlan.scheduledReducedMotionTimeline;
-    }
-
-    return executionPlan.scheduledTimeline;
-  }
-
   private createAnimationsFromScheduledTask(
     root: Element,
     scheduledTimeline: ScheduledMotionTimeline,
@@ -188,21 +114,6 @@ export class WebMotionDriver implements MotionDriver<Element> {
     }
 
     return createWebAnimationsFromScheduledTask(taskTargets, task, track.stagger);
-  }
-
-  private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
-    return {
-      ...(keyframe.opacity !== undefined
-        ? {
-            opacity: keyframe.opacity
-          }
-        : {}),
-      ...(keyframe.offset !== undefined
-        ? {
-            offset: keyframe.offset
-          }
-        : {})
-    };
   }
 
   private cancelAnimations(targets: ReadonlyArray<Element>): void {
@@ -249,28 +160,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return createSkippedWebPlayback('reduced-motion');
     }
 
-    const hasProvidedReducedMotionTimeline =
-      options.executionPlan?.reducedMotionTimeline !== undefined ||
-      options.reducedMotionTimeline !== undefined;
-
-    const shouldUseGenericReducedMotionFallback =
-      shouldApplyReducedMotion &&
-      options.reducedMotionStrategy === 'simplify' &&
-      !hasProvidedReducedMotionTimeline;
-
-    const diagnostics = shouldUseGenericReducedMotionFallback
-      ? [this.createGenericReducedMotionFallbackDiagnostic()]
-      : [];
-
-    const playableTimeline = this.resolvePlayableTimeline(
+    const diagnostics = resolveWebReducedMotionDiagnostics(
+      options,
+      shouldApplyReducedMotion,
+      this.name
+    );
+    const playableTimeline = resolveWebPlayableTimeline(
       timeline,
       options,
       shouldApplyReducedMotion
     );
+    const activeExecutionPlan = resolveWebActiveExecutionPlan(options, shouldApplyReducedMotion);
 
-    const activeExecutionPlan = this.resolveActiveExecutionPlan(options, shouldApplyReducedMotion);
-
-    const scheduledTimeline = this.resolveScheduledTimeline(
+    const scheduledTimeline = resolveWebScheduledTimeline(
       activeExecutionPlan,
       shouldApplyReducedMotion,
       options
