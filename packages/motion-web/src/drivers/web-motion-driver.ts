@@ -19,6 +19,7 @@ import {
   createWebAnimationFromStep,
   createWebAnimationsFromScheduledTask
 } from '../utils/create-web-animation';
+import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -235,10 +236,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
     target: Element,
     timeline: MotionTimelineDefinition,
     options: MotionPlayOptions
-  ): {
-    readonly animations: ReadonlyArray<Animation>;
-    readonly finished: Promise<MotionPlaybackResult>;
-  } {
+  ): WebPlaybackCreationResult {
     const shouldApplyReducedMotion =
       options.respectReducedMotion && this.options.reducedMotion === true;
 

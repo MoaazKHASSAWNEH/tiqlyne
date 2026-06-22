@@ -21,4 +21,6 @@ export {
   createWebAnimationsFromScheduledTask
 } from './utils/create-web-animation';
 
+export type { WebPlaybackCreationResult } from './models/web-playback-creation-result';
+
 export const motionWebVersion = '0.1.0';
