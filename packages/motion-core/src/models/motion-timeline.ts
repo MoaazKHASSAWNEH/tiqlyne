@@ -10,21 +10,32 @@ export type MotionStaggerDefinition =
       readonly from?: MotionStaggerFrom;
     };
 
+export type MotionFillMode = 'none' | 'forwards' | 'backwards' | 'both' | 'auto';
+
+export type MotionTimelineDefaults = {
+  readonly duration?: number;
+  readonly delay?: number;
+  readonly easing?: string;
+  readonly fill?: MotionFillMode;
+};
+
 export type MotionStepDefinition = {
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
-  readonly duration: number;
+  readonly duration?: number;
   readonly delay?: number;
   readonly easing?: string;
   readonly offset?: number;
-  readonly fill?: 'none' | 'forwards' | 'backwards' | 'both' | 'auto';
+  readonly fill?: MotionFillMode;
 };
 
 export type MotionTrackDefinition = {
   readonly target: MotionTargetReference;
   readonly steps: ReadonlyArray<MotionStepDefinition>;
   readonly stagger?: MotionStaggerDefinition;
+  readonly defaults?: MotionTimelineDefaults;
 };
 
 export type MotionTimelineDefinition = {
   readonly tracks: ReadonlyArray<MotionTrackDefinition>;
+  readonly defaults?: MotionTimelineDefaults;
 };

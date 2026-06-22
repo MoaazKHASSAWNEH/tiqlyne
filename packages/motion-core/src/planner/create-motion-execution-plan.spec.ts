@@ -121,6 +121,47 @@ describe('createMotionExecutionPlan', () => {
     expect(plan.summary.trackCount).toBe(2);
     expect(plan.summary.taskCount).toBe(2);
   });
+
+  it('creates an execution plan with applied timeline defaults', () => {
+    const timeline: MotionTimelineDefinition = {
+      defaults: {
+        duration: 300,
+        delay: 50,
+        easing: 'ease-out',
+        fill: 'both'
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const plan = createMotionExecutionPlan({
+      timeline
+    });
+
+    expect(plan.timeline.tracks[0]?.steps[0]).toMatchObject({
+      duration: 300,
+      delay: 50,
+      easing: 'ease-out',
+      fill: 'both'
+    });
+
+    expect(plan.preparedTimeline.totalDuration).toBe(350);
+    expect(plan.scheduledTimeline.totalDuration).toBe(350);
+  });
 });
 
 function createTimeline(duration: number): MotionTimelineDefinition {

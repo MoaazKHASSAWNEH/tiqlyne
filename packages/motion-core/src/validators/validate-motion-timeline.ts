@@ -1,11 +1,18 @@
+import { mergeMotionTimelineDefaults } from '../compiler/apply-motion-timeline-defaults';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
 import type { MotionTargetReference } from '../models/motion-target';
-import type { MotionStaggerDefinition, MotionTimelineDefinition } from '../models/motion-timeline';
+import type {
+  MotionStaggerDefinition,
+  MotionTimelineDefaults,
+  MotionTimelineDefinition
+} from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
 
 export function validateMotionTimeline(timeline: MotionTimelineDefinition): MotionValidationResult {
   const diagnostics: MotionDiagnostic[] = [];
+
+  validateTimelineDefaults(timeline.defaults, diagnostics, 'timeline');
 
   if (timeline.tracks.length === 0) {
     diagnostics.push(
@@ -17,6 +24,10 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
     validateTarget(track.target, trackIndex, diagnostics);
 
     validateStagger(track.stagger, trackIndex, diagnostics);
+
+    validateTimelineDefaults(track.defaults, diagnostics, 'track', trackIndex);
+
+    const trackDefaults = mergeMotionTimelineDefaults(timeline.defaults, track.defaults);
 
     if (track.steps.length === 0) {
       diagnostics.push(
@@ -48,7 +59,9 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
         validateKeyframe(keyframe, trackIndex, stepIndex, keyframeIndex, diagnostics);
       });
 
-      if (!Number.isFinite(step.duration) || step.duration < 0) {
+      const duration = step.duration ?? trackDefaults.duration;
+
+      if (duration === undefined || !Number.isFinite(duration) || duration < 0) {
         diagnostics.push(
           createErrorDiagnostic(
             'timeline-invalid-duration',
@@ -56,13 +69,15 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
             {
               trackIndex,
               stepIndex,
-              duration: step.duration
+              duration: duration ?? null
             }
           )
         );
       }
 
-      if (step.delay !== undefined && (!Number.isFinite(step.delay) || step.delay < 0)) {
+      const delay = step.delay ?? trackDefaults.delay;
+
+      if (delay !== undefined && (!Number.isFinite(delay) || delay < 0)) {
         diagnostics.push(
           createErrorDiagnostic(
             'timeline-invalid-delay',
@@ -70,7 +85,7 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
             {
               trackIndex,
               stepIndex,
-              delay: step.delay
+              delay
             }
           )
         );
@@ -93,7 +108,9 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
         );
       }
 
-      if (step.easing !== undefined && step.easing.trim().length === 0) {
+      const easing = step.easing ?? trackDefaults.easing;
+
+      if (easing !== undefined && easing.trim().length === 0) {
         diagnostics.push(
           createErrorDiagnostic(
             'timeline-invalid-easing',
@@ -112,6 +129,65 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
     valid: diagnostics.every((diagnostic) => diagnostic.level !== 'error'),
     diagnostics
   };
+}
+
+function validateTimelineDefaults(
+  defaults: MotionTimelineDefaults | undefined,
+  diagnostics: MotionDiagnostic[],
+  source: 'timeline' | 'track',
+  trackIndex?: number
+): void {
+  if (defaults === undefined) {
+    return;
+  }
+
+  const metadata = {
+    defaultSource: source,
+    ...(trackIndex !== undefined
+      ? {
+          trackIndex
+        }
+      : {})
+  };
+
+  if (
+    defaults.duration !== undefined &&
+    (!Number.isFinite(defaults.duration) || defaults.duration < 0)
+  ) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-default-duration',
+        'Timeline default duration must be a finite non-negative number.',
+        {
+          ...metadata,
+          duration: defaults.duration
+        }
+      )
+    );
+  }
+
+  if (defaults.delay !== undefined && (!Number.isFinite(defaults.delay) || defaults.delay < 0)) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-default-delay',
+        'Timeline default delay must be a finite non-negative number.',
+        {
+          ...metadata,
+          delay: defaults.delay
+        }
+      )
+    );
+  }
+
+  if (defaults.easing !== undefined && defaults.easing.trim().length === 0) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-default-easing',
+        'Timeline default easing must not be empty.',
+        metadata
+      )
+    );
+  }
 }
 
 function validateStagger(

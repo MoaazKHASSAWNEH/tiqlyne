@@ -1,4 +1,5 @@
 import {
+  applyMotionTimelineDefaults,
   type MotionDriver,
   type MotionPlayOptions,
   type MotionPlaybackResult,
@@ -114,11 +115,13 @@ export class WebMotionDriver implements MotionDriver<Element> {
       shouldApplyReducedMotion,
       this.name
     );
+
     const playableTimeline = resolveWebPlayableTimeline(
       timeline,
       options,
       shouldApplyReducedMotion
     );
+
     const activeExecutionPlan = resolveWebActiveExecutionPlan(options, shouldApplyReducedMotion);
 
     const scheduledTimeline = resolveWebScheduledTimeline(
@@ -139,7 +142,9 @@ export class WebMotionDriver implements MotionDriver<Element> {
       });
     }
 
-    const trackTargets = resolveWebTrackTargets(target, playableTimeline);
+    const resolvedPlayableTimeline = applyMotionTimelineDefaults(playableTimeline);
+
+    const trackTargets = resolveWebTrackTargets(target, resolvedPlayableTimeline);
 
     if (!trackTargets) {
       return createFailedWebPlayback('target-not-found');
@@ -158,7 +163,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
     const animationCreation =
       scheduledTimeline !== undefined
         ? createWebAnimationsFromScheduledTimeline(target, scheduledTimeline)
-        : createWebAnimationsFromTimeline(target, playableTimeline);
+        : createWebAnimationsFromTimeline(target, resolvedPlayableTimeline);
 
     if (!animationCreation.ok) {
       return createFailedWebPlayback(animationCreation.reason, animationCreation.animations);

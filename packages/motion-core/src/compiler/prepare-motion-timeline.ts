@@ -4,15 +4,19 @@ import type {
   PreparedMotionTrack
 } from '../models/prepared-motion-timeline';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import { applyMotionTimelineDefaults } from './apply-motion-timeline-defaults';
 
 export function prepareMotionTimeline(timeline: MotionTimelineDefinition): PreparedMotionTimeline {
-  const tracks = timeline.tracks.map((track, trackIndex): PreparedMotionTrack => {
+  const resolvedTimeline = applyMotionTimelineDefaults(timeline);
+
+  const tracks = resolvedTimeline.tracks.map((track, trackIndex): PreparedMotionTrack => {
     let cursor = 0;
 
     const steps = track.steps.map((step, stepIndex): PreparedMotionStep => {
       const delay = step.delay ?? 0;
+      const duration = step.duration ?? 0;
       const startTime = cursor + delay;
-      const endTime = startTime + step.duration;
+      const endTime = startTime + duration;
 
       cursor = endTime;
 
@@ -21,7 +25,7 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
         stepIndex,
         startTime,
         endTime,
-        duration: step.duration,
+        duration,
         delay,
         keyframes: step.keyframes,
         ...(step.easing !== undefined
@@ -57,7 +61,7 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
   });
 
   return {
-    source: timeline,
+    source: resolvedTimeline,
     tracks,
     totalDuration: Math.max(0, ...tracks.map((track) => track.duration))
   };

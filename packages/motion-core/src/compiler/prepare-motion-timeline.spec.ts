@@ -277,4 +277,43 @@ describe('prepareMotionTimeline', () => {
       from: 'center'
     });
   });
+
+  it('prepares timeline using timeline defaults', () => {
+    const timeline: MotionTimelineDefinition = {
+      defaults: {
+        duration: 300,
+        delay: 50,
+        easing: 'ease-out',
+        fill: 'both'
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.source).not.toBe(timeline);
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      duration: 300,
+      delay: 50,
+      startTime: 50,
+      endTime: 350,
+      easing: 'ease-out',
+      fill: 'both'
+    });
+  });
 });

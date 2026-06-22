@@ -24,13 +24,18 @@ export function simplifyWebTimeline(timeline: MotionTimelineDefinition): MotionT
   return {
     tracks: timeline.tracks.map((track) => ({
       target: track.target,
-      steps: track.steps.map((step) => ({
-        keyframes: step.keyframes.map((keyframe) => simplifyWebKeyframe(keyframe)),
-        duration: Math.min(step.duration, 150),
-        delay: 0,
-        easing: 'ease-out',
-        fill: step.fill ?? 'both'
-      }))
+      steps: track.steps.map((step) => {
+        const duration =
+          step.duration ?? timeline.defaults?.duration ?? track.defaults?.duration ?? 0;
+
+        return {
+          keyframes: step.keyframes.map((keyframe) => simplifyWebKeyframe(keyframe)),
+          duration: Math.min(duration, 150),
+          delay: 0,
+          easing: 'ease-out',
+          fill: step.fill ?? track.defaults?.fill ?? timeline.defaults?.fill ?? 'both'
+        };
+      })
     }))
   };
 }

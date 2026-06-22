@@ -330,4 +330,191 @@ describe('validateMotionTimeline', () => {
       })
     );
   });
+
+  it('accepts steps without duration when timeline default duration is provided', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        duration: 300
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('accepts steps without duration when track default duration is provided', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          defaults: {
+            duration: 200
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('rejects steps without duration when no default duration is provided', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-duration'
+        })
+      ])
+    );
+  });
+
+  it('rejects invalid timeline default duration', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        duration: -1
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-default-duration'
+        })
+      ])
+    );
+  });
+
+  it('rejects invalid track default delay', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        duration: 300
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          defaults: {
+            delay: -1
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-default-delay'
+        })
+      ])
+    );
+  });
+
+  it('rejects empty timeline default easing', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        duration: 300,
+        easing: ''
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-default-easing'
+        })
+      ])
+    );
+  });
 });

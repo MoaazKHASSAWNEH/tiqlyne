@@ -51,9 +51,11 @@ export type { MotionPlaybackResult, MotionPlaybackStatus } from './models/motion
 export type { MotionTargetReference } from './models/motion-target';
 
 export type {
+  MotionFillMode,
   MotionStaggerDefinition,
   MotionStaggerFrom,
   MotionStepDefinition,
+  MotionTimelineDefaults,
   MotionTrackDefinition,
   MotionTimelineDefinition
 } from './models/motion-timeline';
@@ -88,6 +90,13 @@ export { validateMotionTimeline } from './validators/validate-motion-timeline';
 export type { MotionValidationResult } from './models/motion-validation-result';
 
 export { prepareMotionTimeline } from './compiler/prepare-motion-timeline';
+
+export {
+  applyMotionStepDefaults,
+  applyMotionTimelineDefaults,
+  hasMotionTimelineDefaults,
+  mergeMotionTimelineDefaults
+} from './compiler/apply-motion-timeline-defaults';
 
 export type {
   PreparedMotionStep,

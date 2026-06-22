@@ -2,7 +2,7 @@ import type { MotionStepDefinition, ScheduledMotionTask } from '@structifyx/moti
 
 export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnimationOptions {
   return {
-    duration: step.duration,
+    duration: step.duration ?? 0,
     delay: step.delay ?? 0,
     easing: step.easing ?? 'ease',
     fill: step.fill ?? 'both'
