@@ -46,4 +46,10 @@ export {
   isActiveWebAnimation
 } from './utils/resolve-web-conflict';
 
+export {
+  createWebAnimationsFromScheduledTimeline,
+  createWebAnimationsFromTimeline,
+  type WebTimelineAnimationCreationResult
+} from './utils/create-web-timeline-animations';
+
 export const motionWebVersion = '0.1.0';

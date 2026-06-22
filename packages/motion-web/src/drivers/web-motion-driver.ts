@@ -4,17 +4,10 @@ import {
   type MotionPlayOptions,
   type MotionPlaybackResult,
   type MotionPlaybackController,
-  type MotionTimelineDefinition,
-  type ScheduledMotionTask,
-  type ScheduledMotionTimeline
+  type MotionTimelineDefinition
 } from '@structifyx/motion-core';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
-import { resolveStaggerOffset } from '../utils/resolve-stagger-offset';
 import { resolveWebTargets, resolveWebTrackTargets } from '../utils/resolve-web-targets';
-import {
-  createWebAnimationFromStep,
-  createWebAnimationsFromScheduledTask
-} from '../utils/create-web-animation';
 import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
 import {
   createFailedWebPlayback,
@@ -32,6 +25,10 @@ import {
   getEffectiveWebConflictStrategy,
   hasActiveWebAnimations
 } from '../utils/resolve-web-conflict';
+import {
+  createWebAnimationsFromScheduledTimeline,
+  createWebAnimationsFromTimeline
+} from '../utils/create-web-timeline-animations';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -100,26 +97,6 @@ export class WebMotionDriver implements MotionDriver<Element> {
     };
   }
 
-  private createAnimationsFromScheduledTask(
-    root: Element,
-    scheduledTimeline: ScheduledMotionTimeline,
-    task: ScheduledMotionTask
-  ): ReadonlyArray<Animation> | null {
-    const track = scheduledTimeline.source.tracks[task.trackIndex];
-
-    if (!track) {
-      return null;
-    }
-
-    const taskTargets = resolveWebTargets(root, track.target);
-
-    if (taskTargets.length === 0) {
-      return null;
-    }
-
-    return createWebAnimationsFromScheduledTask(taskTargets, task, track.stagger);
-  }
-
   private createWebPlayback(
     target: Element,
     timeline: MotionTimelineDefinition,
@@ -181,46 +158,16 @@ export class WebMotionDriver implements MotionDriver<Element> {
       cancelWebAnimations(trackTargets);
     }
 
-    const animations: Animation[] = [];
+    const animationCreation =
+      scheduledTimeline !== undefined
+        ? createWebAnimationsFromScheduledTimeline(target, scheduledTimeline)
+        : createWebAnimationsFromTimeline(target, playableTimeline);
 
-    if (scheduledTimeline !== undefined) {
-      for (const task of scheduledTimeline.tasks) {
-        const taskAnimations = this.createAnimationsFromScheduledTask(
-          target,
-          scheduledTimeline,
-          task
-        );
-
-        if (!taskAnimations) {
-          return createFailedWebPlayback('target-not-found', animations);
-        }
-
-        animations.push(...taskAnimations);
-      }
-    } else {
-      for (const track of playableTimeline.tracks) {
-        const trackTargets = resolveWebTargets(target, track.target);
-
-        if (trackTargets.length === 0) {
-          return createFailedWebPlayback('target-not-found', animations);
-        }
-
-        for (const step of track.steps) {
-          for (const [targetIndex, trackTarget] of trackTargets.entries()) {
-            const staggerOffset = resolveStaggerOffset(
-              track.stagger,
-              targetIndex,
-              trackTargets.length
-            );
-            const animation = createWebAnimationFromStep(trackTarget, step, staggerOffset);
-
-            animations.push(animation);
-          }
-        }
-      }
+    if (!animationCreation.ok) {
+      return createFailedWebPlayback(animationCreation.reason, animationCreation.animations);
     }
 
-    return createFinishedWebPlayback(animations, diagnostics);
+    return createFinishedWebPlayback(animationCreation.animations, diagnostics);
   }
 
   private createPlaybackId(): string {
