@@ -328,13 +328,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
         const trackTargets = resolveWebTargets(target, track.target);
 
         if (trackTargets.length === 0) {
-          return {
-            animations,
-            finished: Promise.resolve({
-              status: 'failed',
-              reason: 'target-not-found'
-            })
-          };
+          return createFailedWebPlayback('target-not-found', animations);
         }
 
         for (const step of track.steps) {
