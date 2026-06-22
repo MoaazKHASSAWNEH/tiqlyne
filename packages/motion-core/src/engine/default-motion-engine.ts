@@ -8,6 +8,7 @@ import type { MotionDefinition } from '../contracts/motion-definition';
 import { PromiseMotionPlaybackController } from '../controllers/promise-motion-playback-controller';
 import type { MotionPlaybackController } from '../models/motion-playback-controller';
 import { validateMotionTimeline } from '../validators/validate-motion-timeline';
+import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -65,6 +66,10 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         return timelineValidationResult;
       }
 
+      const preparedTimeline = prepareMotionTimeline(timeline);
+
+      void preparedTimeline;
+
       const reducedMotionTimeline =
         normalizedConfig.reducedMotionStrategy === 'simplify'
           ? definition.buildReducedMotionTimeline?.(buildContext)
@@ -80,6 +85,13 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
           };
         }
       }
+
+      const preparedReducedMotionTimeline =
+        reducedMotionTimeline !== undefined
+          ? prepareMotionTimeline(reducedMotionTimeline)
+          : undefined;
+
+      void preparedReducedMotionTimeline;
 
       return await this.dependencies.driver.play(target, timeline, {
         trigger: normalizedConfig.trigger,
@@ -185,6 +197,10 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         return fallback();
       }
 
+      const preparedTimeline = prepareMotionTimeline(timeline);
+
+      void preparedTimeline;
+
       const reducedMotionTimeline =
         normalizedConfig.reducedMotionStrategy === 'simplify'
           ? definition.buildReducedMotionTimeline?.(buildContext)
@@ -197,6 +213,13 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
           return fallback();
         }
       }
+
+      const preparedReducedMotionTimeline =
+        reducedMotionTimeline !== undefined
+          ? prepareMotionTimeline(reducedMotionTimeline)
+          : undefined;
+
+      void preparedReducedMotionTimeline;
 
       if (!this.dependencies.driver.createPlayback) {
         return fallback();

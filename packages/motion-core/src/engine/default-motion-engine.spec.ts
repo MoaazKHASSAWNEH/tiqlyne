@@ -349,6 +349,55 @@ describe('DefaultMotionEngine', () => {
     });
   });
 
+  it('prepares timeline before delegating playback to the driver', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_prepare_001',
+      type: 'test-motion',
+      trigger: 'onClick',
+      duration: 400,
+      delay: 50,
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(driver.getCalls()).toHaveLength(1);
+    expect(driver.getCalls()[0]?.options.timelineValidated).toBe(true);
+  });
+
+  it('prepares timeline before delegating native playback creation to the driver', async () => {
+    const registry = new DefaultMotionRegistry();
+    const driver = new NativePlaybackTestDriver();
+    const normalizer = new DefaultMotionConfigNormalizer();
+
+    const engine = new DefaultMotionEngine<string>({
+      registry,
+      driver,
+      normalizer
+    });
+
+    registry.register(new TestMotionDefinition());
+
+    const playback = engine.createPlayback('target-1', {
+      id: 'motion_prepare_playback_001',
+      type: 'test-motion',
+      trigger: 'onClick',
+      duration: 400
+    });
+
+    expect(playback).toBe(driver.controller);
+    expect(driver.createPlaybackCalls).toHaveLength(1);
+    expect(driver.createPlaybackCalls[0]?.options.timelineValidated).toBe(true);
+  });
+
   it('passes a reduced motion timeline to the driver when strategy is simplify', async () => {
     const { engine, registry, driver } = createEngine();
 
