@@ -4,8 +4,10 @@ import type { MotionEngine } from '../contracts/motion-engine';
 import type { MotionRegistry } from '../contracts/motion-registry';
 import type { MotionConfig } from '../models/motion-config';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import type { MotionDefinition } from '../contracts/motion-definition';
 import { PromiseMotionPlaybackController } from '../controllers/promise-motion-playback-controller';
 import type { MotionPlaybackController } from '../models/motion-playback-controller';
+import { validateMotionTimeline } from '../validators/validate-motion-timeline';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -57,10 +59,27 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
       const timeline = definition.buildTimeline(buildContext);
 
+      const timelineValidationResult = this.validateTimeline(timeline);
+
+      if (timelineValidationResult) {
+        return timelineValidationResult;
+      }
+
       const reducedMotionTimeline =
         normalizedConfig.reducedMotionStrategy === 'simplify'
           ? definition.buildReducedMotionTimeline?.(buildContext)
           : undefined;
+
+      if (reducedMotionTimeline !== undefined) {
+        const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
+
+        if (reducedTimelineValidationResult) {
+          return {
+            ...reducedTimelineValidationResult,
+            reason: 'invalid-reduced-motion-timeline'
+          };
+        }
+      }
 
       return await this.dependencies.driver.play(target, timeline, {
         trigger: normalizedConfig.trigger,
@@ -158,10 +177,24 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
       const timeline = definition.buildTimeline(buildContext);
 
+      const timelineValidationResult = this.validateTimeline(timeline);
+
+      if (timelineValidationResult) {
+        return fallback();
+      }
+
       const reducedMotionTimeline =
         normalizedConfig.reducedMotionStrategy === 'simplify'
           ? definition.buildReducedMotionTimeline?.(buildContext)
           : undefined;
+
+      if (reducedMotionTimeline !== undefined) {
+        const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
+
+        if (reducedTimelineValidationResult) {
+          return fallback();
+        }
+      }
 
       if (!this.dependencies.driver.createPlayback) {
         return fallback();
@@ -181,5 +214,21 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     } catch {
       return fallback();
     }
+  }
+
+  private validateTimeline(
+    timeline: ReturnType<MotionDefinition['buildTimeline']>
+  ): MotionPlaybackResult | null {
+    const validation = validateMotionTimeline(timeline);
+
+    if (validation.valid) {
+      return null;
+    }
+
+    return {
+      status: 'failed',
+      reason: 'invalid-timeline',
+      diagnostics: validation.diagnostics
+    };
   }
 }

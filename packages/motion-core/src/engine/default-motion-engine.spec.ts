@@ -80,6 +80,28 @@ class ThrowingMotionDefinition extends TestMotionDefinition {
   }
 }
 
+class InvalidTimelineMotionDefinition extends TestMotionDefinition {
+  override readonly type = 'invalid-timeline-motion';
+
+  override buildTimeline(): MotionTimelineDefinition {
+    return {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: -1,
+              keyframes: []
+            }
+          ]
+        }
+      ]
+    };
+  }
+}
+
 class ReducedMotionAwareMotionDefinition extends TestMotionDefinition {
   override readonly type = 'reduced-aware-motion';
 
@@ -103,6 +125,28 @@ class ReducedMotionAwareMotionDefinition extends TestMotionDefinition {
                   opacity: 1
                 }
               ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+}
+
+class InvalidReducedMotionTimelineDefinition extends TestMotionDefinition {
+  override readonly type = 'invalid-reduced-motion-timeline';
+
+  buildReducedMotionTimeline(): MotionTimelineDefinition {
+    return {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: -1,
+              keyframes: []
             }
           ]
         }
@@ -395,6 +439,38 @@ describe('DefaultMotionEngine', () => {
     expect(driver.getCalls()).toHaveLength(0);
   });
 
+  it('returns failed result when reduced motion timeline is invalid', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new InvalidReducedMotionTimelineDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_invalid_reduced_timeline_001',
+      type: 'invalid-reduced-motion-timeline',
+      trigger: 'onEnter',
+      reducedMotionStrategy: 'simplify'
+    });
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'invalid-reduced-motion-timeline',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'timeline-empty-keyframes',
+          source: 'motion-timeline-validator'
+        },
+        {
+          level: 'error',
+          code: 'timeline-invalid-duration',
+          source: 'motion-timeline-validator'
+        }
+      ]
+    });
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
   it('returns failed result when timeline building throws', async () => {
     const { engine, registry, driver } = createEngine();
 
@@ -409,6 +485,46 @@ describe('DefaultMotionEngine', () => {
     expect(result.status).toBe('failed');
     expect(result.reason).toBe('motion-engine-error');
     expect(result.error).toBeInstanceOf(Error);
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('returns failed result when timeline is invalid', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new InvalidTimelineMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_invalid_timeline_001',
+      type: 'invalid-timeline-motion',
+      trigger: 'onEnter'
+    });
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'invalid-timeline',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'timeline-empty-keyframes',
+          source: 'motion-timeline-validator',
+          metadata: {
+            trackIndex: 0,
+            stepIndex: 0
+          }
+        },
+        {
+          level: 'error',
+          code: 'timeline-invalid-duration',
+          source: 'motion-timeline-validator',
+          metadata: {
+            trackIndex: 0,
+            stepIndex: 0,
+            duration: -1
+          }
+        }
+      ]
+    });
 
     expect(driver.getCalls()).toHaveLength(0);
   });
@@ -486,6 +602,39 @@ describe('DefaultMotionEngine', () => {
     });
 
     expect(playback.status).toBe('finished');
+  });
+
+  it('creates fallback playback when timeline is invalid', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new InvalidTimelineMotionDefinition());
+
+    const playback = engine.createPlayback('target-1', {
+      id: 'motion_invalid_playback_001',
+      type: 'invalid-timeline-motion',
+      trigger: 'onClick'
+    });
+
+    expect(playback.id).toBe('motion_invalid_playback_001');
+
+    await expect(playback.finished).resolves.toMatchObject({
+      status: 'failed',
+      reason: 'invalid-timeline',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'timeline-empty-keyframes',
+          source: 'motion-timeline-validator'
+        },
+        {
+          level: 'error',
+          code: 'timeline-invalid-duration',
+          source: 'motion-timeline-validator'
+        }
+      ]
+    });
+
+    expect(driver.getCalls()).toHaveLength(0);
   });
 
   it('cancels a playback controller', async () => {
