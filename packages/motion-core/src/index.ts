@@ -105,4 +105,10 @@ export type {
   ScheduledMotionTimeline
 } from './models/scheduled-motion-timeline';
 
+export { createMotionExecutionPlanSummary } from './planner/create-motion-execution-plan-summary';
+
+export type { CreateMotionExecutionPlanSummaryInput } from './planner/create-motion-execution-plan-summary';
+
+export type { MotionExecutionPlanSummary } from './models/motion-execution-plan-summary';
+
 export const motionCoreVersion = '0.1.0';

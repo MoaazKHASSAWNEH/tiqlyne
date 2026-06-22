@@ -26,6 +26,12 @@ describe('createMotionExecutionPlan', () => {
     expect(plan.scheduledTimeline.source).toBe(plan.preparedTimeline);
     expect(plan.scheduledTimeline.totalDuration).toBe(300);
     expect(plan.scheduledTimeline.tasks).toHaveLength(1);
+    expect(plan.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 300,
+      hasReducedMotionTimeline: false
+    });
   });
 
   it('creates an execution plan with a prepared reduced motion timeline', () => {
@@ -42,6 +48,13 @@ describe('createMotionExecutionPlan', () => {
     expect(plan.preparedReducedMotionTimeline?.totalDuration).toBe(120);
     expect(plan.scheduledReducedMotionTimeline?.source).toBe(plan.preparedReducedMotionTimeline);
     expect(plan.scheduledReducedMotionTimeline?.totalDuration).toBe(120);
+    expect(plan.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 300,
+      hasReducedMotionTimeline: true,
+      reducedMotionTotalDuration: 120
+    });
   });
 
   it('preserves diagnostics', () => {
@@ -104,6 +117,9 @@ describe('createMotionExecutionPlan', () => {
 
     expect(plan.preparedTimeline.totalDuration).toBe(350);
     expect(plan.scheduledTimeline.totalDuration).toBe(350);
+    expect(plan.summary.totalDuration).toBe(350);
+    expect(plan.summary.trackCount).toBe(2);
+    expect(plan.summary.taskCount).toBe(2);
   });
 });
 

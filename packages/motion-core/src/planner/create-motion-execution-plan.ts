@@ -3,6 +3,7 @@ import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionExecutionPlan } from '../models/motion-execution-plan';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import { scheduleMotionTimeline } from '../scheduler/schedule-motion-timeline';
+import { createMotionExecutionPlanSummary } from './create-motion-execution-plan-summary';
 
 export type CreateMotionExecutionPlanInput = {
   readonly timeline: MotionTimelineDefinition;
@@ -26,6 +27,21 @@ export function createMotionExecutionPlan(
       ? scheduleMotionTimeline(preparedReducedMotionTimeline)
       : undefined;
 
+  const summary = createMotionExecutionPlanSummary({
+    preparedTimeline,
+    scheduledTimeline,
+    ...(preparedReducedMotionTimeline !== undefined
+      ? {
+          preparedReducedMotionTimeline
+        }
+      : {}),
+    ...(scheduledReducedMotionTimeline !== undefined
+      ? {
+          scheduledReducedMotionTimeline
+        }
+      : {})
+  });
+
   return {
     timeline: input.timeline,
     preparedTimeline,
@@ -45,6 +61,7 @@ export function createMotionExecutionPlan(
           scheduledReducedMotionTimeline
         }
       : {}),
+    summary,
     diagnostics: input.diagnostics ?? []
   };
 }
