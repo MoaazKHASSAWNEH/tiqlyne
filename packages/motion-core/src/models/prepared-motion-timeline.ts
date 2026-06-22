@@ -21,8 +21,8 @@ export type PreparedMotionTrack = {
   readonly target: MotionTargetReference;
   readonly steps: ReadonlyArray<PreparedMotionStep>;
   readonly duration: number;
+  readonly stagger?: number;
 };
-
 export type PreparedMotionTimeline = {
   readonly source: MotionTimelineDefinition;
   readonly tracks: ReadonlyArray<PreparedMotionTrack>;

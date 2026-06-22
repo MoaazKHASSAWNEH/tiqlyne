@@ -217,4 +217,31 @@ describe('prepareMotionTimeline', () => {
       keyframes
     });
   });
+
+  it('preserves track stagger', () => {
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          stagger: 80,
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.stagger).toBe(80);
+  });
 });

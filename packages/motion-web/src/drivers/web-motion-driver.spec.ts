@@ -322,6 +322,106 @@ describe('WebMotionDriver', () => {
     );
   });
 
+  it('applies track stagger to multiple selector targets when execution plan is provided', async () => {
+    const driver = new WebMotionDriver();
+    const root = new FakeElement();
+    const first = new FakeElement();
+    const second = new FakeElement();
+    const third = new FakeElement();
+
+    root.setQueryAllResult('.item', [asElement(first), asElement(second), asElement(third)]);
+
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'selector',
+            selector: '.item'
+          },
+          stagger: 80,
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const result = await driver.play(asElement(root), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(first.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 0,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(second.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 80,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(third.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 160,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+  });
+
   it('uses execution plan reduced motion timeline when simplifying playback', async () => {
     const driver = new WebMotionDriver({
       reducedMotion: true
@@ -1592,6 +1692,16 @@ describe('WebMotionDriver', () => {
 });
 
 class FakeElement {
+  private readonly queryAllResults = new Map<string, ReadonlyArray<Element>>();
+
+  setQueryAllResult(selector: string, elements: ReadonlyArray<Element>): void {
+    this.queryAllResults.set(selector, elements);
+  }
+
+  querySelectorAll(selector: string): NodeListOf<Element> {
+    return (this.queryAllResults.get(selector) ?? []) as unknown as NodeListOf<Element>;
+  }
+
   readonly animate = vi.fn(
     (
       _keyframes: Keyframe[] | PropertyIndexedKeyframes,

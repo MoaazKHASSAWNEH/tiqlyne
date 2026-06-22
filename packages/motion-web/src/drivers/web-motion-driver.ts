@@ -177,21 +177,33 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return this.resolveTarget(root, track.target);
   }
 
-  private createAnimationFromScheduledTask(
+  private createAnimationsFromScheduledTask(
     root: Element,
     scheduledTimeline: ScheduledMotionTimeline,
     task: ScheduledMotionTask
-  ): Animation | null {
-    const taskTarget = this.resolveScheduledTaskTarget(root, scheduledTimeline, task);
+  ): ReadonlyArray<Animation> | null {
+    const track = scheduledTimeline.source.tracks[task.trackIndex];
 
-    if (!taskTarget) {
+    if (!track) {
       return null;
     }
 
-    return taskTarget.animate(
-      toWebKeyframes(task.step.keyframes),
-      toWebScheduledTaskTimingOptions(task)
-    );
+    const taskTargets = this.resolveTargets(root, track.target);
+
+    if (taskTargets.length === 0) {
+      return null;
+    }
+
+    const stagger = track.stagger ?? 0;
+
+    return taskTargets.map((taskTarget, targetIndex) => {
+      const timing = toWebScheduledTaskTimingOptions(task);
+
+      return taskTarget.animate(toWebKeyframes(task.step.keyframes), {
+        ...timing,
+        delay: Number(timing.delay ?? 0) + targetIndex * stagger
+      });
+    });
   }
 
   private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
@@ -216,13 +228,13 @@ export class WebMotionDriver implements MotionDriver<Element> {
     const targets: Element[] = [];
 
     for (const track of timeline.tracks) {
-      const target = this.resolveTarget(root, track.target);
+      const resolvedTargets = this.resolveTargets(root, track.target);
 
-      if (!target) {
+      if (resolvedTargets.length === 0) {
         return null;
       }
 
-      targets.push(target);
+      targets.push(...resolvedTargets);
     }
 
     return targets;
@@ -249,6 +261,28 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
       case 'named':
         return document.querySelector(`[data-motion-name="${target.name}"]`);
+    }
+  }
+
+  private resolveTargets(root: Element, target: TimelineTargetReference): ReadonlyArray<Element> {
+    switch (target.type) {
+      case 'self':
+        return [root];
+
+      case 'child': {
+        const element = root.querySelector(`[data-motion-child="${target.name}"]`);
+
+        return element ? [element] : [];
+      }
+
+      case 'selector':
+        return Array.from(root.querySelectorAll(target.selector));
+
+      case 'named': {
+        const element = document.querySelector(`[data-motion-name="${target.name}"]`);
+
+        return element ? [element] : [];
+      }
     }
   }
 
@@ -376,9 +410,13 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
     if (scheduledTimeline !== undefined) {
       for (const task of scheduledTimeline.tasks) {
-        const animation = this.createAnimationFromScheduledTask(target, scheduledTimeline, task);
+        const taskAnimations = this.createAnimationsFromScheduledTask(
+          target,
+          scheduledTimeline,
+          task
+        );
 
-        if (!animation) {
+        if (!taskAnimations) {
           return {
             animations,
             finished: Promise.resolve({
@@ -388,7 +426,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
           };
         }
 
-        animations.push(animation);
+        animations.push(...taskAnimations);
       }
     } else {
       for (const track of playableTimeline.tracks) {

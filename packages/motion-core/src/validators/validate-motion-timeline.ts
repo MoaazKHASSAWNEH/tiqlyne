@@ -16,6 +16,19 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
   timeline.tracks.forEach((track, trackIndex) => {
     validateTarget(track.target, trackIndex, diagnostics);
 
+    if (track.stagger !== undefined && (!Number.isFinite(track.stagger) || track.stagger < 0)) {
+      diagnostics.push(
+        createErrorDiagnostic(
+          'timeline-invalid-stagger',
+          'Timeline track stagger must be a finite non-negative number.',
+          {
+            trackIndex,
+            stagger: track.stagger
+          }
+        )
+      );
+    }
+
     if (track.steps.length === 0) {
       diagnostics.push(
         createErrorDiagnostic(

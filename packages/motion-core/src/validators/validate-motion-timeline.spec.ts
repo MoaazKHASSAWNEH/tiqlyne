@@ -215,4 +215,40 @@ describe('validateMotionTimeline', () => {
       'timeline-invalid-delay'
     ]);
   });
+
+  it('returns diagnostic when track stagger is invalid', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          stagger: -1,
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-stagger',
+        source: 'motion-timeline-validator',
+        metadata: {
+          trackIndex: 0,
+          stagger: -1
+        }
+      })
+    );
+  });
 });

@@ -47,7 +47,12 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
       trackIndex,
       target: track.target,
       steps,
-      duration: cursor
+      duration: cursor,
+      ...(track.stagger !== undefined
+        ? {
+            stagger: track.stagger
+          }
+        : {})
     };
   });
 

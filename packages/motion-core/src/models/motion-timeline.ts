@@ -13,6 +13,7 @@ export type MotionStepDefinition = {
 export type MotionTrackDefinition = {
   readonly target: MotionTargetReference;
   readonly steps: ReadonlyArray<MotionStepDefinition>;
+  readonly stagger?: number;
 };
 
 export type MotionTimelineDefinition = {
