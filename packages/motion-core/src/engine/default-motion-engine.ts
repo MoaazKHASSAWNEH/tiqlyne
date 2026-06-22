@@ -8,7 +8,7 @@ import type { MotionDefinition } from '../contracts/motion-definition';
 import { PromiseMotionPlaybackController } from '../controllers/promise-motion-playback-controller';
 import type { MotionPlaybackController } from '../models/motion-playback-controller';
 import { validateMotionTimeline } from '../validators/validate-motion-timeline';
-import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
+import { createMotionExecutionPlan } from '../planner/create-motion-execution-plan';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -66,10 +66,6 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         return timelineValidationResult;
       }
 
-      const preparedTimeline = prepareMotionTimeline(timeline);
-
-      void preparedTimeline;
-
       const reducedMotionTimeline =
         normalizedConfig.reducedMotionStrategy === 'simplify'
           ? definition.buildReducedMotionTimeline?.(buildContext)
@@ -86,14 +82,16 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         }
       }
 
-      const preparedReducedMotionTimeline =
-        reducedMotionTimeline !== undefined
-          ? prepareMotionTimeline(reducedMotionTimeline)
-          : undefined;
+      const executionPlan = createMotionExecutionPlan({
+        timeline,
+        ...(reducedMotionTimeline !== undefined
+          ? {
+              reducedMotionTimeline
+            }
+          : {})
+      });
 
-      void preparedReducedMotionTimeline;
-
-      return await this.dependencies.driver.play(target, timeline, {
+      return await this.dependencies.driver.play(target, executionPlan.timeline, {
         trigger: normalizedConfig.trigger,
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
@@ -101,7 +99,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         timelineValidated: true,
         ...(reducedMotionTimeline !== undefined
           ? {
-              reducedMotionTimeline,
+              reducedMotionTimeline: executionPlan.reducedMotionTimeline,
               reducedMotionTimelineValidated: true
             }
           : {})
@@ -197,10 +195,6 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         return fallback();
       }
 
-      const preparedTimeline = prepareMotionTimeline(timeline);
-
-      void preparedTimeline;
-
       const reducedMotionTimeline =
         normalizedConfig.reducedMotionStrategy === 'simplify'
           ? definition.buildReducedMotionTimeline?.(buildContext)
@@ -214,18 +208,20 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         }
       }
 
-      const preparedReducedMotionTimeline =
-        reducedMotionTimeline !== undefined
-          ? prepareMotionTimeline(reducedMotionTimeline)
-          : undefined;
-
-      void preparedReducedMotionTimeline;
+      const executionPlan = createMotionExecutionPlan({
+        timeline,
+        ...(reducedMotionTimeline !== undefined
+          ? {
+              reducedMotionTimeline
+            }
+          : {})
+      });
 
       if (!this.dependencies.driver.createPlayback) {
         return fallback();
       }
 
-      return this.dependencies.driver.createPlayback(target, timeline, {
+      return this.dependencies.driver.createPlayback(target, executionPlan.timeline, {
         trigger: normalizedConfig.trigger,
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
@@ -233,7 +229,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         timelineValidated: true,
         ...(reducedMotionTimeline !== undefined
           ? {
-              reducedMotionTimeline,
+              reducedMotionTimeline: executionPlan.reducedMotionTimeline,
               reducedMotionTimelineValidated: true
             }
           : {})

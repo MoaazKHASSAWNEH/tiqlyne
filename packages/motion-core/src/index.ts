@@ -92,4 +92,10 @@ export type {
   PreparedMotionTrack
 } from './models/prepared-motion-timeline';
 
+export { createMotionExecutionPlan } from './planner/create-motion-execution-plan';
+
+export type { CreateMotionExecutionPlanInput } from './planner/create-motion-execution-plan';
+
+export type { MotionExecutionPlan } from './models/motion-execution-plan';
+
 export const motionCoreVersion = '0.1.0';
