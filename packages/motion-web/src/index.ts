@@ -23,4 +23,11 @@ export {
 
 export type { WebPlaybackCreationResult } from './models/web-playback-creation-result';
 
+export {
+  createFailedWebPlayback,
+  createFinishedWebPlayback,
+  createResolvedWebPlayback,
+  createSkippedWebPlayback
+} from './utils/create-web-playback-result';
+
 export const motionWebVersion = '0.1.0';

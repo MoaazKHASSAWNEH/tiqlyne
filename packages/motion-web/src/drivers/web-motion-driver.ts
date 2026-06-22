@@ -20,6 +20,11 @@ import {
   createWebAnimationsFromScheduledTask
 } from '../utils/create-web-animation';
 import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
+import {
+  createFailedWebPlayback,
+  createFinishedWebPlayback,
+  createSkippedWebPlayback
+} from '../utils/create-web-playback-result';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -241,13 +246,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       options.respectReducedMotion && this.options.reducedMotion === true;
 
     if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'skip') {
-      return {
-        animations: [],
-        finished: Promise.resolve({
-          status: 'skipped',
-          reason: 'reduced-motion'
-        })
-      };
+      return createSkippedWebPlayback('reduced-motion');
     }
 
     const hasProvidedReducedMotionTimeline =
@@ -286,39 +285,22 @@ export class WebMotionDriver implements MotionDriver<Element> {
       const validation = validateMotionTimeline(playableTimeline);
 
       if (!validation.valid) {
-        return {
-          animations: [],
-          finished: Promise.resolve({
-            status: 'failed',
-            reason: 'invalid-timeline',
-            diagnostics: validation.diagnostics
-          })
-        };
+        return createFailedWebPlayback('invalid-timeline', [], {
+          diagnostics: validation.diagnostics
+        });
       }
     }
 
     const trackTargets = resolveWebTrackTargets(target, playableTimeline);
 
     if (!trackTargets) {
-      return {
-        animations: [],
-        finished: Promise.resolve({
-          status: 'failed',
-          reason: 'target-not-found'
-        })
-      };
+      return createFailedWebPlayback('target-not-found');
     }
 
     const conflictStrategy = this.getEffectiveConflictStrategy(options);
 
     if (conflictStrategy === 'ignore' && this.hasActiveAnimations(trackTargets)) {
-      return {
-        animations: [],
-        finished: Promise.resolve({
-          status: 'skipped',
-          reason: 'motion-conflict-ignored'
-        })
-      };
+      return createSkippedWebPlayback('motion-conflict-ignored');
     }
 
     if (conflictStrategy === 'replace') {
@@ -336,13 +318,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
         );
 
         if (!taskAnimations) {
-          return {
-            animations,
-            finished: Promise.resolve({
-              status: 'failed',
-              reason: 'target-not-found'
-            })
-          };
+          return createFailedWebPlayback('target-not-found', animations);
         }
 
         animations.push(...taskAnimations);
@@ -376,27 +352,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       }
     }
 
-    return {
-      animations,
-      finished: Promise.all(animations.map((animation) => animation.finished))
-        .then(
-          (): MotionPlaybackResult => ({
-            status: 'finished',
-            ...(diagnostics.length > 0
-              ? {
-                  diagnostics
-                }
-              : {})
-          })
-        )
-        .catch(
-          (error: unknown): MotionPlaybackResult => ({
-            status: 'failed',
-            reason: 'web-animation-error',
-            error
-          })
-        )
-    };
+    return createFinishedWebPlayback(animations, diagnostics);
   }
 
   private createPlaybackId(): string {
