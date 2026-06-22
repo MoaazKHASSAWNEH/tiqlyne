@@ -1,6 +1,15 @@
 import type { MotionKeyframe } from './motion-keyframe';
 import type { MotionTargetReference } from './motion-target';
 
+export type MotionStaggerFrom = 'start' | 'end' | 'center';
+
+export type MotionStaggerDefinition =
+  | number
+  | {
+      readonly each: number;
+      readonly from?: MotionStaggerFrom;
+    };
+
 export type MotionStepDefinition = {
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
   readonly duration: number;
@@ -13,7 +22,7 @@ export type MotionStepDefinition = {
 export type MotionTrackDefinition = {
   readonly target: MotionTargetReference;
   readonly steps: ReadonlyArray<MotionStepDefinition>;
-  readonly stagger?: number;
+  readonly stagger?: MotionStaggerDefinition;
 };
 
 export type MotionTimelineDefinition = {

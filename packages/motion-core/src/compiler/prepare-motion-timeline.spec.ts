@@ -244,4 +244,37 @@ describe('prepareMotionTimeline', () => {
 
     expect(prepared.tracks[0]?.stagger).toBe(80);
   });
+
+  it('preserves advanced track stagger options', () => {
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          stagger: {
+            each: 80,
+            from: 'center'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.stagger).toEqual({
+      each: 80,
+      from: 'center'
+    });
+  });
 });

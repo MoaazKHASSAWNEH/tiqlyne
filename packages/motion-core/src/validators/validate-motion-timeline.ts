@@ -1,7 +1,7 @@
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
 import type { MotionTargetReference } from '../models/motion-target';
-import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type { MotionStaggerDefinition, MotionTimelineDefinition } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
 
 export function validateMotionTimeline(timeline: MotionTimelineDefinition): MotionValidationResult {
@@ -16,18 +16,7 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
   timeline.tracks.forEach((track, trackIndex) => {
     validateTarget(track.target, trackIndex, diagnostics);
 
-    if (track.stagger !== undefined && (!Number.isFinite(track.stagger) || track.stagger < 0)) {
-      diagnostics.push(
-        createErrorDiagnostic(
-          'timeline-invalid-stagger',
-          'Timeline track stagger must be a finite non-negative number.',
-          {
-            trackIndex,
-            stagger: track.stagger
-          }
-        )
-      );
-    }
+    validateStagger(track.stagger, trackIndex, diagnostics);
 
     if (track.steps.length === 0) {
       diagnostics.push(
@@ -123,6 +112,61 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
     valid: diagnostics.every((diagnostic) => diagnostic.level !== 'error'),
     diagnostics
   };
+}
+
+function validateStagger(
+  stagger: MotionStaggerDefinition | undefined,
+  trackIndex: number,
+  diagnostics: MotionDiagnostic[]
+): void {
+  if (stagger === undefined) {
+    return;
+  }
+
+  if (typeof stagger === 'number') {
+    validateStaggerValue(stagger, trackIndex, diagnostics);
+
+    return;
+  }
+
+  validateStaggerValue(stagger.each, trackIndex, diagnostics);
+
+  if (
+    stagger.from !== undefined &&
+    stagger.from !== 'start' &&
+    stagger.from !== 'end' &&
+    stagger.from !== 'center'
+  ) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-stagger-from',
+        'Timeline track stagger from must be start, end or center.',
+        {
+          trackIndex,
+          from: stagger.from
+        }
+      )
+    );
+  }
+}
+
+function validateStaggerValue(
+  stagger: number,
+  trackIndex: number,
+  diagnostics: MotionDiagnostic[]
+): void {
+  if (!Number.isFinite(stagger) || stagger < 0) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-stagger',
+        'Timeline track stagger must be a finite non-negative number.',
+        {
+          trackIndex,
+          stagger
+        }
+      )
+    );
+  }
 }
 
 function validateTarget(

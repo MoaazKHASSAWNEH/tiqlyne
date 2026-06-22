@@ -1,6 +1,10 @@
 import type { MotionKeyframe } from './motion-keyframe';
 import type { MotionTargetReference } from './motion-target';
-import type { MotionStepDefinition, MotionTimelineDefinition } from './motion-timeline';
+import type {
+  MotionStepDefinition,
+  MotionStaggerDefinition,
+  MotionTimelineDefinition
+} from './motion-timeline';
 
 export type PreparedMotionStep = {
   readonly trackIndex: number;
@@ -21,8 +25,9 @@ export type PreparedMotionTrack = {
   readonly target: MotionTargetReference;
   readonly steps: ReadonlyArray<PreparedMotionStep>;
   readonly duration: number;
-  readonly stagger?: number;
+  readonly stagger?: MotionStaggerDefinition;
 };
+
 export type PreparedMotionTimeline = {
   readonly source: MotionTimelineDefinition;
   readonly tracks: ReadonlyArray<PreparedMotionTrack>;

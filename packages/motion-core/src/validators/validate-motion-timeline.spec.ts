@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { validateMotionTimeline } from './validate-motion-timeline';
+import type { MotionTimelineDefinition } from '../models/motion-timeline';
 
 describe('validateMotionTimeline', () => {
   it('accepts a valid timeline', () => {
@@ -247,6 +248,84 @@ describe('validateMotionTimeline', () => {
         metadata: {
           trackIndex: 0,
           stagger: -1
+        }
+      })
+    );
+  });
+
+  it('returns diagnostic when advanced track stagger each is invalid', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          stagger: {
+            each: -1,
+            from: 'start'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-stagger',
+        source: 'motion-timeline-validator',
+        metadata: {
+          trackIndex: 0,
+          stagger: -1
+        }
+      })
+    );
+  });
+
+  it('returns diagnostic when advanced track stagger from is invalid', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          stagger: {
+            each: 80,
+            from: 'middle'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    } as unknown as MotionTimelineDefinition);
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-stagger-from',
+        source: 'motion-timeline-validator',
+        metadata: {
+          trackIndex: 0,
+          from: 'middle'
         }
       })
     );

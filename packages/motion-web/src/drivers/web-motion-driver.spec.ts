@@ -422,6 +422,235 @@ describe('WebMotionDriver', () => {
     );
   });
 
+  it('applies advanced stagger from end to multiple selector targets', async () => {
+    const driver = new WebMotionDriver();
+    const root = new FakeElement();
+    const first = new FakeElement();
+    const second = new FakeElement();
+    const third = new FakeElement();
+
+    root.setQueryAllResult('.item', [asElement(first), asElement(second), asElement(third)]);
+
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'selector',
+            selector: '.item'
+          },
+          stagger: {
+            each: 80,
+            from: 'end'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const result = await driver.play(asElement(root), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(first.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 160,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(second.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 80,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(third.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 0,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+  });
+
+  it('applies advanced stagger from center to multiple selector targets', async () => {
+    const driver = new WebMotionDriver();
+    const root = new FakeElement();
+    const first = new FakeElement();
+    const second = new FakeElement();
+    const third = new FakeElement();
+    const fourth = new FakeElement();
+
+    root.setQueryAllResult('.item', [
+      asElement(first),
+      asElement(second),
+      asElement(third),
+      asElement(fourth)
+    ]);
+
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'selector',
+            selector: '.item'
+          },
+          stagger: {
+            each: 80,
+            from: 'center'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const result = await driver.play(asElement(root), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(first.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 80,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(second.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 0,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(third.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 0,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+
+    expect(fourth.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 100,
+        delay: 80,
+        easing: 'ease',
+        fill: 'both'
+      }
+    );
+  });
+
   it('uses execution plan reduced motion timeline when simplifying playback', async () => {
     const driver = new WebMotionDriver({
       reducedMotion: true
