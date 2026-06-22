@@ -13,6 +13,10 @@ import {
   type ScheduledMotionTimeline
 } from '@structifyx/motion-core';
 import { toWebKeyframes } from '../utils/to-web-keyframes';
+import {
+  toWebScheduledTaskTimingOptions,
+  toWebStepTimingOptions
+} from '../utils/to-web-timing-options';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
 
 export type WebMotionDriverOptions = {
@@ -184,12 +188,10 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return null;
     }
 
-    return taskTarget.animate(toWebKeyframes(task.step.keyframes), {
-      duration: task.duration,
-      delay: task.startTime,
-      easing: task.step.easing ?? 'ease',
-      fill: task.step.fill ?? 'both'
-    });
+    return taskTarget.animate(
+      toWebKeyframes(task.step.keyframes),
+      toWebScheduledTaskTimingOptions(task)
+    );
   }
 
   private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
@@ -403,12 +405,10 @@ export class WebMotionDriver implements MotionDriver<Element> {
         }
 
         for (const step of track.steps) {
-          const animation = trackTarget.animate(toWebKeyframes(step.keyframes), {
-            duration: step.duration,
-            delay: step.delay ?? 0,
-            easing: step.easing ?? 'ease',
-            fill: step.fill ?? 'both'
-          });
+          const animation = trackTarget.animate(
+            toWebKeyframes(step.keyframes),
+            toWebStepTimingOptions(step)
+          );
 
           animations.push(animation);
         }
