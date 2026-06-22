@@ -313,39 +313,47 @@ describe('DefaultMotionEngine', () => {
 
     const [call] = driver.getCalls();
 
-    expect(call).toEqual({
-      target: 'target-1',
-      timeline: {
-        tracks: [
-          {
-            target: {
-              type: 'self'
-            },
-            steps: [
-              {
-                duration: 400,
-                delay: 50,
-                easing: 'ease-out',
-                keyframes: [
-                  {
-                    opacity: 0
-                  },
-                  {
-                    opacity: 0.8
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      options: {
-        trigger: 'onClick',
-        respectReducedMotion: false,
-        reducedMotionStrategy: 'skip',
-        conflictStrategy: 'replace',
-        timelineValidated: true
-      }
+    expect(call?.target).toBe('target-1');
+
+    expect(call?.timeline).toEqual({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 400,
+              delay: 50,
+              easing: 'ease-out',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 0.8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(call?.options).toMatchObject({
+      trigger: 'onClick',
+      respectReducedMotion: false,
+      reducedMotionStrategy: 'skip',
+      conflictStrategy: 'replace',
+      timelineValidated: true
+    });
+
+    expect(call?.options.executionPlan?.timeline).toBe(call?.timeline);
+    expect(call?.options.executionPlan?.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 450,
+      hasReducedMotionTimeline: false
     });
   });
 
@@ -523,6 +531,75 @@ describe('DefaultMotionEngine', () => {
           ]
         }
       ]
+    });
+  });
+
+  it('passes execution plan to the driver when playing', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_execution_plan_001',
+      type: 'test-motion',
+      trigger: 'onClick',
+      duration: 400,
+      delay: 50,
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    const call = driver.getCalls()[0];
+
+    expect(call?.options.executionPlan).toBeDefined();
+    expect(call?.options.executionPlan?.timeline).toBe(call?.timeline);
+    expect(call?.options.executionPlan?.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 450,
+      hasReducedMotionTimeline: false
+    });
+    expect(call?.options.executionPlan?.scheduledTimeline.tasks).toHaveLength(1);
+  });
+
+  it('passes reduced motion execution plan to the driver when strategy is simplify', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new ReducedMotionAwareMotionDefinition());
+
+    const result = await engine.play('target-1', {
+      id: 'motion_execution_plan_reduced_001',
+      type: 'reduced-aware-motion',
+      trigger: 'onClick',
+      duration: 400,
+      reducedMotionStrategy: 'simplify',
+      options: {
+        intensity: 0.8
+      }
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    const call = driver.getCalls()[0];
+
+    expect(call?.options.executionPlan).toBeDefined();
+    expect(call?.options.executionPlan?.reducedMotionTimeline).toBe(
+      call?.options.reducedMotionTimeline
+    );
+    expect(call?.options.executionPlan?.scheduledReducedMotionTimeline?.tasks).toHaveLength(1);
+    expect(call?.options.executionPlan?.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 400,
+      hasReducedMotionTimeline: true,
+      reducedMotionTotalDuration: 120
     });
   });
 
@@ -849,39 +926,50 @@ describe('DefaultMotionEngine', () => {
     expect(driver.playCalls).toHaveLength(0);
     expect(driver.createPlaybackCalls).toHaveLength(1);
 
-    expect(driver.createPlaybackCalls[0]).toEqual({
-      target: 'target-1',
-      timeline: {
-        tracks: [
-          {
-            target: {
-              type: 'self'
-            },
-            steps: [
-              {
-                duration: 400,
-                delay: 50,
-                easing: 'ease-out',
-                keyframes: [
-                  {
-                    opacity: 0
-                  },
-                  {
-                    opacity: 0.8
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      options: {
-        trigger: 'onClick',
-        respectReducedMotion: true,
-        reducedMotionStrategy: 'skip',
-        timelineValidated: true,
-        conflictStrategy: 'parallel'
-      }
+    expect(driver.createPlaybackCalls[0]?.target).toBe('target-1');
+
+    expect(driver.createPlaybackCalls[0]?.timeline).toEqual({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 400,
+              delay: 50,
+              easing: 'ease-out',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 0.8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(driver.createPlaybackCalls[0]?.options).toMatchObject({
+      trigger: 'onClick',
+      respectReducedMotion: true,
+      reducedMotionStrategy: 'skip',
+      timelineValidated: true,
+      conflictStrategy: 'parallel'
+    });
+
+    expect(driver.createPlaybackCalls[0]?.options.executionPlan?.timeline).toBe(
+      driver.createPlaybackCalls[0]?.timeline
+    );
+
+    expect(driver.createPlaybackCalls[0]?.options.executionPlan?.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 450,
+      hasReducedMotionTimeline: false
     });
 
     await expect(playback.finished).resolves.toEqual({

@@ -48,6 +48,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
         conflictStrategy: normalizedConfig.conflictStrategy,
+        executionPlan,
         timelineValidated: true,
         ...(executionPlan.reducedMotionTimeline !== undefined
           ? {
@@ -224,6 +225,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
         conflictStrategy: normalizedConfig.conflictStrategy,
+        executionPlan,
         timelineValidated: true,
         ...(executionPlan.reducedMotionTimeline !== undefined
           ? {
