@@ -5,7 +5,6 @@ import {
   type MotionPlaybackResult,
   type MotionPlaybackController,
   type MotionTimelineDefinition,
-  type MotionConflictStrategy,
   type ScheduledMotionTask,
   type ScheduledMotionTimeline
 } from '@structifyx/motion-core';
@@ -28,6 +27,11 @@ import {
   resolveWebReducedMotionDiagnostics,
   resolveWebScheduledTimeline
 } from '../utils/resolve-web-reduced-motion';
+import {
+  cancelWebAnimations,
+  getEffectiveWebConflictStrategy,
+  hasActiveWebAnimations
+} from '../utils/resolve-web-conflict';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -116,38 +120,6 @@ export class WebMotionDriver implements MotionDriver<Element> {
     return createWebAnimationsFromScheduledTask(taskTargets, task, track.stagger);
   }
 
-  private cancelAnimations(targets: ReadonlyArray<Element>): void {
-    for (const target of targets) {
-      target.getAnimations({ subtree: true }).forEach((animation) => {
-        animation.cancel();
-      });
-    }
-  }
-
-  private getEffectiveConflictStrategy(options: MotionPlayOptions): MotionConflictStrategy {
-    if (this.options.cancelPreviousAnimations === false && options.conflictStrategy === 'replace') {
-      return 'parallel';
-    }
-
-    return options.conflictStrategy;
-  }
-
-  private hasActiveAnimations(targets: ReadonlyArray<Element>): boolean {
-    return targets.some((target) =>
-      target
-        .getAnimations({
-          subtree: true
-        })
-        .some((animation) => this.isActiveAnimation(animation))
-    );
-  }
-
-  private isActiveAnimation(animation: Animation): boolean {
-    return (
-      animation.playState === 'running' || animation.playState === 'paused' || animation.pending
-    );
-  }
-
   private createWebPlayback(
     target: Element,
     timeline: MotionTimelineDefinition,
@@ -199,14 +171,14 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return createFailedWebPlayback('target-not-found');
     }
 
-    const conflictStrategy = this.getEffectiveConflictStrategy(options);
+    const conflictStrategy = getEffectiveWebConflictStrategy(options, this.options);
 
-    if (conflictStrategy === 'ignore' && this.hasActiveAnimations(trackTargets)) {
+    if (conflictStrategy === 'ignore' && hasActiveWebAnimations(trackTargets)) {
       return createSkippedWebPlayback('motion-conflict-ignored');
     }
 
     if (conflictStrategy === 'replace') {
-      this.cancelAnimations(trackTargets);
+      cancelWebAnimations(trackTargets);
     }
 
     const animations: Animation[] = [];

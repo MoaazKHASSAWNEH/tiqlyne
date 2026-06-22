@@ -39,4 +39,11 @@ export {
   simplifyWebTimeline
 } from './utils/resolve-web-reduced-motion';
 
+export {
+  cancelWebAnimations,
+  getEffectiveWebConflictStrategy,
+  hasActiveWebAnimations,
+  isActiveWebAnimation
+} from './utils/resolve-web-conflict';
+
 export const motionWebVersion = '0.1.0';
