@@ -1,5 +1,4 @@
 import {
-  validateMotionTimeline,
   type MotionDriver,
   type MotionPlayOptions,
   type MotionPlaybackResult,
@@ -29,6 +28,7 @@ import {
   createWebAnimationsFromScheduledTimeline,
   createWebAnimationsFromTimeline
 } from '../utils/create-web-timeline-animations';
+import { validateWebPlayableTimeline } from '../utils/validate-web-playable-timeline';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -127,19 +127,16 @@ export class WebMotionDriver implements MotionDriver<Element> {
       options
     );
 
-    const shouldValidateTimeline =
-      shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
-        ? options.reducedMotionTimelineValidated !== true
-        : options.timelineValidated !== true;
+    const validation = validateWebPlayableTimeline(
+      playableTimeline,
+      options,
+      shouldApplyReducedMotion
+    );
 
-    if (shouldValidateTimeline) {
-      const validation = validateMotionTimeline(playableTimeline);
-
-      if (!validation.valid) {
-        return createFailedWebPlayback('invalid-timeline', [], {
-          diagnostics: validation.diagnostics
-        });
-      }
+    if (!validation.valid) {
+      return createFailedWebPlayback('invalid-timeline', [], {
+        diagnostics: validation.diagnostics
+      });
     }
 
     const trackTargets = resolveWebTrackTargets(target, playableTimeline);

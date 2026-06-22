@@ -52,4 +52,10 @@ export {
   type WebTimelineAnimationCreationResult
 } from './utils/create-web-timeline-animations';
 
+export {
+  shouldValidateWebPlayableTimeline,
+  validateWebPlayableTimeline,
+  type WebPlayableTimelineValidationResult
+} from './utils/validate-web-playable-timeline';
+
 export const motionWebVersion = '0.1.0';
