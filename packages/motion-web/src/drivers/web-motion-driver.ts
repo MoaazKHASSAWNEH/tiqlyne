@@ -1,5 +1,6 @@
 import {
   validateMotionTimeline,
+  type MotionExecutionPlan,
   type MotionDiagnostic,
   type MotionDriver,
   type MotionPlayOptions,
@@ -107,6 +108,39 @@ export class WebMotionDriver implements MotionDriver<Element> {
     };
   }
 
+  private resolvePlayableTimeline(
+    timeline: MotionTimelineDefinition,
+    options: MotionPlayOptions,
+    shouldApplyReducedMotion: boolean
+  ): MotionTimelineDefinition {
+    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
+      return (
+        options.executionPlan?.reducedMotionTimeline ??
+        options.reducedMotionTimeline ??
+        this.simplifyTimeline(timeline)
+      );
+    }
+
+    return options.executionPlan?.timeline ?? timeline;
+  }
+
+  private resolveActiveExecutionPlan(
+    options: MotionPlayOptions,
+    shouldApplyReducedMotion: boolean
+  ): MotionExecutionPlan | undefined {
+    if (!options.executionPlan) {
+      return undefined;
+    }
+
+    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
+      return options.executionPlan.scheduledReducedMotionTimeline !== undefined
+        ? options.executionPlan
+        : undefined;
+    }
+
+    return options.executionPlan;
+  }
+
   private simplifyKeyframe(keyframe: MotionKeyframe): MotionKeyframe {
     return {
       ...(keyframe.opacity !== undefined
@@ -210,19 +244,28 @@ export class WebMotionDriver implements MotionDriver<Element> {
       };
     }
 
+    const hasProvidedReducedMotionTimeline =
+      options.executionPlan?.reducedMotionTimeline !== undefined ||
+      options.reducedMotionTimeline !== undefined;
+
     const shouldUseGenericReducedMotionFallback =
       shouldApplyReducedMotion &&
       options.reducedMotionStrategy === 'simplify' &&
-      options.reducedMotionTimeline === undefined;
+      !hasProvidedReducedMotionTimeline;
 
     const diagnostics = shouldUseGenericReducedMotionFallback
       ? [this.createGenericReducedMotionFallbackDiagnostic()]
       : [];
 
-    const playableTimeline =
-      shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'
-        ? (options.reducedMotionTimeline ?? this.simplifyTimeline(timeline))
-        : timeline;
+    const playableTimeline = this.resolvePlayableTimeline(
+      timeline,
+      options,
+      shouldApplyReducedMotion
+    );
+
+    const activeExecutionPlan = this.resolveActiveExecutionPlan(options, shouldApplyReducedMotion);
+
+    void activeExecutionPlan;
 
     const shouldValidateTimeline =
       shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify'

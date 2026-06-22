@@ -1,4 +1,8 @@
-import type { MotionPlayOptions, MotionTimelineDefinition } from '@structifyx/motion-core';
+import {
+  createMotionExecutionPlan,
+  type MotionPlayOptions,
+  type MotionTimelineDefinition
+} from '@structifyx/motion-core';
 import { describe, expect, it, vi } from 'vitest';
 import { WebMotionDriver } from './web-motion-driver';
 
@@ -157,6 +161,137 @@ describe('WebMotionDriver', () => {
         duration: 80,
         delay: 0,
         easing: 'linear',
+        fill: 'both'
+      }
+    );
+  });
+
+  it('uses execution plan timeline when provided', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const originalTimeline = createSelfTimeline();
+    const planTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 90,
+              delay: 10,
+              easing: 'linear',
+              fill: 'both',
+              keyframes: [
+                {
+                  opacity: 0.2
+                },
+                {
+                  opacity: 0.9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const executionPlan = createMotionExecutionPlan({
+      timeline: planTimeline
+    });
+
+    const result = await driver.play(asElement(target), originalTimeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0.2
+        },
+        {
+          opacity: 0.9
+        }
+      ],
+      {
+        duration: 90,
+        delay: 10,
+        easing: 'linear',
+        fill: 'both'
+      }
+    );
+  });
+
+  it('uses execution plan reduced motion timeline when simplifying playback', async () => {
+    const driver = new WebMotionDriver({
+      reducedMotion: true
+    });
+
+    const target = new FakeElement();
+
+    const timeline = createSelfTimeline();
+    const reducedMotionTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 60,
+              delay: 0,
+              easing: 'ease-out',
+              fill: 'both',
+              keyframes: [
+                {
+                  opacity: 0.3
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const executionPlan = createMotionExecutionPlan({
+      timeline,
+      reducedMotionTimeline
+    });
+
+    const result = await driver.play(asElement(target), timeline, {
+      ...defaultPlayOptions,
+      reducedMotionStrategy: 'simplify',
+      executionPlan,
+      timelineValidated: true,
+      reducedMotionTimelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(target.animate).toHaveBeenCalledWith(
+      [
+        {
+          opacity: 0.3
+        },
+        {
+          opacity: 1
+        }
+      ],
+      {
+        duration: 60,
+        delay: 0,
+        easing: 'ease-out',
         fill: 'both'
       }
     );
