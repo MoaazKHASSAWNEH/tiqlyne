@@ -207,6 +207,7 @@ describe('createWebAnimationsFromScheduledTimeline', () => {
             startTime: 50,
             endTime: 250,
             duration: 200,
+            activeDuration: 200,
             delay: 50,
             keyframes: [
               {

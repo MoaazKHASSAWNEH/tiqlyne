@@ -62,7 +62,8 @@ export type {
   MotionStepAnchor,
   MotionTrackDefinition,
   MotionTimelineDefinition,
-  MotionLabelStepPosition
+  MotionLabelStepPosition,
+  MotionPlaybackDirection
 } from './models/motion-timeline';
 export type { ResolveMotionStepPositionContext } from './compiler/resolve-motion-step-position';
 export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';

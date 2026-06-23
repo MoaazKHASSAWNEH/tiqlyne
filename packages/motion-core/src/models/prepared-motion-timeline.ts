@@ -3,7 +3,8 @@ import type { MotionTargetReference } from './motion-target';
 import type {
   MotionStepDefinition,
   MotionStaggerDefinition,
-  MotionTimelineDefinition
+  MotionTimelineDefinition,
+  MotionPlaybackDirection
 } from './motion-timeline';
 
 export type PreparedMotionStep = {
@@ -18,6 +19,10 @@ export type PreparedMotionStep = {
   readonly offset?: number;
   readonly fill?: MotionStepDefinition['fill'];
   readonly source: MotionStepDefinition;
+  readonly iterations?: number;
+  readonly direction?: MotionPlaybackDirection;
+  readonly endDelay?: number;
+  readonly activeDuration: number;
 };
 
 export type PreparedMotionTrack = {

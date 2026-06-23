@@ -32,7 +32,12 @@ export type MotionStepPosition =
   | MotionLabelStepPosition
   | MotionAnchorStepPosition;
 
+export type MotionPlaybackDirection = 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
+
 export type MotionTimelineDefaults = {
+  readonly iterations?: number;
+  readonly direction?: MotionPlaybackDirection;
+  readonly endDelay?: number;
   readonly duration?: number;
   readonly delay?: number;
   readonly easing?: string;
@@ -40,6 +45,9 @@ export type MotionTimelineDefaults = {
 };
 
 export type MotionStepDefinition = {
+  readonly iterations?: number;
+  readonly direction?: MotionPlaybackDirection;
+  readonly endDelay?: number;
   readonly at?: MotionStepPosition;
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
   readonly duration?: number;

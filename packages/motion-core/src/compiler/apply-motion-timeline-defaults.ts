@@ -46,6 +46,9 @@ export function applyMotionStepDefaults(
   const delay = step.delay ?? defaults.delay;
   const easing = step.easing ?? defaults.easing;
   const fill = step.fill ?? defaults.fill;
+  const iterations = step.iterations ?? defaults.iterations;
+  const direction = step.direction ?? defaults.direction;
+  const endDelay = step.endDelay ?? defaults.endDelay;
 
   if (duration !== step.duration && duration !== undefined) {
     changed = true;
@@ -60,6 +63,18 @@ export function applyMotionStepDefaults(
   }
 
   if (fill !== step.fill && fill !== undefined) {
+    changed = true;
+  }
+
+  if (iterations !== step.iterations && iterations !== undefined) {
+    changed = true;
+  }
+
+  if (direction !== step.direction && direction !== undefined) {
+    changed = true;
+  }
+
+  if (endDelay !== step.endDelay && endDelay !== undefined) {
     changed = true;
   }
 
@@ -88,6 +103,21 @@ export function applyMotionStepDefaults(
       ? {
           fill
         }
+      : {}),
+    ...(iterations !== undefined
+      ? {
+          iterations
+        }
+      : {}),
+    ...(direction !== undefined
+      ? {
+          direction
+        }
+      : {}),
+    ...(endDelay !== undefined
+      ? {
+          endDelay
+        }
       : {})
   };
 }
@@ -107,7 +137,10 @@ export function hasMotionTimelineDefaults(defaults: MotionTimelineDefaults): boo
     defaults.duration !== undefined ||
     defaults.delay !== undefined ||
     defaults.easing !== undefined ||
-    defaults.fill !== undefined
+    defaults.fill !== undefined ||
+    defaults.iterations !== undefined ||
+    defaults.direction !== undefined ||
+    defaults.endDelay !== undefined
   );
 }
 

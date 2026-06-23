@@ -44,6 +44,29 @@ describe('toWebStepTimingOptions', () => {
       fill: 'both'
     });
   });
+
+  it('maps playback timing options for a motion step', () => {
+    expect(
+      toWebStepTimingOptions({
+        duration: 300,
+        delay: 0,
+        iterations: 2,
+        direction: 'alternate',
+        endDelay: 100,
+        keyframes: [
+          {
+            opacity: 1
+          }
+        ]
+      })
+    ).toMatchObject({
+      duration: 300,
+      delay: 0,
+      iterations: 2,
+      direction: 'alternate',
+      endDelay: 100
+    });
+  });
 });
 
 describe('toWebScheduledTaskTimingOptions', () => {
@@ -77,6 +100,24 @@ describe('toWebScheduledTaskTimingOptions', () => {
       fill: 'both'
     });
   });
+
+  it('maps playback timing options for a scheduled task', () => {
+    const task = createScheduledTask({
+      duration: 300,
+      startTime: 0,
+      iterations: 2,
+      direction: 'alternate',
+      endDelay: 100
+    });
+
+    expect(toWebScheduledTaskTimingOptions(task)).toMatchObject({
+      duration: 300,
+      delay: 0,
+      iterations: 2,
+      direction: 'alternate',
+      endDelay: 100
+    });
+  });
 });
 
 function createScheduledTask(input: {
@@ -85,21 +126,27 @@ function createScheduledTask(input: {
   readonly startTime: number;
   readonly easing?: string;
   readonly fill?: FillMode;
+  readonly iterations?: number;
+  readonly direction?: PlaybackDirection;
+  readonly endDelay?: number;
 }): ScheduledMotionTask {
+  const activeDuration = input.duration * (input.iterations ?? 1) + (input.endDelay ?? 0);
+
   return {
     taskIndex: 0,
     trackIndex: 0,
     stepIndex: 0,
     startTime: input.startTime,
-    endTime: input.startTime + input.duration,
+    endTime: input.startTime + activeDuration,
     duration: input.duration,
     delay: input.delay ?? 0,
     step: {
       trackIndex: 0,
       stepIndex: 0,
       startTime: input.startTime,
-      endTime: input.startTime + input.duration,
+      endTime: input.startTime + activeDuration,
       duration: input.duration,
+      activeDuration,
       delay: input.delay ?? 0,
       keyframes: [
         {
@@ -116,6 +163,21 @@ function createScheduledTask(input: {
             fill: input.fill
           }
         : {}),
+      ...(input.iterations !== undefined
+        ? {
+            iterations: input.iterations
+          }
+        : {}),
+      ...(input.direction !== undefined
+        ? {
+            direction: input.direction
+          }
+        : {}),
+      ...(input.endDelay !== undefined
+        ? {
+            endDelay: input.endDelay
+          }
+        : {}),
       source: {
         duration: input.duration,
         delay: input.delay ?? 0,
@@ -123,7 +185,32 @@ function createScheduledTask(input: {
           {
             opacity: 1
           }
-        ]
+        ],
+        ...(input.easing !== undefined
+          ? {
+              easing: input.easing
+            }
+          : {}),
+        ...(input.fill !== undefined
+          ? {
+              fill: input.fill
+            }
+          : {}),
+        ...(input.iterations !== undefined
+          ? {
+              iterations: input.iterations
+            }
+          : {}),
+        ...(input.direction !== undefined
+          ? {
+              direction: input.direction
+            }
+          : {}),
+        ...(input.endDelay !== undefined
+          ? {
+              endDelay: input.endDelay
+            }
+          : {})
       }
     }
   };

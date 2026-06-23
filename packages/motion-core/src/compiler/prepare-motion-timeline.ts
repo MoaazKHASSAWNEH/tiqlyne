@@ -18,6 +18,10 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
     const steps = track.steps.map((step, stepIndex): PreparedMotionStep => {
       const delay = step.delay ?? 0;
       const duration = step.duration ?? 0;
+      const iterations = step.iterations ?? 1;
+      const endDelay = step.endDelay ?? 0;
+      const activeDuration = duration * iterations + endDelay;
+
       const startTime =
         resolveMotionStepPosition(step.at, resolvedTimeline.labels, cursor, {
           ...(previousStartTime !== undefined
@@ -31,7 +35,8 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
               }
             : {})
         }) + delay;
-      const endTime = startTime + duration;
+
+      const endTime = startTime + activeDuration;
 
       cursor = Math.max(cursor, endTime);
       previousStartTime = startTime;
@@ -58,6 +63,22 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
         ...(step.fill !== undefined
           ? {
               fill: step.fill
+            }
+          : {}),
+        activeDuration,
+        ...(step.iterations !== undefined
+          ? {
+              iterations: step.iterations
+            }
+          : {}),
+        ...(step.direction !== undefined
+          ? {
+              direction: step.direction
+            }
+          : {}),
+        ...(step.endDelay !== undefined
+          ? {
+              endDelay: step.endDelay
             }
           : {}),
         source: step

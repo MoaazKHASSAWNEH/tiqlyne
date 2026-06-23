@@ -212,6 +212,7 @@ function createScheduledTask(input: {
       startTime: input.startTime,
       endTime: input.startTime + input.duration,
       duration: input.duration,
+      activeDuration: input.duration,
       delay: 0,
       keyframes: [
         {

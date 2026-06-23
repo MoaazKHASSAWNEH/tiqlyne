@@ -796,4 +796,83 @@ describe('prepareMotionTimeline', () => {
 
     expect(prepared.totalDuration).toBe(600);
   });
+
+  it('prepares active duration using iterations and end delay', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 2,
+              endDelay: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      duration: 300,
+      iterations: 2,
+      endDelay: 100,
+      activeDuration: 700,
+      startTime: 0,
+      endTime: 700
+    });
+
+    expect(prepared.totalDuration).toBe(700);
+  });
+
+  it('uses active duration for sequential steps', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 2,
+              endDelay: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 0,
+      endTime: 700
+    });
+
+    expect(prepared.tracks[0]?.steps[1]).toMatchObject({
+      startTime: 700,
+      endTime: 900
+    });
+
+    expect(prepared.totalDuration).toBe(900);
+  });
 });
