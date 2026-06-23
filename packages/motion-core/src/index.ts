@@ -58,10 +58,13 @@ export type {
   MotionStepPosition,
   MotionTimelineDefaults,
   MotionTimelineLabels,
+  MotionAnchorStepPosition,
+  MotionStepAnchor,
   MotionTrackDefinition,
   MotionTimelineDefinition,
   MotionLabelStepPosition
 } from './models/motion-timeline';
+export type { ResolveMotionStepPositionContext } from './compiler/resolve-motion-step-position';
 export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';
 
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';

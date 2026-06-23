@@ -637,4 +637,163 @@ describe('prepareMotionTimeline', () => {
 
     expect(prepared.totalDuration).toBe(500);
   });
+
+  it('prepares a step using the previous-start anchor', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'previous-start',
+                offset: 100
+              },
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 0.5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 0,
+      endTime: 300
+    });
+
+    expect(prepared.tracks[0]?.steps[1]).toMatchObject({
+      startTime: 100,
+      endTime: 300
+    });
+
+    expect(prepared.totalDuration).toBe(300);
+  });
+
+  it('prepares a step using the previous-end anchor', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'previous-end',
+                offset: -50
+              },
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[1]).toMatchObject({
+      startTime: 250,
+      endTime: 450
+    });
+
+    expect(prepared.totalDuration).toBe(450);
+  });
+
+  it('prepares a step using the track-start anchor', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                anchor: 'track-start',
+                offset: 100
+              },
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 100,
+      endTime: 300
+    });
+  });
+
+  it('prepares a step using the track-end anchor', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'track-end',
+                offset: 100
+              },
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[1]).toMatchObject({
+      startTime: 400,
+      endTime: 600
+    });
+
+    expect(prepared.totalDuration).toBe(600);
+  });
 });

@@ -48,4 +48,58 @@ describe('resolveMotionStepPosition', () => {
   it('falls back to cursor plus offset when labels are not provided for a typed label', () => {
     expect(resolveMotionStepPosition({ label: 'intro', offset: 50 }, undefined, 250)).toBe(300);
   });
+
+  it('resolves a track-start anchor position', () => {
+    expect(resolveMotionStepPosition({ anchor: 'track-start' }, labels, 250)).toBe(0);
+  });
+
+  it('resolves a track-start anchor position with offset', () => {
+    expect(resolveMotionStepPosition({ anchor: 'track-start', offset: 100 }, labels, 250)).toBe(
+      100
+    );
+  });
+
+  it('resolves a track-end anchor position', () => {
+    expect(resolveMotionStepPosition({ anchor: 'track-end' }, labels, 250)).toBe(250);
+  });
+
+  it('resolves a track-end anchor position with offset', () => {
+    expect(resolveMotionStepPosition({ anchor: 'track-end', offset: -50 }, labels, 250)).toBe(200);
+  });
+
+  it('resolves a previous-start anchor position', () => {
+    expect(
+      resolveMotionStepPosition({ anchor: 'previous-start' }, labels, 250, {
+        previousStartTime: 100,
+        previousEndTime: 300
+      })
+    ).toBe(100);
+  });
+
+  it('resolves a previous-start anchor position with offset', () => {
+    expect(
+      resolveMotionStepPosition({ anchor: 'previous-start', offset: 50 }, labels, 250, {
+        previousStartTime: 100,
+        previousEndTime: 300
+      })
+    ).toBe(150);
+  });
+
+  it('resolves a previous-end anchor position', () => {
+    expect(
+      resolveMotionStepPosition({ anchor: 'previous-end' }, labels, 250, {
+        previousStartTime: 100,
+        previousEndTime: 300
+      })
+    ).toBe(300);
+  });
+
+  it('resolves a previous-end anchor position with offset', () => {
+    expect(
+      resolveMotionStepPosition({ anchor: 'previous-end', offset: -50 }, labels, 250, {
+        previousStartTime: 100,
+        previousEndTime: 300
+      })
+    ).toBe(250);
+  });
 });

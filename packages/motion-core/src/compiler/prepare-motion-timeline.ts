@@ -12,14 +12,30 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
 
   const tracks = resolvedTimeline.tracks.map((track, trackIndex): PreparedMotionTrack => {
     let cursor = 0;
+    let previousStartTime: number | undefined;
+    let previousEndTime: number | undefined;
 
     const steps = track.steps.map((step, stepIndex): PreparedMotionStep => {
       const delay = step.delay ?? 0;
       const duration = step.duration ?? 0;
-      const startTime = resolveMotionStepPosition(step.at, resolvedTimeline.labels, cursor) + delay;
+      const startTime =
+        resolveMotionStepPosition(step.at, resolvedTimeline.labels, cursor, {
+          ...(previousStartTime !== undefined
+            ? {
+                previousStartTime
+              }
+            : {}),
+          ...(previousEndTime !== undefined
+            ? {
+                previousEndTime
+              }
+            : {})
+        }) + delay;
       const endTime = startTime + duration;
 
       cursor = Math.max(cursor, endTime);
+      previousStartTime = startTime;
+      previousEndTime = endTime;
 
       return {
         trackIndex,

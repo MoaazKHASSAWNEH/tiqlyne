@@ -255,6 +255,57 @@ describe('scheduleMotionTimeline', () => {
     expect(scheduled.tasks.map((task) => task.startTime)).toEqual([150, 400]);
     expect(scheduled.totalDuration).toBe(500);
   });
+
+  it('schedules tasks using typed timeline anchors', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'previous-start',
+                offset: 100
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0.5
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'previous-end',
+                offset: -50
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    const scheduled = scheduleMotionTimeline(prepared);
+
+    expect(scheduled.tasks.map((task) => task.startTime)).toEqual([0, 100, 150]);
+    expect(scheduled.totalDuration).toBe(300);
+  });
 });
 
 function createSingleTrackTimeline(): MotionTimelineDefinition {

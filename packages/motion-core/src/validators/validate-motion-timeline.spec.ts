@@ -922,4 +922,174 @@ describe('validateMotionTimeline', () => {
       ])
     );
   });
+
+  it('accepts a valid track-start anchor step position', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                anchor: 'track-start',
+                offset: 100
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('accepts a valid previous-end anchor step position', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'previous-end',
+                offset: -50
+              },
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('rejects a previous anchor on the first step', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                anchor: 'previous-start'
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-anchor'
+        })
+      ])
+    );
+  });
+
+  it('rejects an anchor step position with non-finite offset', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                anchor: 'track-start',
+                offset: Number.NaN
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-position-offset'
+        })
+      ])
+    );
+  });
+
+  it('rejects a track-start anchor resolving to a negative position', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                anchor: 'track-start',
+                offset: -1
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-position'
+        })
+      ])
+    );
+  });
 });

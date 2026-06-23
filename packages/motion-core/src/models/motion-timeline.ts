@@ -19,7 +19,18 @@ export type MotionLabelStepPosition = {
   readonly offset?: number;
 };
 
-export type MotionStepPosition = number | string | MotionLabelStepPosition;
+export type MotionStepAnchor = 'track-start' | 'track-end' | 'previous-start' | 'previous-end';
+
+export type MotionAnchorStepPosition = {
+  readonly anchor: MotionStepAnchor;
+  readonly offset?: number;
+};
+
+export type MotionStepPosition =
+  | number
+  | string
+  | MotionLabelStepPosition
+  | MotionAnchorStepPosition;
 
 export type MotionTimelineDefaults = {
   readonly duration?: number;

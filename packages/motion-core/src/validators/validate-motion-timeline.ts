@@ -7,6 +7,8 @@ import type {
   MotionStaggerDefinition,
   MotionTimelineDefaults,
   MotionTimelineDefinition,
+  MotionAnchorStepPosition,
+  MotionStepAnchor,
   MotionTimelineLabels
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
@@ -303,38 +305,48 @@ function validateStepPosition(
     return;
   }
 
-  validateStepLabelPosition(position.label, labels, trackIndex, stepIndex, diagnostics);
+  if ('label' in position) {
+    validateStepLabelPosition(position.label, labels, trackIndex, stepIndex, diagnostics);
 
-  if (position.offset !== undefined && !Number.isFinite(position.offset)) {
-    diagnostics.push(
-      createErrorDiagnostic(
-        'timeline-invalid-step-position-offset',
-        'Timeline step position offset must be a finite number.',
-        {
-          trackIndex,
-          stepIndex,
-          offset: position.offset
-        }
-      )
-    );
+    if (position.offset !== undefined && !Number.isFinite(position.offset)) {
+      diagnostics.push(
+        createErrorDiagnostic(
+          'timeline-invalid-step-position-offset',
+          'Timeline step position offset must be a finite number.',
+          {
+            trackIndex,
+            stepIndex,
+            offset: position.offset
+          }
+        )
+      );
+    }
+
+    const labelPosition = labels?.[position.label];
+    const offset = position.offset ?? 0;
+
+    if (
+      labelPosition !== undefined &&
+      Number.isFinite(labelPosition) &&
+      labelPosition + offset < 0
+    ) {
+      diagnostics.push(
+        createErrorDiagnostic(
+          'timeline-invalid-step-position',
+          'Timeline step position must resolve to a finite non-negative number.',
+          {
+            trackIndex,
+            stepIndex,
+            at: labelPosition + offset
+          }
+        )
+      );
+    }
+
+    return;
   }
 
-  const labelPosition = labels?.[position.label];
-  const offset = position.offset ?? 0;
-
-  if (labelPosition !== undefined && Number.isFinite(labelPosition) && labelPosition + offset < 0) {
-    diagnostics.push(
-      createErrorDiagnostic(
-        'timeline-invalid-step-position',
-        'Timeline step position must resolve to a finite non-negative number.',
-        {
-          trackIndex,
-          stepIndex,
-          at: labelPosition + offset
-        }
-      )
-    );
-  }
+  validateAnchorStepPosition(position, trackIndex, stepIndex, diagnostics);
 }
 
 function validateStepLabelPosition(
@@ -373,6 +385,83 @@ function validateStepLabelPosition(
       )
     );
   }
+}
+
+function validateAnchorStepPosition(
+  position: MotionAnchorStepPosition,
+  trackIndex: number,
+  stepIndex: number,
+  diagnostics: MotionDiagnostic[]
+): void {
+  if (!isMotionStepAnchor(position.anchor)) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-anchor',
+        'Timeline step anchor must be track-start, track-end, previous-start or previous-end.',
+        {
+          trackIndex,
+          stepIndex,
+          anchor: position.anchor
+        }
+      )
+    );
+
+    return;
+  }
+
+  if (position.offset !== undefined && !Number.isFinite(position.offset)) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-position-offset',
+        'Timeline step position offset must be a finite number.',
+        {
+          trackIndex,
+          stepIndex,
+          offset: position.offset
+        }
+      )
+    );
+  }
+
+  if (
+    (position.anchor === 'previous-start' || position.anchor === 'previous-end') &&
+    stepIndex === 0
+  ) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-anchor',
+        'Timeline previous step anchors cannot be used on the first step of a track.',
+        {
+          trackIndex,
+          stepIndex,
+          anchor: position.anchor
+        }
+      )
+    );
+  }
+
+  if (position.anchor === 'track-start' && (position.offset ?? 0) < 0) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-position',
+        'Timeline step position must resolve to a finite non-negative number.',
+        {
+          trackIndex,
+          stepIndex,
+          at: position.offset ?? 0
+        }
+      )
+    );
+  }
+}
+
+function isMotionStepAnchor(anchor: MotionStepAnchor): boolean {
+  return (
+    anchor === 'track-start' ||
+    anchor === 'track-end' ||
+    anchor === 'previous-start' ||
+    anchor === 'previous-end'
+  );
 }
 
 function validateStaggerValue(
