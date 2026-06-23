@@ -63,7 +63,8 @@ export type {
   MotionTrackDefinition,
   MotionTimelineDefinition,
   MotionLabelStepPosition,
-  MotionPlaybackDirection
+  MotionPlaybackDirection,
+  MotionIterationCount
 } from './models/motion-timeline';
 export type { ResolveMotionStepPositionContext } from './compiler/resolve-motion-step-position';
 export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';

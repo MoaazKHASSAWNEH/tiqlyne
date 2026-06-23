@@ -910,4 +910,36 @@ describe('prepareMotionTimeline', () => {
       endTime: 700
     });
   });
+
+  it('prepares infinite iteration steps with infinite active duration', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 'infinite',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[0]?.iterations).toBe('infinite');
+    expect(prepared.tracks[0]?.steps[0]?.activeDuration).toBe(Infinity);
+    expect(prepared.tracks[0]?.steps[0]?.endTime).toBe(Infinity);
+    expect(prepared.tracks[0]?.duration).toBe(Infinity);
+    expect(prepared.totalDuration).toBe(Infinity);
+  });
 });

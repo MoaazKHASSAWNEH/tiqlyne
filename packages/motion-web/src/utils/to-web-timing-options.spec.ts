@@ -122,6 +122,67 @@ describe('toWebScheduledTaskTimingOptions', () => {
       playbackRate: 2
     });
   });
+
+  it('maps infinite step iterations to Web Animations Infinity', () => {
+    const timing = toWebStepTimingOptions({
+      duration: 300,
+      iterations: 'infinite',
+      keyframes: [
+        {
+          opacity: 0
+        },
+        {
+          opacity: 1
+        }
+      ]
+    });
+
+    expect(timing.iterations).toBe(Infinity);
+  });
+
+  it('maps infinite scheduled task iterations to Web Animations Infinity', () => {
+    const timing = toWebScheduledTaskTimingOptions({
+      taskIndex: 0,
+      trackIndex: 0,
+      stepIndex: 0,
+      startTime: 100,
+      endTime: Infinity,
+      duration: 300,
+      delay: 0,
+      step: {
+        trackIndex: 0,
+        stepIndex: 0,
+        startTime: 100,
+        endTime: Infinity,
+        duration: 300,
+        delay: 0,
+        keyframes: [
+          {
+            opacity: 0
+          },
+          {
+            opacity: 1
+          }
+        ],
+        iterations: 'infinite',
+        activeDuration: Infinity,
+        source: {
+          duration: 300,
+          iterations: 'infinite',
+          keyframes: [
+            {
+              opacity: 0
+            },
+            {
+              opacity: 1
+            }
+          ]
+        }
+      }
+    });
+
+    expect(timing.iterations).toBe(Infinity);
+  });
 });
 
 function createScheduledTask(input: {

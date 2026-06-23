@@ -13,7 +13,8 @@ import type {
   MotionStepPosition,
   MotionTimelineDefaults,
   MotionTimelineDefinition,
-  MotionTimelineLabels
+  MotionTimelineLabels,
+  MotionIterationCount
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
 
@@ -67,7 +68,7 @@ function validateStep(
     readonly delay?: number;
     readonly easing?: string;
     readonly offset?: number;
-    readonly iterations?: number;
+    readonly iterations?: MotionIterationCount;
     readonly direction?: MotionPlaybackDirection;
     readonly endDelay?: number;
     readonly playbackRate?: number;

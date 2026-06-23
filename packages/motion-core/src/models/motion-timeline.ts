@@ -34,8 +34,10 @@ export type MotionStepPosition =
 
 export type MotionPlaybackDirection = 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
 
+export type MotionIterationCount = number | 'infinite';
+
 export type MotionTimelineDefaults = {
-  readonly iterations?: number;
+  readonly iterations?: MotionIterationCount;
   readonly direction?: MotionPlaybackDirection;
   readonly endDelay?: number;
   readonly duration?: number;
@@ -46,7 +48,7 @@ export type MotionTimelineDefaults = {
 };
 
 export type MotionStepDefinition = {
-  readonly iterations?: number;
+  readonly iterations?: MotionIterationCount;
   readonly direction?: MotionPlaybackDirection;
   readonly endDelay?: number;
   readonly playbackRate?: number;

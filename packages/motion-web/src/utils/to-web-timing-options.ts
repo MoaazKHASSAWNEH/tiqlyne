@@ -1,14 +1,20 @@
-import type { MotionStepDefinition, ScheduledMotionTask } from '@structifyx/motion-core';
+import type {
+  MotionIterationCount,
+  MotionStepDefinition,
+  ScheduledMotionTask
+} from '@structifyx/motion-core';
 
 export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnimationOptions {
+  const iterations = toWebIterations(step.iterations);
+
   return {
     duration: step.duration ?? 0,
     delay: step.delay ?? 0,
     easing: step.easing ?? 'ease',
     fill: step.fill ?? 'both',
-    ...(step.iterations !== undefined
+    ...(iterations !== undefined
       ? {
-          iterations: step.iterations
+          iterations
         }
       : {}),
     ...(step.direction !== undefined
@@ -32,14 +38,16 @@ export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnim
 export function toWebScheduledTaskTimingOptions(
   task: ScheduledMotionTask
 ): KeyframeAnimationOptions {
+  const iterations = toWebIterations(task.step.iterations);
+
   return {
     duration: task.duration,
     delay: task.startTime,
     easing: task.step.easing ?? 'ease',
     fill: task.step.fill ?? 'both',
-    ...(task.step.iterations !== undefined
+    ...(iterations !== undefined
       ? {
-          iterations: task.step.iterations
+          iterations
         }
       : {}),
     ...(task.step.direction !== undefined
@@ -58,4 +66,12 @@ export function toWebScheduledTaskTimingOptions(
         }
       : {})
   };
+}
+
+function toWebIterations(iterations: MotionIterationCount | undefined): number | undefined {
+  if (iterations === 'infinite') {
+    return Infinity;
+  }
+
+  return iterations;
 }

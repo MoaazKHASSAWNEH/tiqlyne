@@ -4,7 +4,8 @@ import type {
   MotionStepDefinition,
   MotionStaggerDefinition,
   MotionTimelineDefinition,
-  MotionPlaybackDirection
+  MotionPlaybackDirection,
+  MotionIterationCount
 } from './motion-timeline';
 
 export type PreparedMotionStep = {
@@ -19,7 +20,7 @@ export type PreparedMotionStep = {
   readonly offset?: number;
   readonly fill?: MotionStepDefinition['fill'];
   readonly source: MotionStepDefinition;
-  readonly iterations?: number;
+  readonly iterations?: MotionIterationCount;
   readonly direction?: MotionPlaybackDirection;
   readonly endDelay?: number;
   readonly activeDuration: number;

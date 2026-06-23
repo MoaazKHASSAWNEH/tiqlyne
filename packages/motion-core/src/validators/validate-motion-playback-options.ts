@@ -1,11 +1,11 @@
 import type { MotionValidationMetadata as ValidationMetadata } from './create-motion-validation-diagnostic';
 import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
-import type { MotionPlaybackDirection } from '../models/motion-timeline';
+import type { MotionPlaybackDirection, MotionIterationCount } from '../models/motion-timeline';
 
 export function validatePlaybackTimingOptions(
   options: {
-    readonly iterations: number | undefined;
+    readonly iterations: MotionIterationCount | undefined;
     readonly direction: MotionPlaybackDirection | undefined;
     readonly endDelay: number | undefined;
     readonly playbackRate: number | undefined;
@@ -20,7 +20,7 @@ export function validatePlaybackTimingOptions(
 }
 
 function validateIterations(
-  iterations: number | undefined,
+  iterations: MotionIterationCount | undefined,
   diagnostics: MotionDiagnostic[],
   metadata: ValidationMetadata
 ): void {
@@ -28,11 +28,15 @@ function validateIterations(
     return;
   }
 
+  if (iterations === 'infinite') {
+    return;
+  }
+
   if (!Number.isFinite(iterations) || iterations <= 0) {
     diagnostics.push(
       createErrorDiagnostic(
         'timeline-invalid-iterations',
-        'Timeline iterations must be a finite positive number.',
+        'Timeline iterations must be a finite positive number or "infinite".',
         {
           ...metadata,
           iterations
