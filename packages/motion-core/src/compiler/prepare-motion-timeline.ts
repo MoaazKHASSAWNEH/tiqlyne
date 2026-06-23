@@ -5,6 +5,7 @@ import type {
 } from '../models/prepared-motion-timeline';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import { applyMotionTimelineDefaults } from './apply-motion-timeline-defaults';
+import { resolveMotionStepPosition } from './resolve-motion-step-position';
 
 export function prepareMotionTimeline(timeline: MotionTimelineDefinition): PreparedMotionTimeline {
   const resolvedTimeline = applyMotionTimelineDefaults(timeline);
@@ -15,7 +16,7 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
     const steps = track.steps.map((step, stepIndex): PreparedMotionStep => {
       const delay = step.delay ?? 0;
       const duration = step.duration ?? 0;
-      const startTime = (step.at ?? cursor) + delay;
+      const startTime = resolveMotionStepPosition(step.at, resolvedTimeline.labels, cursor) + delay;
       const endTime = startTime + duration;
 
       cursor = Math.max(cursor, endTime);

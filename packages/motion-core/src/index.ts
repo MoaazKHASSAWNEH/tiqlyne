@@ -55,10 +55,14 @@ export type {
   MotionStaggerDefinition,
   MotionStaggerFrom,
   MotionStepDefinition,
+  MotionStepPosition,
   MotionTimelineDefaults,
+  MotionTimelineLabels,
   MotionTrackDefinition,
   MotionTimelineDefinition
 } from './models/motion-timeline';
+export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';
+
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
 

@@ -12,6 +12,10 @@ export type MotionStaggerDefinition =
 
 export type MotionFillMode = 'none' | 'forwards' | 'backwards' | 'both' | 'auto';
 
+export type MotionTimelineLabels = Readonly<Record<string, number>>;
+
+export type MotionStepPosition = number | string;
+
 export type MotionTimelineDefaults = {
   readonly duration?: number;
   readonly delay?: number;
@@ -20,7 +24,7 @@ export type MotionTimelineDefaults = {
 };
 
 export type MotionStepDefinition = {
-  readonly at?: number;
+  readonly at?: MotionStepPosition;
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
   readonly duration?: number;
   readonly delay?: number;
@@ -39,4 +43,5 @@ export type MotionTrackDefinition = {
 export type MotionTimelineDefinition = {
   readonly tracks: ReadonlyArray<MotionTrackDefinition>;
   readonly defaults?: MotionTimelineDefaults;
+  readonly labels?: MotionTimelineLabels;
 };

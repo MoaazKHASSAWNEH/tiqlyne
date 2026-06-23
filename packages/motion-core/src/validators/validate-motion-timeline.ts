@@ -3,9 +3,11 @@ import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
 import type { MotionTargetReference } from '../models/motion-target';
 import type {
+  MotionStepPosition,
   MotionStaggerDefinition,
   MotionTimelineDefaults,
-  MotionTimelineDefinition
+  MotionTimelineDefinition,
+  MotionTimelineLabels
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
 
@@ -13,6 +15,8 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
   const diagnostics: MotionDiagnostic[] = [];
 
   validateTimelineDefaults(timeline.defaults, diagnostics, 'timeline');
+
+  validateTimelineLabels(timeline.labels, diagnostics);
 
   if (timeline.tracks.length === 0) {
     diagnostics.push(
@@ -91,19 +95,7 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
         );
       }
 
-      if (step.at !== undefined && (!Number.isFinite(step.at) || step.at < 0)) {
-        diagnostics.push(
-          createErrorDiagnostic(
-            'timeline-invalid-step-position',
-            'Timeline step position must be a finite non-negative number.',
-            {
-              trackIndex,
-              stepIndex,
-              at: step.at
-            }
-          )
-        );
-      }
+      validateStepPosition(step.at, timeline.labels, trackIndex, stepIndex, diagnostics);
 
       if (
         step.offset !== undefined &&
@@ -234,6 +226,102 @@ function validateStagger(
         {
           trackIndex,
           from: stagger.from
+        }
+      )
+    );
+  }
+}
+
+function validateTimelineLabels(
+  labels: MotionTimelineLabels | undefined,
+  diagnostics: MotionDiagnostic[]
+): void {
+  if (labels === undefined) {
+    return;
+  }
+
+  for (const [label, position] of Object.entries(labels)) {
+    if (label.trim().length === 0) {
+      diagnostics.push(
+        createErrorDiagnostic(
+          'timeline-invalid-label-name',
+          'Timeline label name must not be empty.',
+          {
+            label
+          }
+        )
+      );
+    }
+
+    if (!Number.isFinite(position) || position < 0) {
+      diagnostics.push(
+        createErrorDiagnostic(
+          'timeline-invalid-label-position',
+          'Timeline label position must be a finite non-negative number.',
+          {
+            label,
+            position
+          }
+        )
+      );
+    }
+  }
+}
+
+function validateStepPosition(
+  position: MotionStepPosition | undefined,
+  labels: MotionTimelineLabels | undefined,
+  trackIndex: number,
+  stepIndex: number,
+  diagnostics: MotionDiagnostic[]
+): void {
+  if (position === undefined) {
+    return;
+  }
+
+  if (typeof position === 'number') {
+    if (!Number.isFinite(position) || position < 0) {
+      diagnostics.push(
+        createErrorDiagnostic(
+          'timeline-invalid-step-position',
+          'Timeline step position must be a finite non-negative number.',
+          {
+            trackIndex,
+            stepIndex,
+            at: position
+          }
+        )
+      );
+    }
+
+    return;
+  }
+
+  if (position.trim().length === 0) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-label',
+        'Timeline step label position must not be empty.',
+        {
+          trackIndex,
+          stepIndex,
+          at: position
+        }
+      )
+    );
+
+    return;
+  }
+
+  if (labels?.[position] === undefined) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-unknown-step-label',
+        'Timeline step references an unknown label.',
+        {
+          trackIndex,
+          stepIndex,
+          at: position
         }
       )
     );

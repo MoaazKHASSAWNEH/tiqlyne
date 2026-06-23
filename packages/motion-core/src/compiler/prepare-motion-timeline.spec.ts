@@ -447,4 +447,81 @@ describe('prepareMotionTimeline', () => {
     expect(prepared.tracks[0]?.duration).toBe(600);
     expect(prepared.totalDuration).toBe(600);
   });
+
+  it('prepares a step using a timeline label position', () => {
+    const timeline: MotionTimelineDefinition = {
+      labels: {
+        intro: 200
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 'intro',
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 200,
+      endTime: 300,
+      duration: 100,
+      delay: 0
+    });
+
+    expect(prepared.tracks[0]?.duration).toBe(300);
+    expect(prepared.totalDuration).toBe(300);
+  });
+
+  it('adds step delay to a timeline label position', () => {
+    const timeline: MotionTimelineDefinition = {
+      labels: {
+        intro: 200
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 'intro',
+              delay: 50,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 250,
+      endTime: 350,
+      duration: 100,
+      delay: 50
+    });
+
+    expect(prepared.tracks[0]?.duration).toBe(350);
+    expect(prepared.totalDuration).toBe(350);
+  });
 });

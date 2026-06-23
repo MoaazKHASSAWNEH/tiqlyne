@@ -575,4 +575,138 @@ describe('validateMotionTimeline', () => {
       ])
     );
   });
+
+  it('accepts a valid label step position', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 'intro',
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('rejects an unknown label step position', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 'missing',
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-unknown-step-label'
+        })
+      ])
+    );
+  });
+
+  it('rejects an empty label step position', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: '',
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-label'
+        })
+      ])
+    );
+  });
+
+  it('rejects an invalid timeline label position', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: -1
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 'intro',
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-label-position'
+        })
+      ])
+    );
+  });
 });
