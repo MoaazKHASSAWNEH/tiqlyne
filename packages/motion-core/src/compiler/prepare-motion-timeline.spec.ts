@@ -316,4 +316,135 @@ describe('prepareMotionTimeline', () => {
       fill: 'both'
     });
   });
+
+  it('prepares a step using an absolute numeric position', () => {
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 200,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 200,
+      endTime: 300,
+      duration: 100,
+      delay: 0
+    });
+
+    expect(prepared.tracks[0]?.duration).toBe(300);
+    expect(prepared.totalDuration).toBe(300);
+  });
+
+  it('adds step delay to absolute numeric position', () => {
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 200,
+              delay: 50,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 250,
+      endTime: 350,
+      duration: 100,
+      delay: 50
+    });
+
+    expect(prepared.tracks[0]?.duration).toBe(350);
+    expect(prepared.totalDuration).toBe(350);
+  });
+
+  it('keeps the timeline cursor at the longest end time when positioned steps overlap', () => {
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 0,
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            },
+            {
+              at: 100,
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 0,
+      endTime: 300
+    });
+
+    expect(prepared.tracks[0]?.steps[1]).toMatchObject({
+      startTime: 100,
+      endTime: 400
+    });
+
+    expect(prepared.tracks[0]?.steps[2]).toMatchObject({
+      startTime: 400,
+      endTime: 600
+    });
+
+    expect(prepared.tracks[0]?.duration).toBe(600);
+    expect(prepared.totalDuration).toBe(600);
+  });
 });

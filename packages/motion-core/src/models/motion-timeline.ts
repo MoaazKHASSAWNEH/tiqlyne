@@ -20,6 +20,7 @@ export type MotionTimelineDefaults = {
 };
 
 export type MotionStepDefinition = {
+  readonly at?: number;
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
   readonly duration?: number;
   readonly delay?: number;

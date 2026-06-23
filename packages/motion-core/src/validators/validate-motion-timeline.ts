@@ -91,6 +91,20 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
         );
       }
 
+      if (step.at !== undefined && (!Number.isFinite(step.at) || step.at < 0)) {
+        diagnostics.push(
+          createErrorDiagnostic(
+            'timeline-invalid-step-position',
+            'Timeline step position must be a finite non-negative number.',
+            {
+              trackIndex,
+              stepIndex,
+              at: step.at
+            }
+          )
+        );
+      }
+
       if (
         step.offset !== undefined &&
         (!Number.isFinite(step.offset) || step.offset < 0 || step.offset > 1)

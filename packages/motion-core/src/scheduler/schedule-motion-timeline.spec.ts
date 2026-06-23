@@ -130,6 +130,43 @@ describe('scheduleMotionTimeline', () => {
     expect(scheduled.tasks[0]?.step).toBe(timeline.tracks[0]?.steps[0]);
     expect(scheduled.tasks[1]?.step).toBe(timeline.tracks[0]?.steps[1]);
   });
+
+  it('schedules tasks using prepared absolute step positions', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 200,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: 50,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    const scheduled = scheduleMotionTimeline(prepared);
+
+    expect(scheduled.tasks.map((task) => task.startTime)).toEqual([50, 200]);
+    expect(scheduled.totalDuration).toBe(300);
+  });
 });
 
 function createSingleTrackTimeline(): MotionTimelineDefinition {
