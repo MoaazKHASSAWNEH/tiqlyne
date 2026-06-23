@@ -289,7 +289,7 @@ Une position numerique indique un temps absolu dans la track.
 Exemple :
 
 ```ts
-at: 500
+at: 500;
 ```
 
 ### 9.3 Labels
@@ -307,7 +307,7 @@ labels: {
 Une step peut ensuite utiliser :
 
 ```ts
-at: 'content'
+at: 'content';
 ```
 
 ou :

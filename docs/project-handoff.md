@@ -259,11 +259,7 @@ at: { anchor: 'previous-end', offset: 100 }
 ### 8.2 Types importants
 
 ```ts
-export type MotionStepAnchor =
-  | 'track-start'
-  | 'track-end'
-  | 'previous-start'
-  | 'previous-end';
+export type MotionStepAnchor = 'track-start' | 'track-end' | 'previous-start' | 'previous-end';
 
 export type MotionLabelStepPosition = {
   readonly label: string;
@@ -623,7 +619,7 @@ keyframes: [
       scale: 1.1
     }
   }
-]
+];
 ```
 
 Mais cette feature ne doit pas etre commencee tant que la validation n'est pas mieux decoupee.
