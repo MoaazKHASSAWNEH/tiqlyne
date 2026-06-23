@@ -524,4 +524,117 @@ describe('prepareMotionTimeline', () => {
     expect(prepared.tracks[0]?.duration).toBe(350);
     expect(prepared.totalDuration).toBe(350);
   });
+
+  it('prepares a step using a typed label position', () => {
+    const timeline: MotionTimelineDefinition = {
+      labels: {
+        intro: 200
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'intro'
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 200,
+      endTime: 300
+    });
+
+    expect(prepared.totalDuration).toBe(300);
+  });
+
+  it('prepares a step using a typed label position with positive offset', () => {
+    const timeline: MotionTimelineDefinition = {
+      labels: {
+        intro: 200
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'intro',
+                offset: 100
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 300,
+      endTime: 400
+    });
+
+    expect(prepared.totalDuration).toBe(400);
+  });
+
+  it('prepares a step using a typed label position with negative offset', () => {
+    const timeline: MotionTimelineDefinition = {
+      labels: {
+        outro: 500
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'outro',
+                offset: -100
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const prepared = prepareMotionTimeline(timeline);
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      startTime: 400,
+      endTime: 500
+    });
+
+    expect(prepared.totalDuration).toBe(500);
+  });
 });

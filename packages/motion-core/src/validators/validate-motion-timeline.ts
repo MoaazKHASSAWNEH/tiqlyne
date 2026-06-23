@@ -297,7 +297,54 @@ function validateStepPosition(
     return;
   }
 
-  if (position.trim().length === 0) {
+  if (typeof position === 'string') {
+    validateStepLabelPosition(position, labels, trackIndex, stepIndex, diagnostics);
+
+    return;
+  }
+
+  validateStepLabelPosition(position.label, labels, trackIndex, stepIndex, diagnostics);
+
+  if (position.offset !== undefined && !Number.isFinite(position.offset)) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-position-offset',
+        'Timeline step position offset must be a finite number.',
+        {
+          trackIndex,
+          stepIndex,
+          offset: position.offset
+        }
+      )
+    );
+  }
+
+  const labelPosition = labels?.[position.label];
+  const offset = position.offset ?? 0;
+
+  if (labelPosition !== undefined && Number.isFinite(labelPosition) && labelPosition + offset < 0) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-step-position',
+        'Timeline step position must resolve to a finite non-negative number.',
+        {
+          trackIndex,
+          stepIndex,
+          at: labelPosition + offset
+        }
+      )
+    );
+  }
+}
+
+function validateStepLabelPosition(
+  label: string,
+  labels: MotionTimelineLabels | undefined,
+  trackIndex: number,
+  stepIndex: number,
+  diagnostics: MotionDiagnostic[]
+): void {
+  if (label.trim().length === 0) {
     diagnostics.push(
       createErrorDiagnostic(
         'timeline-invalid-step-label',
@@ -305,7 +352,7 @@ function validateStepPosition(
         {
           trackIndex,
           stepIndex,
-          at: position
+          at: label
         }
       )
     );
@@ -313,7 +360,7 @@ function validateStepPosition(
     return;
   }
 
-  if (labels?.[position] === undefined) {
+  if (labels?.[label] === undefined) {
     diagnostics.push(
       createErrorDiagnostic(
         'timeline-unknown-step-label',
@@ -321,7 +368,7 @@ function validateStepPosition(
         {
           trackIndex,
           stepIndex,
-          at: position
+          at: label
         }
       )
     );

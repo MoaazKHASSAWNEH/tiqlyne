@@ -208,6 +208,53 @@ describe('scheduleMotionTimeline', () => {
     expect(scheduled.tasks.map((task) => task.startTime)).toEqual([50, 200]);
     expect(scheduled.totalDuration).toBe(300);
   });
+
+  it('schedules tasks using typed relative label positions', () => {
+    const prepared = prepareMotionTimeline({
+      labels: {
+        intro: 100,
+        outro: 500
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'outro',
+                offset: -100
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                }
+              ]
+            },
+            {
+              at: {
+                label: 'intro',
+                offset: 50
+              },
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    const scheduled = scheduleMotionTimeline(prepared);
+
+    expect(scheduled.tasks.map((task) => task.startTime)).toEqual([150, 400]);
+    expect(scheduled.totalDuration).toBe(500);
+  });
 });
 
 function createSingleTrackTimeline(): MotionTimelineDefinition {

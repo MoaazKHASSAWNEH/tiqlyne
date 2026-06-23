@@ -709,4 +709,217 @@ describe('validateMotionTimeline', () => {
       ])
     );
   });
+
+  it('accepts a typed label step position', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'intro'
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('accepts a typed label step position with offset', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'intro',
+                offset: 50
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('rejects a typed label step position with unknown label', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'missing'
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-unknown-step-label'
+        })
+      ])
+    );
+  });
+
+  it('rejects a typed label step position with empty label', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: ''
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-label'
+        })
+      ])
+    );
+  });
+
+  it('rejects a typed label step position with non-finite offset', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 100
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'intro',
+                offset: Number.NaN
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-position-offset'
+        })
+      ])
+    );
+  });
+
+  it('rejects a typed label step position resolving to a negative position', () => {
+    const result = validateMotionTimeline({
+      labels: {
+        intro: 50
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: {
+                label: 'intro',
+                offset: -100
+              },
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-step-position'
+        })
+      ])
+    );
+  });
 });

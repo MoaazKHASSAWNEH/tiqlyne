@@ -59,7 +59,8 @@ export type {
   MotionTimelineDefaults,
   MotionTimelineLabels,
   MotionTrackDefinition,
-  MotionTimelineDefinition
+  MotionTimelineDefinition,
+  MotionLabelStepPosition
 } from './models/motion-timeline';
 export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';
 

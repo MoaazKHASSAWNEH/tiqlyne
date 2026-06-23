@@ -14,7 +14,12 @@ export type MotionFillMode = 'none' | 'forwards' | 'backwards' | 'both' | 'auto'
 
 export type MotionTimelineLabels = Readonly<Record<string, number>>;
 
-export type MotionStepPosition = number | string;
+export type MotionLabelStepPosition = {
+  readonly label: string;
+  readonly offset?: number;
+};
+
+export type MotionStepPosition = number | string | MotionLabelStepPosition;
 
 export type MotionTimelineDefaults = {
   readonly duration?: number;

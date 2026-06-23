@@ -13,5 +13,9 @@ export function resolveMotionStepPosition(
     return position;
   }
 
-  return labels?.[position] ?? cursor;
+  if (typeof position === 'string') {
+    return labels?.[position] ?? cursor;
+  }
+
+  return (labels?.[position.label] ?? cursor) + (position.offset ?? 0);
 }
