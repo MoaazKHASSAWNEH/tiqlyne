@@ -1,10 +1,10 @@
+import { validateTarget } from './validate-motion-target';
 import { validateKeyframe } from './validate-motion-keyframe';
 import { validateStepPosition } from './validate-motion-step-position';
 import { validatePlaybackTimingOptions } from './validate-motion-playback-options';
 import { mergeMotionTimelineDefaults } from '../compiler/apply-motion-timeline-defaults';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
-import type { MotionTargetReference } from '../models/motion-target';
 import type {
   MotionPlaybackDirection,
   MotionStepPosition,
@@ -325,49 +325,6 @@ function validateStaggerValue(
         }
       )
     );
-  }
-}
-
-function validateTarget(
-  target: MotionTargetReference,
-  trackIndex: number,
-  diagnostics: MotionDiagnostic[]
-): void {
-  switch (target.type) {
-    case 'self':
-      return;
-
-    case 'child':
-    case 'named':
-      if (target.name.trim().length === 0) {
-        diagnostics.push(
-          createErrorDiagnostic(
-            'timeline-invalid-target-name',
-            'Timeline target name must not be empty.',
-            {
-              trackIndex,
-              targetType: target.type
-            }
-          )
-        );
-      }
-
-      return;
-
-    case 'selector':
-      if (target.selector.trim().length === 0) {
-        diagnostics.push(
-          createErrorDiagnostic(
-            'timeline-invalid-target-selector',
-            'Timeline target selector must not be empty.',
-            {
-              trackIndex
-            }
-          )
-        );
-      }
-
-      return;
   }
 }
 
