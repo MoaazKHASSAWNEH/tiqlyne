@@ -53,6 +53,7 @@ describe('toWebStepTimingOptions', () => {
         iterations: 2,
         direction: 'alternate',
         endDelay: 100,
+        playbackRate: 2,
         keyframes: [
           {
             opacity: 1
@@ -64,7 +65,8 @@ describe('toWebStepTimingOptions', () => {
       delay: 0,
       iterations: 2,
       direction: 'alternate',
-      endDelay: 100
+      endDelay: 100,
+      playbackRate: 2
     });
   });
 });
@@ -107,7 +109,8 @@ describe('toWebScheduledTaskTimingOptions', () => {
       startTime: 0,
       iterations: 2,
       direction: 'alternate',
-      endDelay: 100
+      endDelay: 100,
+      playbackRate: 2
     });
 
     expect(toWebScheduledTaskTimingOptions(task)).toMatchObject({
@@ -115,7 +118,8 @@ describe('toWebScheduledTaskTimingOptions', () => {
       delay: 0,
       iterations: 2,
       direction: 'alternate',
-      endDelay: 100
+      endDelay: 100,
+      playbackRate: 2
     });
   });
 });
@@ -129,6 +133,7 @@ function createScheduledTask(input: {
   readonly iterations?: number;
   readonly direction?: PlaybackDirection;
   readonly endDelay?: number;
+  readonly playbackRate?: number;
 }): ScheduledMotionTask {
   const activeDuration = input.duration * (input.iterations ?? 1) + (input.endDelay ?? 0);
 
@@ -178,6 +183,11 @@ function createScheduledTask(input: {
             endDelay: input.endDelay
           }
         : {}),
+      ...(input.playbackRate !== undefined
+        ? {
+            playbackRate: input.playbackRate
+          }
+        : {}),
       source: {
         duration: input.duration,
         delay: input.delay ?? 0,
@@ -209,6 +219,11 @@ function createScheduledTask(input: {
         ...(input.endDelay !== undefined
           ? {
               endDelay: input.endDelay
+            }
+          : {}),
+        ...(input.playbackRate !== undefined
+          ? {
+              playbackRate: input.playbackRate
             }
           : {})
       }

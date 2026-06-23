@@ -42,12 +42,14 @@ export type MotionTimelineDefaults = {
   readonly delay?: number;
   readonly easing?: string;
   readonly fill?: MotionFillMode;
+  readonly playbackRate?: number;
 };
 
 export type MotionStepDefinition = {
   readonly iterations?: number;
   readonly direction?: MotionPlaybackDirection;
   readonly endDelay?: number;
+  readonly playbackRate?: number;
   readonly at?: MotionStepPosition;
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
   readonly duration?: number;

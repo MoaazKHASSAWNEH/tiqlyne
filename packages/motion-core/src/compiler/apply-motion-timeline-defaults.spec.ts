@@ -72,7 +72,8 @@ describe('applyMotionTimelineDefaults', () => {
         duration: 300,
         iterations: 2,
         direction: 'alternate',
-        endDelay: 100
+        endDelay: 100,
+        playbackRate: 2
       },
       tracks: [
         {
@@ -96,7 +97,8 @@ describe('applyMotionTimelineDefaults', () => {
       duration: 300,
       iterations: 2,
       direction: 'alternate',
-      endDelay: 100
+      endDelay: 100,
+      playbackRate: 2
     });
   });
 
@@ -109,7 +111,8 @@ describe('applyMotionTimelineDefaults', () => {
         fill: 'both',
         iterations: 2,
         direction: 'alternate',
-        endDelay: 100
+        endDelay: 100,
+        playbackRate: 2
       },
       tracks: [
         {
@@ -125,6 +128,7 @@ describe('applyMotionTimelineDefaults', () => {
               iterations: 3,
               direction: 'reverse',
               endDelay: 200,
+              playbackRate: 0.5,
               keyframes: [
                 {
                   opacity: 1
@@ -143,7 +147,8 @@ describe('applyMotionTimelineDefaults', () => {
       fill: 'forwards',
       iterations: 3,
       direction: 'reverse',
-      endDelay: 200
+      endDelay: 200,
+      playbackRate: 0.5
     });
   });
 
@@ -156,7 +161,8 @@ describe('applyMotionTimelineDefaults', () => {
         fill: 'both',
         iterations: 2,
         direction: 'alternate',
-        endDelay: 100
+        endDelay: 100,
+        playbackRate: 2
       },
       tracks: [
         {
@@ -170,7 +176,8 @@ describe('applyMotionTimelineDefaults', () => {
             fill: 'forwards',
             iterations: 3,
             direction: 'reverse',
-            endDelay: 200
+            endDelay: 200,
+            playbackRate: 0.5
           },
           steps: [
             {
@@ -192,7 +199,8 @@ describe('applyMotionTimelineDefaults', () => {
       fill: 'forwards',
       iterations: 3,
       direction: 'reverse',
-      endDelay: 200
+      endDelay: 200,
+      playbackRate: 0.5
     });
   });
 
@@ -255,7 +263,8 @@ describe('applyMotionStepDefaults', () => {
         fill: 'both',
         iterations: 2,
         direction: 'alternate',
-        endDelay: 100
+        endDelay: 100,
+        playbackRate: 2
       })
     ).toMatchObject({
       duration: 300,
@@ -264,7 +273,8 @@ describe('applyMotionStepDefaults', () => {
       fill: 'both',
       iterations: 2,
       direction: 'alternate',
-      endDelay: 100
+      endDelay: 100,
+      playbackRate: 2
     });
   });
 
@@ -277,6 +287,7 @@ describe('applyMotionStepDefaults', () => {
       iterations: 3,
       direction: 'reverse',
       endDelay: 200,
+      playbackRate: 0.5,
       keyframes: [
         {
           opacity: 1
@@ -292,7 +303,8 @@ describe('applyMotionStepDefaults', () => {
         fill: 'both',
         iterations: 2,
         direction: 'alternate',
-        endDelay: 100
+        endDelay: 100,
+        playbackRate: 2
       })
     ).toMatchObject({
       duration: 500,
@@ -301,7 +313,8 @@ describe('applyMotionStepDefaults', () => {
       fill: 'forwards',
       iterations: 3,
       direction: 'reverse',
-      endDelay: 200
+      endDelay: 200,
+      playbackRate: 0.5
     });
   });
 });
@@ -317,11 +330,13 @@ describe('mergeMotionTimelineDefaults', () => {
           fill: 'both',
           iterations: 2,
           direction: 'alternate',
-          endDelay: 100
+          endDelay: 100,
+          playbackRate: 2
         },
         {
           duration: 500,
-          direction: 'reverse'
+          direction: 'reverse',
+          playbackRate: 0.5
         }
       )
     ).toEqual({
@@ -331,7 +346,8 @@ describe('mergeMotionTimelineDefaults', () => {
       fill: 'both',
       iterations: 2,
       direction: 'reverse',
-      endDelay: 100
+      endDelay: 100,
+      playbackRate: 0.5
     });
   });
 
@@ -358,7 +374,16 @@ describe('hasMotionTimelineDefaults', () => {
       hasMotionTimelineDefaults({
         iterations: 2,
         direction: 'alternate',
-        endDelay: 100
+        endDelay: 100,
+        playbackRate: 2
+      })
+    ).toBe(true);
+  });
+
+  it('returns true when playbackRate default is defined', () => {
+    expect(
+      hasMotionTimelineDefaults({
+        playbackRate: 2
       })
     ).toBe(true);
   });

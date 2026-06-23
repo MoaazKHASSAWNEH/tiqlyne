@@ -69,6 +69,7 @@ function validateStep(
     readonly iterations?: number;
     readonly direction?: MotionPlaybackDirection;
     readonly endDelay?: number;
+    readonly playbackRate?: number;
   },
   trackDefaults: MotionTimelineDefaults,
   labels: MotionTimelineLabels | undefined,
@@ -157,7 +158,8 @@ function validateStep(
     {
       iterations: step.iterations ?? trackDefaults.iterations,
       direction: step.direction ?? trackDefaults.direction,
-      endDelay: step.endDelay ?? trackDefaults.endDelay
+      endDelay: step.endDelay ?? trackDefaults.endDelay,
+      playbackRate: step.playbackRate ?? trackDefaults.playbackRate
     },
     diagnostics,
     metadata
@@ -226,7 +228,8 @@ function validateTimelineDefaults(
     {
       iterations: defaults.iterations,
       direction: defaults.direction,
-      endDelay: defaults.endDelay
+      endDelay: defaults.endDelay,
+      playbackRate: defaults.playbackRate
     },
     diagnostics,
     metadata
@@ -238,6 +241,7 @@ function validatePlaybackTimingOptions(
     readonly iterations: number | undefined;
     readonly direction: MotionPlaybackDirection | undefined;
     readonly endDelay: number | undefined;
+    readonly playbackRate: number | undefined;
   },
   diagnostics: MotionDiagnostic[],
   metadata: ValidationMetadata
@@ -245,6 +249,7 @@ function validatePlaybackTimingOptions(
   validateIterations(options.iterations, diagnostics, metadata);
   validatePlaybackDirection(options.direction, diagnostics, metadata);
   validateEndDelay(options.endDelay, diagnostics, metadata);
+  validatePlaybackRate(options.playbackRate, diagnostics, metadata);
 }
 
 function validateIterations(
@@ -310,6 +315,29 @@ function validateEndDelay(
         {
           ...metadata,
           endDelay
+        }
+      )
+    );
+  }
+}
+
+function validatePlaybackRate(
+  playbackRate: number | undefined,
+  diagnostics: MotionDiagnostic[],
+  metadata: ValidationMetadata
+): void {
+  if (playbackRate === undefined) {
+    return;
+  }
+
+  if (!Number.isFinite(playbackRate) || playbackRate <= 0) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-playback-rate',
+        'Timeline playbackRate must be a finite positive number.',
+        {
+          ...metadata,
+          playbackRate
         }
       )
     );

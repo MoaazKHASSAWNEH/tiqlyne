@@ -81,6 +81,11 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
               endDelay: step.endDelay
             }
           : {}),
+        ...(step.playbackRate !== undefined
+          ? {
+              playbackRate: step.playbackRate
+            }
+          : {}),
         source: step
       };
     });

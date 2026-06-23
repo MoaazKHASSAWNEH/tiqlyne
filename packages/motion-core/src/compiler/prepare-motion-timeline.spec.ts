@@ -875,4 +875,39 @@ describe('prepareMotionTimeline', () => {
 
     expect(prepared.totalDuration).toBe(900);
   });
+
+  it('preserves playback rate without changing active duration', () => {
+    const prepared = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 2,
+              endDelay: 100,
+              playbackRate: 2,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(prepared.tracks[0]?.steps[0]).toMatchObject({
+      duration: 300,
+      iterations: 2,
+      endDelay: 100,
+      playbackRate: 2,
+      activeDuration: 700,
+      startTime: 0,
+      endTime: 700
+    });
+  });
 });

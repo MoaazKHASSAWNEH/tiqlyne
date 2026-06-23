@@ -23,6 +23,7 @@ export type PreparedMotionStep = {
   readonly direction?: MotionPlaybackDirection;
   readonly endDelay?: number;
   readonly activeDuration: number;
+  readonly playbackRate?: number;
 };
 
 export type PreparedMotionTrack = {

@@ -49,6 +49,7 @@ export function applyMotionStepDefaults(
   const iterations = step.iterations ?? defaults.iterations;
   const direction = step.direction ?? defaults.direction;
   const endDelay = step.endDelay ?? defaults.endDelay;
+  const playbackRate = step.playbackRate ?? defaults.playbackRate;
 
   if (duration !== step.duration && duration !== undefined) {
     changed = true;
@@ -75,6 +76,10 @@ export function applyMotionStepDefaults(
   }
 
   if (endDelay !== step.endDelay && endDelay !== undefined) {
+    changed = true;
+  }
+
+  if (playbackRate !== step.playbackRate && playbackRate !== undefined) {
     changed = true;
   }
 
@@ -118,6 +123,11 @@ export function applyMotionStepDefaults(
       ? {
           endDelay
         }
+      : {}),
+    ...(playbackRate !== undefined
+      ? {
+          playbackRate
+        }
       : {})
   };
 }
@@ -140,6 +150,7 @@ export function hasMotionTimelineDefaults(defaults: MotionTimelineDefaults): boo
     defaults.fill !== undefined ||
     defaults.iterations !== undefined ||
     defaults.direction !== undefined ||
+    defaults.playbackRate !== undefined ||
     defaults.endDelay !== undefined
   );
 }

@@ -1105,6 +1105,7 @@ describe('validateMotionTimeline', () => {
               duration: 300,
               iterations: 2,
               direction: 'alternate',
+              playbackRate: 2,
               endDelay: 100,
               keyframes: [
                 {
@@ -1212,6 +1213,38 @@ describe('validateMotionTimeline', () => {
       expect.arrayContaining([
         expect.objectContaining({
           code: 'timeline-invalid-end-delay'
+        })
+      ])
+    );
+  });
+
+  it('rejects invalid playback rate', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              playbackRate: 0,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'timeline-invalid-playback-rate'
         })
       ])
     );

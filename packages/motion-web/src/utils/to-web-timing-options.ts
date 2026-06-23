@@ -20,6 +20,11 @@ export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnim
       ? {
           endDelay: step.endDelay
         }
+      : {}),
+    ...(step.playbackRate !== undefined
+      ? {
+          playbackRate: step.playbackRate
+        }
       : {})
   };
 }
@@ -45,6 +50,11 @@ export function toWebScheduledTaskTimingOptions(
     ...(task.step.endDelay !== undefined
       ? {
           endDelay: task.step.endDelay
+        }
+      : {}),
+    ...(task.step.playbackRate !== undefined
+      ? {
+          playbackRate: task.step.playbackRate
         }
       : {})
   };
