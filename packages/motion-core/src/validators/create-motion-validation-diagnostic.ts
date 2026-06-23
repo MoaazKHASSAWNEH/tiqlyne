@@ -1,0 +1,17 @@
+import type { MotionDiagnostic } from '../models/motion-diagnostic';
+
+export type MotionValidationMetadata = Record<string, string | number | boolean | null>;
+
+export function createMotionValidationDiagnostic(
+  code: string,
+  message: string,
+  metadata?: MotionValidationMetadata
+): MotionDiagnostic {
+  return {
+    level: 'error',
+    code,
+    message,
+    source: 'motion-timeline-validator',
+    ...(metadata !== undefined ? { metadata } : {})
+  };
+}

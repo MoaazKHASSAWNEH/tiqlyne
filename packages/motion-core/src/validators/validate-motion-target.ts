@@ -1,7 +1,6 @@
+import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionTargetReference } from '../models/motion-target';
-
-type ValidationMetadata = Record<string, string | number | boolean | null>;
 
 export function validateTarget(
   target: MotionTargetReference,
@@ -44,18 +43,4 @@ export function validateTarget(
 
       return;
   }
-}
-
-function createErrorDiagnostic(
-  code: string,
-  message: string,
-  metadata?: ValidationMetadata
-): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
 }

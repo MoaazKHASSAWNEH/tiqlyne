@@ -1,3 +1,4 @@
+import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type {
   MotionAnchorStepPosition,
@@ -5,8 +6,6 @@ import type {
   MotionStepPosition,
   MotionTimelineLabels
 } from '../models/motion-timeline';
-
-type ValidationMetadata = Record<string, string | number | boolean | null>;
 
 export function validateStepPosition(
   position: MotionStepPosition | undefined,
@@ -209,18 +208,4 @@ function isMotionStepAnchor(anchor: MotionStepAnchor): boolean {
     anchor === 'previous-start' ||
     anchor === 'previous-end'
   );
-}
-
-function createErrorDiagnostic(
-  code: string,
-  message: string,
-  metadata?: ValidationMetadata
-): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
 }

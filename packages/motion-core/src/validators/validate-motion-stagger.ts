@@ -1,7 +1,6 @@
+import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionStaggerDefinition } from '../models/motion-timeline';
-
-type ValidationMetadata = Record<string, string | number | boolean | null>;
 
 export function validateStagger(
   stagger: MotionStaggerDefinition | undefined,
@@ -56,18 +55,4 @@ function validateStaggerValue(
       )
     );
   }
-}
-
-function createErrorDiagnostic(
-  code: string,
-  message: string,
-  metadata?: ValidationMetadata
-): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
 }

@@ -1,7 +1,6 @@
+import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionTimelineLabels } from '../models/motion-timeline';
-
-type ValidationMetadata = Record<string, string | number | boolean | null>;
 
 export function validateTimelineLabels(
   labels: MotionTimelineLabels | undefined,
@@ -37,18 +36,4 @@ export function validateTimelineLabels(
       );
     }
   }
-}
-
-function createErrorDiagnostic(
-  code: string,
-  message: string,
-  metadata?: ValidationMetadata
-): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
 }

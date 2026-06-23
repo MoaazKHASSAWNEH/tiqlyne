@@ -1,7 +1,7 @@
+import type { MotionValidationMetadata as ValidationMetadata } from './create-motion-validation-diagnostic';
+import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionPlaybackDirection } from '../models/motion-timeline';
-
-type ValidationMetadata = Record<string, string | number | boolean | null>;
 
 export function validatePlaybackTimingOptions(
   options: {
@@ -118,18 +118,4 @@ function isMotionPlaybackDirection(direction: MotionPlaybackDirection): boolean 
     direction === 'alternate' ||
     direction === 'alternate-reverse'
   );
-}
-
-function createErrorDiagnostic(
-  code: string,
-  message: string,
-  metadata?: ValidationMetadata
-): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
 }

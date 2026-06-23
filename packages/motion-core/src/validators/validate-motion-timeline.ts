@@ -1,3 +1,4 @@
+import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import { validateTimelineLabels } from './validate-motion-labels';
 import { validateStagger } from './validate-motion-stagger';
 import { validateTarget } from './validate-motion-target';
@@ -15,8 +16,6 @@ import type {
   MotionTimelineLabels
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
-
-type ValidationMetadata = Record<string, string | number | boolean | null>;
 
 export function validateMotionTimeline(timeline: MotionTimelineDefinition): MotionValidationResult {
   const diagnostics: MotionDiagnostic[] = [];
@@ -236,18 +235,4 @@ function validateTimelineDefaults(
     diagnostics,
     metadata
   );
-}
-
-function createErrorDiagnostic(
-  code: string,
-  message: string,
-  metadata?: ValidationMetadata
-): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
 }
