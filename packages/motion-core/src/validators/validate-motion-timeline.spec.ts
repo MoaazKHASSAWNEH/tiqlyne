@@ -185,6 +185,178 @@ describe('validateMotionTimeline', () => {
     });
   });
 
+  it('rejects non-object target references', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: null as never,
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-target',
+        message: 'Timeline target must be an object.',
+        metadata: expect.objectContaining({
+          trackIndex: 0
+        })
+      })
+    );
+  });
+
+  it('rejects unknown target types', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'unknown'
+          } as never,
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-target-type',
+        message: 'Timeline target type is invalid.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          targetType: 'unknown'
+        })
+      })
+    );
+  });
+
+  it('rejects missing selector target value', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'selector'
+          } as never,
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-target-selector',
+        message: 'Timeline target selector must be a non-empty string.',
+        metadata: expect.objectContaining({
+          trackIndex: 0
+        })
+      })
+    );
+  });
+
+  it('rejects missing named target value', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'named'
+          } as never,
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-target-name',
+        message: 'Timeline target name must be a non-empty string.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          targetType: 'named'
+        })
+      })
+    );
+  });
+
+  it('rejects non-string target names', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'child',
+            name: 123
+          } as never,
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-target-name',
+        message: 'Timeline target name must be a non-empty string.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          targetType: 'child'
+        })
+      })
+    );
+  });
+
   it('collects multiple diagnostics', () => {
     const result = validateMotionTimeline({
       tracks: [
