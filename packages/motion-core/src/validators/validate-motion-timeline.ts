@@ -14,7 +14,8 @@ import type {
   MotionTimelineDefaults,
   MotionTimelineDefinition,
   MotionTimelineLabels,
-  MotionIterationCount
+  MotionIterationCount,
+  MotionFillMode
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
 import { resolveMotionStepPosition } from '../compiler/resolve-motion-step-position';
@@ -92,6 +93,7 @@ function validateStep(
     readonly direction?: MotionPlaybackDirection;
     readonly endDelay?: number;
     readonly playbackRate?: number;
+    readonly fill?: MotionFillMode;
   },
   trackDefaults: MotionTimelineDefaults,
   labels: MotionTimelineLabels | undefined,
@@ -176,6 +178,17 @@ function validateStep(
     );
   }
 
+  const fill = step.fill ?? trackDefaults.fill;
+
+  if (fill !== undefined && !isMotionFillMode(fill)) {
+    diagnostics.push(
+      createErrorDiagnostic('timeline-invalid-fill', 'Timeline step fill mode is invalid.', {
+        ...metadata,
+        fill
+      })
+    );
+  }
+
   validatePlaybackTimingOptions(
     {
       iterations: step.iterations ?? trackDefaults.iterations,
@@ -246,6 +259,19 @@ function validateTimelineDefaults(
     );
   }
 
+  if (defaults.fill !== undefined && !isMotionFillMode(defaults.fill)) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-invalid-default-fill',
+        'Timeline default fill mode is invalid.',
+        {
+          ...metadata,
+          fill: defaults.fill
+        }
+      )
+    );
+  }
+
   validatePlaybackTimingOptions(
     {
       iterations: defaults.iterations,
@@ -255,6 +281,16 @@ function validateTimelineDefaults(
     },
     diagnostics,
     metadata
+  );
+}
+
+function isMotionFillMode(value: unknown): value is MotionFillMode {
+  return (
+    value === 'none' ||
+    value === 'forwards' ||
+    value === 'backwards' ||
+    value === 'both' ||
+    value === 'auto'
   );
 }
 

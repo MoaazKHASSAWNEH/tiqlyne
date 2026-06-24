@@ -1399,4 +1399,161 @@ describe('validateMotionTimeline', () => {
       })
     );
   });
+
+  it('rejects invalid step fill mode', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              fill: 'invalid' as never,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-fill',
+        message: 'Timeline step fill mode is invalid.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          fill: 'invalid'
+        })
+      })
+    );
+  });
+
+  it('rejects invalid timeline default fill mode', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        fill: 'invalid' as never
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-default-fill',
+        message: 'Timeline default fill mode is invalid.',
+        metadata: expect.objectContaining({
+          defaultSource: 'timeline',
+          fill: 'invalid'
+        })
+      })
+    );
+  });
+
+  it('rejects invalid track default fill mode', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          defaults: {
+            fill: 'invalid' as never
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-default-fill',
+        message: 'Timeline default fill mode is invalid.',
+        metadata: expect.objectContaining({
+          defaultSource: 'track',
+          trackIndex: 0,
+          fill: 'invalid'
+        })
+      })
+    );
+  });
+
+  it('accepts valid fill modes', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        fill: 'both'
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          defaults: {
+            fill: 'forwards'
+          },
+          steps: [
+            {
+              duration: 100,
+              fill: 'backwards',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+  });
 });
