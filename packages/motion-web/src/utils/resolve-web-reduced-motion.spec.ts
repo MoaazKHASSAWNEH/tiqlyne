@@ -391,7 +391,16 @@ function createExecutionPlan(input: {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 100,
-      hasReducedMotionTimeline: input.reducedMotionTimeline !== undefined
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
+      hasReducedMotionTimeline: input.reducedMotionTimeline !== undefined,
+      ...(input.reducedMotionTimeline !== undefined
+        ? {
+            reducedMotionTotalDuration: input.scheduledReducedMotionTimeline?.totalDuration ?? 0,
+            reducedMotionHasInfiniteDuration: false,
+            reducedMotionInfiniteTaskCount: 0
+          }
+        : {})
     },
     diagnostics: []
   };

@@ -10,7 +10,6 @@ describe('createMotionExecutionPlanSummary', () => {
     const scheduledTimeline = scheduleMotionTimeline(preparedTimeline);
 
     const summary = createMotionExecutionPlanSummary({
-      preparedTimeline,
       scheduledTimeline
     });
 
@@ -18,6 +17,8 @@ describe('createMotionExecutionPlanSummary', () => {
       trackCount: 2,
       taskCount: 3,
       totalDuration: 350,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: false
     });
   });
@@ -29,9 +30,7 @@ describe('createMotionExecutionPlanSummary', () => {
     const scheduledReducedMotionTimeline = scheduleMotionTimeline(preparedReducedMotionTimeline);
 
     const summary = createMotionExecutionPlanSummary({
-      preparedTimeline,
       scheduledTimeline,
-      preparedReducedMotionTimeline,
       scheduledReducedMotionTimeline
     });
 
@@ -39,8 +38,95 @@ describe('createMotionExecutionPlanSummary', () => {
       trackCount: 2,
       taskCount: 3,
       totalDuration: 350,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: true,
-      reducedMotionTotalDuration: 120
+      reducedMotionTotalDuration: 120,
+      reducedMotionHasInfiniteDuration: false,
+      reducedMotionInfiniteTaskCount: 0
+    });
+  });
+
+  it('exposes infinite duration summary for infinite timelines', () => {
+    const preparedTimeline = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 'infinite',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const scheduledTimeline = scheduleMotionTimeline(preparedTimeline);
+
+    const summary = createMotionExecutionPlanSummary({
+      scheduledTimeline
+    });
+
+    expect(summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: Infinity,
+      hasInfiniteDuration: true,
+      infiniteTaskCount: 1,
+      hasReducedMotionTimeline: false
+    });
+  });
+
+  it('exposes infinite duration summary for reduced motion timelines', () => {
+    const preparedTimeline = prepareMotionTimeline(createTimeline());
+    const scheduledTimeline = scheduleMotionTimeline(preparedTimeline);
+    const preparedReducedMotionTimeline = prepareMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 'infinite',
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const scheduledReducedMotionTimeline = scheduleMotionTimeline(preparedReducedMotionTimeline);
+
+    const summary = createMotionExecutionPlanSummary({
+      scheduledTimeline,
+      scheduledReducedMotionTimeline
+    });
+
+    expect(summary).toEqual({
+      trackCount: 2,
+      taskCount: 3,
+      totalDuration: 350,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
+      hasReducedMotionTimeline: true,
+      reducedMotionTotalDuration: Infinity,
+      reducedMotionHasInfiniteDuration: true,
+      reducedMotionInfiniteTaskCount: 1
     });
   });
 });

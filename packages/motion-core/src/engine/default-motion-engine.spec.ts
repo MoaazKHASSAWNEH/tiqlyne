@@ -353,6 +353,8 @@ describe('DefaultMotionEngine', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 450,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: false
     });
   });
@@ -426,6 +428,8 @@ describe('DefaultMotionEngine', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 450,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: false
     });
 
@@ -562,6 +566,8 @@ describe('DefaultMotionEngine', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 450,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: false
     });
     expect(call?.options.executionPlan?.scheduledTimeline.tasks).toHaveLength(1);
@@ -598,8 +604,12 @@ describe('DefaultMotionEngine', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 400,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: true,
-      reducedMotionTotalDuration: 120
+      reducedMotionTotalDuration: 120,
+      reducedMotionHasInfiniteDuration: false,
+      reducedMotionInfiniteTaskCount: 0
     });
   });
 
@@ -969,6 +979,8 @@ describe('DefaultMotionEngine', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 450,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: false
     });
 

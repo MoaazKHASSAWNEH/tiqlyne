@@ -33,7 +33,6 @@ export function createMotionExecutionPlan(
       : undefined;
 
   const summary = createMotionExecutionPlanSummary({
-    preparedTimeline,
     scheduledTimeline,
     ...(preparedReducedMotionTimeline !== undefined
       ? {

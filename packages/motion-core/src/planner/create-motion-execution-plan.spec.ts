@@ -30,6 +30,8 @@ describe('createMotionExecutionPlan', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 300,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: false
     });
   });
@@ -52,8 +54,12 @@ describe('createMotionExecutionPlan', () => {
       trackCount: 1,
       taskCount: 1,
       totalDuration: 300,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
       hasReducedMotionTimeline: true,
-      reducedMotionTotalDuration: 120
+      reducedMotionTotalDuration: 120,
+      reducedMotionHasInfiniteDuration: false,
+      reducedMotionInfiniteTaskCount: 0
     });
   });
 
