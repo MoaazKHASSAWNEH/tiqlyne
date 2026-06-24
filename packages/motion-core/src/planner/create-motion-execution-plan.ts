@@ -34,15 +34,10 @@ export function createMotionExecutionPlan(
 
   const summary = createMotionExecutionPlanSummary({
     scheduledTimeline,
-    ...(preparedReducedMotionTimeline !== undefined
-      ? {
-          preparedReducedMotionTimeline
-        }
-      : {}),
     ...(scheduledReducedMotionTimeline !== undefined
       ? {
-          scheduledReducedMotionTimeline
-        }
+        scheduledReducedMotionTimeline
+      }
       : {})
   });
 
@@ -52,18 +47,18 @@ export function createMotionExecutionPlan(
     scheduledTimeline,
     ...(reducedMotionTimeline !== undefined
       ? {
-          reducedMotionTimeline
-        }
+        reducedMotionTimeline
+      }
       : {}),
     ...(preparedReducedMotionTimeline !== undefined
       ? {
-          preparedReducedMotionTimeline
-        }
+        preparedReducedMotionTimeline
+      }
       : {}),
     ...(scheduledReducedMotionTimeline !== undefined
       ? {
-          scheduledReducedMotionTimeline
-        }
+        scheduledReducedMotionTimeline
+      }
       : {}),
     summary,
     diagnostics: input.diagnostics ?? []
