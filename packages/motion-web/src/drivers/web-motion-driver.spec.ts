@@ -914,6 +914,35 @@ describe('WebMotionDriver', () => {
     expect(animation.cancel).toHaveBeenCalledTimes(1);
   });
 
+  it('returns failed when cancelling target animations fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const animation = createAnimationMock();
+
+    vi.mocked(animation.cancel).mockImplementation(() => {
+      throw new Error('Cannot cancel animation.');
+    });
+
+    target.setAnimations([animation]);
+
+    const result = await driver.cancel(asElement(target));
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-driver-cancel-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-driver-cancel-failed',
+          message: 'Web driver could not cancel animations safely.',
+          source: 'web-motion-driver'
+        }
+      ]
+    });
+
+    expect(animation.cancel).toHaveBeenCalledTimes(1);
+  });
+
   it('finishes animations on a target subtree', async () => {
     const driver = new WebMotionDriver();
     const target = new FakeElement();
@@ -972,6 +1001,66 @@ describe('WebMotionDriver', () => {
     expect(result).toEqual({
       status: 'finished',
       reason: 'web-driver-reset'
+    });
+
+    expect(animation.cancel).toHaveBeenCalledTimes(1);
+    expect(target.removeAttribute).toHaveBeenCalledWith('style');
+  });
+
+  it('returns failed when resetting target animations fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const animation = createAnimationMock();
+
+    vi.mocked(animation.cancel).mockImplementation(() => {
+      throw new Error('Cannot cancel animation during reset.');
+    });
+
+    target.setAnimations([animation]);
+
+    const result = await driver.reset(asElement(target));
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-driver-reset-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-driver-reset-failed',
+          message: 'Web driver could not reset animations safely.',
+          source: 'web-motion-driver'
+        }
+      ]
+    });
+
+    expect(animation.cancel).toHaveBeenCalledTimes(1);
+    expect(target.removeAttribute).not.toHaveBeenCalled();
+  });
+
+  it('returns failed when resetting target styles fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const animation = createAnimationMock();
+
+    vi.mocked(target.removeAttribute).mockImplementation(() => {
+      throw new Error('Cannot remove inline styles.');
+    });
+
+    target.setAnimations([animation]);
+
+    const result = await driver.reset(asElement(target));
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-driver-reset-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-driver-reset-failed',
+          message: 'Web driver could not reset animations safely.',
+          source: 'web-motion-driver'
+        }
+      ]
     });
 
     expect(animation.cancel).toHaveBeenCalledTimes(1);

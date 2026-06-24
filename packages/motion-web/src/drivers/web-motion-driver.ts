@@ -65,14 +65,30 @@ export class WebMotionDriver implements MotionDriver<Element> {
   }
 
   async cancel(target: Element): Promise<MotionPlaybackResult> {
-    target.getAnimations({ subtree: true }).forEach((animation) => {
-      animation.cancel();
-    });
+    try {
+      target.getAnimations({ subtree: true }).forEach((animation) => {
+        animation.cancel();
+      });
 
-    return {
-      status: 'cancelled',
-      reason: 'web-driver-cancel'
-    };
+      return {
+        status: 'cancelled',
+        reason: 'web-driver-cancel'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-driver-cancel-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-driver-cancel-failed',
+            message: 'Web driver could not cancel animations safely.',
+            source: 'web-motion-driver'
+          }
+        ]
+      };
+    }
   }
 
   async finish(target: Element): Promise<MotionPlaybackResult> {
@@ -103,16 +119,32 @@ export class WebMotionDriver implements MotionDriver<Element> {
   }
 
   async reset(target: Element): Promise<MotionPlaybackResult> {
-    target.getAnimations({ subtree: true }).forEach((animation) => {
-      animation.cancel();
-    });
+    try {
+      target.getAnimations({ subtree: true }).forEach((animation) => {
+        animation.cancel();
+      });
 
-    target.removeAttribute('style');
+      target.removeAttribute('style');
 
-    return {
-      status: 'finished',
-      reason: 'web-driver-reset'
-    };
+      return {
+        status: 'finished',
+        reason: 'web-driver-reset'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-driver-reset-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-driver-reset-failed',
+            message: 'Web driver could not reset animations safely.',
+            source: 'web-motion-driver'
+          }
+        ]
+      };
+    }
   }
 
   private createWebPlayback(
