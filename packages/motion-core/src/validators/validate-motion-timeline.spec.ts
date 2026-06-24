@@ -2137,4 +2137,154 @@ describe('validateMotionTimeline', () => {
 
     expect(result.valid).toBe(true);
   });
+
+  it('rejects empty transform strings', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  transform: '' as never
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-transform',
+          message:
+            'Keyframe transform must be a non-empty string or a structured transform object.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            keyframeIndex: 0
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid transform values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  transform: 123 as never
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-transform'
+      })
+    );
+  });
+
+  it('rejects invalid structured transform scale values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  transform: {
+                    scale: Number.NaN
+                  } as never
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-transform-value',
+          message: 'Transform scale value must be a finite number.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            keyframeIndex: 0,
+            transformProperty: 'scale'
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid structured transform origins', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  transform: {
+                    origin: ''
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-transform-origin',
+          message: 'Transform origin must be a non-empty string.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            keyframeIndex: 0
+          })
+        })
+      ]
+    });
+  });
 });

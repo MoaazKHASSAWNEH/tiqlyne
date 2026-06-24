@@ -1,6 +1,7 @@
 import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
+import { validateMotionTransform } from './validate-motion-transform';
 
 export function validateKeyframe(
   keyframe: MotionKeyframe,
@@ -44,6 +45,12 @@ export function validateKeyframe(
       )
     );
   }
+
+  validateMotionTransform(keyframe.transform, diagnostics, {
+    trackIndex,
+    stepIndex,
+    keyframeIndex
+  });
 
   if (keyframe.custom !== undefined) {
     for (const [property, value] of Object.entries(keyframe.custom)) {

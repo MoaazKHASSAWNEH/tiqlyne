@@ -78,6 +78,16 @@ export type {
 export type { ResolveMotionStepPositionContext } from './compiler/resolve-motion-step-position';
 export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';
 
+export type {
+  MotionAngleString,
+  MotionAngleValue,
+  MotionLengthString,
+  MotionLengthUnit,
+  MotionLengthValue,
+  MotionTransformOrigin,
+  MotionTransformValue
+} from './models/motion-transform';
+
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
 

@@ -47,4 +47,25 @@ describe('toWebKeyframes', () => {
       }
     ]);
   });
+
+  it('converts structured transforms to web transform strings', () => {
+    const result = toWebKeyframes([
+      {
+        transform: {
+          x: 24,
+          y: '10%',
+          scale: 0.95,
+          rotate: -4,
+          origin: 'top center'
+        }
+      }
+    ]);
+
+    expect(result).toEqual([
+      {
+        transform: 'translateX(24px) translateY(10%) scale(0.95) rotate(-4deg)',
+        transformOrigin: 'top center'
+      }
+    ]);
+  });
 });
