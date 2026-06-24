@@ -1079,6 +1079,134 @@ describe('WebMotionDriver', () => {
     expect(playback.status).toBe('finished');
   });
 
+  it('returns failed when native playback controller pause fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    vi.mocked(createdAnimation.pause).mockImplementation(() => {
+      throw new Error('Cannot pause animation.');
+    });
+
+    const events: string[] = [];
+
+    playback.on('fail', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    const result = await playback.pause();
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-playback-pause-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-playback-pause-failed',
+          message: 'Web playback could not be paused safely.',
+          source: 'web-motion-playback-controller'
+        }
+      ]
+    });
+
+    expect(playback.status).toBe('failed');
+    expect(createdAnimation.pause).toHaveBeenCalledTimes(1);
+    expect(events).toEqual(['fail:failed']);
+  });
+
+  it('returns failed when native playback controller resume fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    await playback.pause();
+
+    vi.mocked(createdAnimation.play).mockImplementation(() => {
+      throw new Error('Cannot resume animation.');
+    });
+
+    const events: string[] = [];
+
+    playback.on('fail', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    const result = await playback.resume();
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-playback-resume-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-playback-resume-failed',
+          message: 'Web playback could not be resumed safely.',
+          source: 'web-motion-playback-controller'
+        }
+      ]
+    });
+
+    expect(playback.status).toBe('failed');
+    expect(createdAnimation.play).toHaveBeenCalledTimes(1);
+    expect(events).toEqual(['fail:failed']);
+  });
+
+  it('returns failed when native playback controller cancel fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    vi.mocked(createdAnimation.cancel).mockImplementation(() => {
+      throw new Error('Cannot cancel animation.');
+    });
+
+    const events: string[] = [];
+
+    playback.on('fail', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    const result = await playback.cancel();
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-playback-cancel-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-playback-cancel-failed',
+          message: 'Web playback could not be cancelled safely.',
+          source: 'web-motion-playback-controller'
+        }
+      ]
+    });
+
+    expect(playback.status).toBe('failed');
+    expect(createdAnimation.cancel).toHaveBeenCalledTimes(1);
+    expect(events).toEqual(['fail:failed']);
+  });
+
   it('keeps native playback controller running for infinite execution plans', async () => {
     const driver = new WebMotionDriver();
     const target = new FakeElement();

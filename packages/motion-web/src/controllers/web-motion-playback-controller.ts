@@ -47,14 +47,7 @@ export class WebMotionPlaybackController
       return this.createInvalidTransitionResult('pause');
     }
 
-    for (const animation of this.animations) {
-      animation.pause();
-    }
-
-    const result: MotionPlaybackResult = {
-      status: 'paused',
-      reason: 'web-playback-pause'
-    };
+    const result = this.pauseAnimations();
 
     const previousStatus = this.currentStatus;
     this.currentStatus = result.status;
@@ -73,14 +66,7 @@ export class WebMotionPlaybackController
       return this.createInvalidTransitionResult('resume');
     }
 
-    for (const animation of this.animations) {
-      animation.play();
-    }
-
-    const result: MotionPlaybackResult = {
-      status: 'running',
-      reason: 'web-playback-resume'
-    };
+    const result = this.resumeAnimations();
 
     const previousStatus = this.currentStatus;
     this.currentStatus = result.status;
@@ -95,14 +81,7 @@ export class WebMotionPlaybackController
       return this.createInvalidTransitionResult('cancel');
     }
 
-    for (const animation of this.animations) {
-      animation.cancel();
-    }
-
-    const result: MotionPlaybackResult = {
-      status: 'cancelled',
-      reason: 'web-playback-cancel'
-    };
+    const result = this.cancelAnimations();
 
     const previousStatus = this.currentStatus;
     this.currentStatus = result.status;
@@ -190,6 +169,87 @@ export class WebMotionPlaybackController
         }
       ]
     };
+  }
+
+  private pauseAnimations(): MotionPlaybackResult {
+    try {
+      for (const animation of this.animations) {
+        animation.pause();
+      }
+
+      return {
+        status: 'paused',
+        reason: 'web-playback-pause'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-playback-pause-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-playback-pause-failed',
+            message: 'Web playback could not be paused safely.',
+            source: 'web-motion-playback-controller'
+          }
+        ]
+      };
+    }
+  }
+
+  private resumeAnimations(): MotionPlaybackResult {
+    try {
+      for (const animation of this.animations) {
+        animation.play();
+      }
+
+      return {
+        status: 'running',
+        reason: 'web-playback-resume'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-playback-resume-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-playback-resume-failed',
+            message: 'Web playback could not be resumed safely.',
+            source: 'web-motion-playback-controller'
+          }
+        ]
+      };
+    }
+  }
+
+  private cancelAnimations(): MotionPlaybackResult {
+    try {
+      for (const animation of this.animations) {
+        animation.cancel();
+      }
+
+      return {
+        status: 'cancelled',
+        reason: 'web-playback-cancel'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-playback-cancel-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-playback-cancel-failed',
+            message: 'Web playback could not be cancelled safely.',
+            source: 'web-motion-playback-controller'
+          }
+        ]
+      };
+    }
   }
 
   private finishAnimations(): MotionPlaybackResult {
