@@ -132,6 +132,10 @@ export class WebMotionPlaybackController
       return;
     }
 
+    if (result.status === 'running') {
+      return;
+    }
+
     const previousStatus = this.currentStatus;
     this.currentStatus = result.status;
 

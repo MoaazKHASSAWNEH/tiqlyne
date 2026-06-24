@@ -1093,9 +1093,20 @@ describe('WebMotionDriver', () => {
       timelineValidated: true
     });
 
+    const events: string[] = [];
+
+    playback.on('resume', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    playback.on('statusChange', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
     await playback.finished;
 
     expect(playback.status).toBe('running');
+    expect(events).toEqual([]);
     expect(target.animate).toHaveBeenCalledTimes(1);
   });
 
