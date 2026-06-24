@@ -1249,4 +1249,154 @@ describe('validateMotionTimeline', () => {
       ])
     );
   });
+
+  it('reports unreachable implicit steps after an infinite step', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 'infinite',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-unreachable-step',
+        message:
+          'Timeline step cannot be scheduled because its position depends on an infinite duration.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 1,
+          reason: 'implicit-position-after-infinite-duration'
+        })
+      })
+    );
+  });
+
+  it('reports unreachable previous-end anchors after an infinite step', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 'infinite',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: {
+                anchor: 'previous-end'
+              },
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-unreachable-step',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 1,
+          reason: 'previous-end-after-infinite-duration'
+        })
+      })
+    );
+  });
+
+  it('allows finite explicit positions after an infinite step', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              iterations: 'infinite',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: 1000,
+              duration: 200,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).not.toContainEqual(
+      expect.objectContaining({
+        code: 'timeline-unreachable-step'
+      })
+    );
+  });
 });

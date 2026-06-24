@@ -17,6 +17,13 @@ import type {
   MotionIterationCount
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
+import { resolveMotionStepPosition } from '../compiler/resolve-motion-step-position';
+
+type TrackSchedulingState = {
+  cursor: number;
+  previousStartTime?: number;
+  previousEndTime?: number;
+};
 
 export function validateMotionTimeline(timeline: MotionTimelineDefinition): MotionValidationResult {
   const diagnostics: MotionDiagnostic[] = [];
@@ -49,8 +56,21 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
       );
     }
 
+    const schedulingState: TrackSchedulingState = {
+      cursor: 0
+    };
+
     track.steps.forEach((step, stepIndex) => {
       validateStep(step, trackDefaults, timeline.labels, trackIndex, stepIndex, diagnostics);
+      validateFiniteStepScheduling(
+        step,
+        trackDefaults,
+        timeline.labels,
+        trackIndex,
+        stepIndex,
+        schedulingState,
+        diagnostics
+      );
     });
   });
 
@@ -236,4 +256,79 @@ function validateTimelineDefaults(
     diagnostics,
     metadata
   );
+}
+
+function validateFiniteStepScheduling(
+  step: {
+    readonly at?: MotionStepPosition;
+    readonly duration?: number;
+    readonly delay?: number;
+    readonly iterations?: MotionIterationCount;
+    readonly endDelay?: number;
+  },
+  trackDefaults: MotionTimelineDefaults,
+  labels: MotionTimelineLabels | undefined,
+  trackIndex: number,
+  stepIndex: number,
+  state: TrackSchedulingState,
+  diagnostics: MotionDiagnostic[]
+): void {
+  const delay = step.delay ?? trackDefaults.delay ?? 0;
+  const duration = step.duration ?? trackDefaults.duration ?? 0;
+  const iterations = step.iterations ?? trackDefaults.iterations ?? 1;
+  const endDelay = step.endDelay ?? trackDefaults.endDelay ?? 0;
+
+  const baseStartTime = resolveMotionStepPosition(step.at, labels, state.cursor, {
+    ...(state.previousStartTime !== undefined
+      ? {
+          previousStartTime: state.previousStartTime
+        }
+      : {}),
+    ...(state.previousEndTime !== undefined
+      ? {
+          previousEndTime: state.previousEndTime
+        }
+      : {})
+  });
+
+  const startTime = baseStartTime + delay;
+
+  if (!Number.isFinite(startTime)) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-unreachable-step',
+        'Timeline step cannot be scheduled because its position depends on an infinite duration.',
+        {
+          trackIndex,
+          stepIndex,
+          reason: getUnreachableStepReason(step.at)
+        }
+      )
+    );
+  }
+
+  const activeDuration = iterations === 'infinite' ? Infinity : duration * iterations + endDelay;
+  const endTime = startTime + activeDuration;
+
+  state.cursor = Math.max(state.cursor, endTime);
+  state.previousStartTime = startTime;
+  state.previousEndTime = endTime;
+}
+
+function getUnreachableStepReason(position: MotionStepPosition | undefined): string {
+  if (position === undefined) {
+    return 'implicit-position-after-infinite-duration';
+  }
+
+  if (typeof position === 'object' && 'anchor' in position) {
+    if (position.anchor === 'track-end') {
+      return 'track-end-after-infinite-duration';
+    }
+
+    if (position.anchor === 'previous-end') {
+      return 'previous-end-after-infinite-duration';
+    }
+  }
+
+  return 'position-resolved-to-infinite-time';
 }
