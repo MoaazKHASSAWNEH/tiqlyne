@@ -31,6 +31,7 @@ import {
   createWebAnimationsFromTimeline
 } from '../utils/create-web-timeline-animations';
 import { validateWebPlayableTimeline } from '../utils/validate-web-playable-timeline';
+import { hasInfiniteWebTimeline } from '../utils/has-infinite-web-timeline';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -218,7 +219,10 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return createFailedWebPlayback(animationCreation.reason, animationCreation.animations);
     }
 
-    if (this.hasInfinitePlayback(options, shouldApplyReducedMotion)) {
+    if (
+      this.hasInfinitePlayback(options, shouldApplyReducedMotion) ||
+      hasInfiniteWebTimeline(resolvedPlayableTimeline)
+    ) {
       return createRunningWebPlayback(animationCreation.animations);
     }
 

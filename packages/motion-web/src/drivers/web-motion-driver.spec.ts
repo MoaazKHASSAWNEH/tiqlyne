@@ -1356,6 +1356,21 @@ describe('WebMotionDriver', () => {
     expect(target.animate).toHaveBeenCalledTimes(1);
   });
 
+  it('returns running for infinite timelines without execution plan', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const timeline = createInfiniteTimeline();
+
+    const result = await driver.play(asElement(target), timeline, defaultPlayOptions);
+
+    expect(result).toEqual({
+      status: 'running',
+      reason: 'web-playback-infinite'
+    });
+
+    expect(target.animate).toHaveBeenCalledTimes(1);
+  });
+
   it('cancels only animations created by the native playback controller', async () => {
     const driver = new WebMotionDriver();
     const target = new FakeElement();
