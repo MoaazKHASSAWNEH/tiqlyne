@@ -11,6 +11,19 @@ export function createResolvedWebPlayback(
   };
 }
 
+export function createRunningWebPlayback(
+  animations: ReadonlyArray<Animation>,
+  reason = 'web-playback-infinite'
+): WebPlaybackCreationResult {
+  return {
+    animations,
+    finished: Promise.resolve({
+      status: 'running',
+      reason
+    })
+  };
+}
+
 export function createFinishedWebPlayback(
   animations: ReadonlyArray<Animation>,
   diagnostics: MotionPlaybackResult['diagnostics'] = []

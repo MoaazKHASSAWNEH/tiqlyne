@@ -12,7 +12,8 @@ import type { WebPlaybackCreationResult } from '../models/web-playback-creation-
 import {
   createFailedWebPlayback,
   createFinishedWebPlayback,
-  createSkippedWebPlayback
+  createSkippedWebPlayback,
+  createRunningWebPlayback
 } from '../utils/create-web-playback-result';
 import {
   resolveWebActiveExecutionPlan,
@@ -185,7 +186,28 @@ export class WebMotionDriver implements MotionDriver<Element> {
       return createFailedWebPlayback(animationCreation.reason, animationCreation.animations);
     }
 
+    if (this.hasInfinitePlayback(options, shouldApplyReducedMotion)) {
+      return createRunningWebPlayback(animationCreation.animations);
+    }
+
     return createFinishedWebPlayback(animationCreation.animations, diagnostics);
+  }
+
+  private hasInfinitePlayback(
+    options: MotionPlayOptions,
+    shouldApplyReducedMotion: boolean
+  ): boolean {
+    const summary = options.executionPlan?.summary;
+
+    if (!summary) {
+      return false;
+    }
+
+    if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'simplify') {
+      return summary.reducedMotionHasInfiniteDuration === true;
+    }
+
+    return summary.hasInfiniteDuration;
   }
 
   private createPlaybackId(): string {

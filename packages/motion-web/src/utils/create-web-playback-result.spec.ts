@@ -4,6 +4,7 @@ import {
   createFailedWebPlayback,
   createFinishedWebPlayback,
   createResolvedWebPlayback,
+  createRunningWebPlayback,
   createSkippedWebPlayback
 } from './create-web-playback-result';
 
@@ -17,6 +18,36 @@ describe('createResolvedWebPlayback', () => {
     await expect(playback.finished).resolves.toEqual({
       status: 'skipped',
       reason: 'test'
+    });
+
+    expect(playback.animations).toEqual([]);
+  });
+});
+
+describe('createRunningWebPlayback', () => {
+  it('creates a running playback result', async () => {
+    const animations = [
+      {
+        finished: new Promise<void>(() => {})
+      }
+    ] as unknown as ReadonlyArray<Animation>;
+
+    const playback = createRunningWebPlayback(animations);
+
+    await expect(playback.finished).resolves.toEqual({
+      status: 'running',
+      reason: 'web-playback-infinite'
+    });
+
+    expect(playback.animations).toBe(animations);
+  });
+
+  it('supports a custom running reason', async () => {
+    const playback = createRunningWebPlayback([], 'custom-running-reason');
+
+    await expect(playback.finished).resolves.toEqual({
+      status: 'running',
+      reason: 'custom-running-reason'
     });
 
     expect(playback.animations).toEqual([]);

@@ -43,6 +43,28 @@ describe('WebMotionDriver', () => {
     );
   });
 
+  it('returns running when playing an infinite execution plan', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const timeline = createInfiniteTimeline();
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const result = await driver.play(asElement(target), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'running',
+      reason: 'web-playback-infinite'
+    });
+
+    expect(target.animate).toHaveBeenCalledTimes(1);
+  });
+
   it('skips playback when reduced motion is enabled', async () => {
     const driver = new WebMotionDriver({
       reducedMotion: true
@@ -1055,6 +1077,55 @@ describe('WebMotionDriver', () => {
     });
 
     expect(playback.status).toBe('finished');
+  });
+
+  it('keeps native playback controller running for infinite execution plans', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const timeline = createInfiniteTimeline();
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const playback = driver.createPlayback(asElement(target), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    await playback.finished;
+
+    expect(playback.status).toBe('running');
+    expect(target.animate).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns running when reduced motion execution plan is infinite', async () => {
+    const driver = new WebMotionDriver({
+      reducedMotion: true
+    });
+
+    const target = new FakeElement();
+    const timeline = createSelfTimeline();
+    const reducedMotionTimeline = createInfiniteTimeline();
+    const executionPlan = createMotionExecutionPlan({
+      timeline,
+      reducedMotionTimeline
+    });
+
+    const result = await driver.play(asElement(target), timeline, {
+      ...defaultPlayOptions,
+      reducedMotionStrategy: 'simplify',
+      executionPlan,
+      timelineValidated: true,
+      reducedMotionTimelineValidated: true
+    });
+
+    expect(result).toEqual({
+      status: 'running',
+      reason: 'web-playback-infinite'
+    });
+
+    expect(target.animate).toHaveBeenCalledTimes(1);
   });
 
   it('cancels only animations created by the native playback controller', async () => {
@@ -2236,6 +2307,32 @@ function createChildTimeline(name: string): MotionTimelineDefinition {
         steps: [
           {
             duration: 250,
+            keyframes: [
+              {
+                opacity: 0
+              },
+              {
+                opacity: 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+}
+
+function createInfiniteTimeline(): MotionTimelineDefinition {
+  return {
+    tracks: [
+      {
+        target: {
+          type: 'self'
+        },
+        steps: [
+          {
+            duration: 250,
+            iterations: 'infinite',
             keyframes: [
               {
                 opacity: 0
