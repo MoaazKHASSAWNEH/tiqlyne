@@ -40,6 +40,7 @@ export type MotionIterationCount = number | 'infinite';
 export type MotionTimelineDefaults = {
   readonly iterations?: MotionIterationCount;
   readonly direction?: MotionPlaybackDirection;
+  readonly yoyo?: boolean;
   readonly endDelay?: number;
   readonly duration?: number;
   readonly delay?: number;
@@ -51,6 +52,7 @@ export type MotionTimelineDefaults = {
 export type MotionStepDefinition = {
   readonly iterations?: MotionIterationCount;
   readonly direction?: MotionPlaybackDirection;
+  readonly yoyo?: boolean;
   readonly endDelay?: number;
   readonly playbackRate?: number;
   readonly at?: MotionStepPosition;

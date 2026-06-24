@@ -48,6 +48,7 @@ export function applyMotionStepDefaults(
   const fill = step.fill ?? defaults.fill;
   const iterations = step.iterations ?? defaults.iterations;
   const direction = step.direction ?? defaults.direction;
+  const yoyo = step.yoyo ?? defaults.yoyo;
   const endDelay = step.endDelay ?? defaults.endDelay;
   const playbackRate = step.playbackRate ?? defaults.playbackRate;
 
@@ -72,6 +73,10 @@ export function applyMotionStepDefaults(
   }
 
   if (direction !== step.direction && direction !== undefined) {
+    changed = true;
+  }
+
+  if (yoyo !== step.yoyo && yoyo !== undefined) {
     changed = true;
   }
 
@@ -119,6 +124,11 @@ export function applyMotionStepDefaults(
           direction
         }
       : {}),
+    ...(yoyo !== undefined
+      ? {
+          yoyo
+        }
+      : {}),
     ...(endDelay !== undefined
       ? {
           endDelay
@@ -150,6 +160,7 @@ export function hasMotionTimelineDefaults(defaults: MotionTimelineDefaults): boo
     defaults.fill !== undefined ||
     defaults.iterations !== undefined ||
     defaults.direction !== undefined ||
+    defaults.yoyo !== undefined ||
     defaults.playbackRate !== undefined ||
     defaults.endDelay !== undefined
   );

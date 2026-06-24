@@ -426,4 +426,31 @@ describe('hasMotionTimelineDefaults', () => {
       y2: 1
     });
   });
+
+  it('applies yoyo defaults to steps', () => {
+    const timeline = applyMotionTimelineDefaults({
+      defaults: {
+        yoyo: true
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(timeline.tracks[0]?.steps[0]?.yoyo).toBe(true);
+  });
 });

@@ -7,6 +7,7 @@ export function validatePlaybackTimingOptions(
   options: {
     readonly iterations: MotionIterationCount | undefined;
     readonly direction: MotionPlaybackDirection | undefined;
+    readonly yoyo: boolean | undefined;
     readonly endDelay: number | undefined;
     readonly playbackRate: number | undefined;
   },
@@ -15,6 +16,7 @@ export function validatePlaybackTimingOptions(
 ): void {
   validateIterations(options.iterations, diagnostics, metadata);
   validatePlaybackDirection(options.direction, diagnostics, metadata);
+  validateYoyo(options.yoyo, options.direction, diagnostics, metadata);
   validateEndDelay(options.endDelay, diagnostics, metadata);
   validatePlaybackRate(options.playbackRate, diagnostics, metadata);
 }
@@ -60,6 +62,41 @@ function validatePlaybackDirection(
       createErrorDiagnostic(
         'timeline-invalid-direction',
         'Timeline direction must be normal, reverse, alternate or alternate-reverse.',
+        {
+          ...metadata,
+          direction
+        }
+      )
+    );
+  }
+}
+
+function validateYoyo(
+  yoyo: boolean | undefined,
+  direction: MotionPlaybackDirection | undefined,
+  diagnostics: MotionDiagnostic[],
+  metadata: ValidationMetadata
+): void {
+  if (yoyo === undefined) {
+    return;
+  }
+
+  if (typeof yoyo !== 'boolean') {
+    diagnostics.push(
+      createErrorDiagnostic('timeline-invalid-yoyo', 'Timeline yoyo must be a boolean.', {
+        ...metadata,
+        yoyo: null
+      })
+    );
+
+    return;
+  }
+
+  if (yoyo && direction !== undefined) {
+    diagnostics.push(
+      createErrorDiagnostic(
+        'timeline-yoyo-direction-conflict',
+        'Timeline yoyo cannot be used together with direction.',
         {
           ...metadata,
           direction

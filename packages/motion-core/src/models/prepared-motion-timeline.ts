@@ -22,6 +22,7 @@ export type PreparedMotionStep = {
   readonly source: MotionStepDefinition;
   readonly iterations?: MotionIterationCount;
   readonly direction?: MotionPlaybackDirection;
+  readonly yoyo?: boolean;
   readonly endDelay?: number;
   readonly activeDuration: number;
   readonly playbackRate?: number;

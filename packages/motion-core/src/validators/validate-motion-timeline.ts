@@ -93,6 +93,7 @@ function validateStep(
     readonly offset?: number;
     readonly iterations?: MotionIterationCount;
     readonly direction?: MotionPlaybackDirection;
+    readonly yoyo?: boolean;
     readonly endDelay?: number;
     readonly playbackRate?: number;
     readonly fill?: MotionFillMode;
@@ -193,6 +194,7 @@ function validateStep(
     {
       iterations: step.iterations ?? trackDefaults.iterations,
       direction: step.direction ?? trackDefaults.direction,
+      yoyo: step.yoyo ?? trackDefaults.yoyo,
       endDelay: step.endDelay ?? trackDefaults.endDelay,
       playbackRate: step.playbackRate ?? trackDefaults.playbackRate
     },
@@ -274,6 +276,7 @@ function validateTimelineDefaults(
     {
       iterations: defaults.iterations,
       direction: defaults.direction,
+      yoyo: defaults.yoyo,
       endDelay: defaults.endDelay,
       playbackRate: defaults.playbackRate
     },

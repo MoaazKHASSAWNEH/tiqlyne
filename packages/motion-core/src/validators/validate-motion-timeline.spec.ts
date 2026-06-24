@@ -1652,6 +1652,121 @@ describe('validateMotionTimeline', () => {
     );
   });
 
+  it('rejects non-boolean yoyo values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              yoyo: 'yes' as never,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-yoyo',
+          message: 'Timeline yoyo must be a boolean.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects yoyo and direction used together', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              yoyo: true,
+              direction: 'alternate',
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-yoyo-direction-conflict',
+          message: 'Timeline yoyo cannot be used together with direction.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            direction: 'alternate'
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid default yoyo values', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        yoyo: 'yes' as never
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-yoyo',
+        message: 'Timeline yoyo must be a boolean.',
+        metadata: expect.objectContaining({
+          defaultSource: 'timeline'
+        })
+      })
+    );
+  });
+
   it('rejects invalid end delay', () => {
     const result = validateMotionTimeline({
       tracks: [

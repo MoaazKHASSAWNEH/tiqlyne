@@ -7,6 +7,7 @@ import type {
 
 export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnimationOptions {
   const iterations = toWebIterations(step.iterations);
+  const direction = toWebDirection(step);
 
   return {
     duration: step.duration ?? 0,
@@ -18,9 +19,9 @@ export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnim
           iterations
         }
       : {}),
-    ...(step.direction !== undefined
+    ...(direction !== undefined
       ? {
-          direction: step.direction
+          direction
         }
       : {}),
     ...(step.endDelay !== undefined
@@ -40,6 +41,7 @@ export function toWebScheduledTaskTimingOptions(
   task: ScheduledMotionTask
 ): KeyframeAnimationOptions {
   const iterations = toWebIterations(task.step.iterations);
+  const direction = toWebDirection(task.step);
 
   return {
     duration: task.duration,
@@ -51,9 +53,9 @@ export function toWebScheduledTaskTimingOptions(
           iterations
         }
       : {}),
-    ...(task.step.direction !== undefined
+    ...(direction !== undefined
       ? {
-          direction: task.step.direction
+          direction
         }
       : {}),
     ...(task.step.endDelay !== undefined
@@ -91,4 +93,17 @@ function toWebEasing(easing: MotionEasing | undefined): string {
   }
 
   return `steps(${easing.count}, ${easing.position ?? 'end'})`;
+}
+
+type WebDirectionSource = {
+  readonly yoyo?: boolean | undefined;
+  readonly direction?: PlaybackDirection | undefined;
+};
+
+function toWebDirection(source: WebDirectionSource): PlaybackDirection | undefined {
+  if (source.yoyo === true) {
+    return 'alternate';
+  }
+
+  return source.direction;
 }

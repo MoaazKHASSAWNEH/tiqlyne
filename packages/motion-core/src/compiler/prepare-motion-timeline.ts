@@ -77,6 +77,11 @@ export function prepareMotionTimeline(timeline: MotionTimelineDefinition): Prepa
               direction: step.direction
             }
           : {}),
+        ...(step.yoyo !== undefined
+          ? {
+              yoyo: step.yoyo
+            }
+          : {}),
         ...(step.endDelay !== undefined
           ? {
               endDelay: step.endDelay

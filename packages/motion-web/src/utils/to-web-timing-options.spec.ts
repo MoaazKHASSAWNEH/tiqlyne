@@ -225,6 +225,20 @@ describe('toWebScheduledTaskTimingOptions', () => {
       }).easing
     ).toBe('steps(4, end)');
   });
+
+  it('maps yoyo to alternate web direction', () => {
+    expect(
+      toWebStepTimingOptions({
+        duration: 300,
+        yoyo: true,
+        keyframes: [
+          {
+            opacity: 1
+          }
+        ]
+      }).direction
+    ).toBe('alternate');
+  });
 });
 
 function createScheduledTask(input: {
@@ -235,6 +249,7 @@ function createScheduledTask(input: {
   readonly fill?: FillMode;
   readonly iterations?: number;
   readonly direction?: PlaybackDirection;
+  readonly yoyo?: boolean;
   readonly endDelay?: number;
   readonly playbackRate?: number;
 }): ScheduledMotionTask {
@@ -281,6 +296,11 @@ function createScheduledTask(input: {
             direction: input.direction
           }
         : {}),
+      ...(input.yoyo !== undefined
+        ? {
+            yoyo: input.yoyo
+          }
+        : {}),
       ...(input.endDelay !== undefined
         ? {
             endDelay: input.endDelay
@@ -317,6 +337,11 @@ function createScheduledTask(input: {
         ...(input.direction !== undefined
           ? {
               direction: input.direction
+            }
+          : {}),
+        ...(input.yoyo !== undefined
+          ? {
+              yoyo: input.yoyo
             }
           : {}),
         ...(input.endDelay !== undefined
