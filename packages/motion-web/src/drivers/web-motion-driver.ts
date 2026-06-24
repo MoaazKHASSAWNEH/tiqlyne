@@ -75,14 +75,30 @@ export class WebMotionDriver implements MotionDriver<Element> {
   }
 
   async finish(target: Element): Promise<MotionPlaybackResult> {
-    target.getAnimations({ subtree: true }).forEach((animation) => {
-      animation.finish();
-    });
+    try {
+      target.getAnimations({ subtree: true }).forEach((animation) => {
+        animation.finish();
+      });
 
-    return {
-      status: 'finished',
-      reason: 'web-driver-finish'
-    };
+      return {
+        status: 'finished',
+        reason: 'web-driver-finish'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-driver-finish-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-driver-finish-failed',
+            message: 'Web driver could not finish animations safely.',
+            source: 'web-motion-driver'
+          }
+        ]
+      };
+    }
   }
 
   async reset(target: Element): Promise<MotionPlaybackResult> {

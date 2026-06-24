@@ -117,14 +117,7 @@ export class WebMotionPlaybackController
       return this.createInvalidTransitionResult('finish');
     }
 
-    for (const animation of this.animations) {
-      animation.finish();
-    }
-
-    const result: MotionPlaybackResult = {
-      status: 'finished',
-      reason: 'web-playback-finish'
-    };
+    const result = this.finishAnimations();
 
     const previousStatus = this.currentStatus;
     this.currentStatus = result.status;
@@ -193,5 +186,32 @@ export class WebMotionPlaybackController
         }
       ]
     };
+  }
+
+  private finishAnimations(): MotionPlaybackResult {
+    try {
+      for (const animation of this.animations) {
+        animation.finish();
+      }
+
+      return {
+        status: 'finished',
+        reason: 'web-playback-finish'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-playback-finish-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-playback-finish-failed',
+            message: 'Web playback could not be finished safely.',
+            source: 'web-motion-playback-controller'
+          }
+        ]
+      };
+    }
   }
 }

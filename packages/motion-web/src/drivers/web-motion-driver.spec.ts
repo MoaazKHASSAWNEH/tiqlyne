@@ -913,6 +913,31 @@ describe('WebMotionDriver', () => {
     expect(animation.finish).toHaveBeenCalledTimes(1);
   });
 
+  it('returns failed when finishing target animations fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const animation = createFailingFinishAnimationMock();
+
+    target.setAnimations([animation]);
+
+    const result = await driver.finish(asElement(target));
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-driver-finish-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-driver-finish-failed',
+          message: 'Web driver could not finish animations safely.',
+          source: 'web-motion-driver'
+        }
+      ]
+    });
+
+    expect(animation.finish).toHaveBeenCalledTimes(1);
+  });
+
   it('resets a target by cancelling animations and removing inline styles', async () => {
     const driver = new WebMotionDriver();
     const target = new FakeElement();
@@ -1086,6 +1111,48 @@ describe('WebMotionDriver', () => {
     expect(playback.status).toBe('finished');
     expect(previousAnimation.finish).not.toHaveBeenCalled();
     expect(createdAnimation.finish).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns failed when native playback controller finish fails', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+
+    const playback = driver.createPlayback(
+      asElement(target),
+      createSelfTimeline(),
+      defaultPlayOptions
+    );
+
+    const createdAnimation = target.getLastAnimation();
+
+    vi.mocked(createdAnimation.finish).mockImplementation(() => {
+      throw new Error('Cannot finish infinite animation.');
+    });
+
+    const events: string[] = [];
+
+    playback.on('fail', (event) => {
+      events.push(`${event.type}:${event.status}`);
+    });
+
+    const result = await playback.finish();
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      reason: 'web-playback-finish-failed',
+      diagnostics: [
+        {
+          level: 'error',
+          code: 'web-playback-finish-failed',
+          message: 'Web playback could not be finished safely.',
+          source: 'web-motion-playback-controller'
+        }
+      ]
+    });
+
+    expect(playback.status).toBe('failed');
+    expect(createdAnimation.finish).toHaveBeenCalledTimes(1);
+    expect(events).toEqual(['fail:failed']);
   });
 
   it('pauses only animations created by the native playback controller', async () => {
@@ -2089,6 +2156,16 @@ function createAnimationMock(playState: AnimationPlayState = 'finished'): Animat
   };
 
   return animation as unknown as Animation;
+}
+
+function createFailingFinishAnimationMock(): Animation {
+  const animation = createAnimationMock();
+
+  vi.mocked(animation.finish).mockImplementation(() => {
+    throw new Error('Cannot finish infinite animation.');
+  });
+
+  return animation;
 }
 
 function asElement(element: FakeElement): Element {
