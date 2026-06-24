@@ -2,12 +2,13 @@ import type { MotionTriggerType } from '../models/motion-trigger';
 import type { MotionCategory } from '../models/motion-category';
 import type { MotionOptionDefinition } from '../models/motion-option-definition';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type { MotionEasing } from '../models/motion-easing';
 
 export type MotionBuildContext<TOptions extends object> = {
   readonly options: TOptions;
   readonly duration: number;
   readonly delay: number;
-  readonly easing: string;
+  readonly easing: MotionEasing;
   readonly trigger: MotionTriggerType;
 };
 

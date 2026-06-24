@@ -156,7 +156,13 @@ describe('SlideInMotion', () => {
       },
       duration: 500,
       delay: 120,
-      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      easing: {
+        type: 'cubicBezier',
+        x1: 0.22,
+        y1: 1,
+        x2: 0.36,
+        y2: 1
+      },
       trigger: 'onClick'
     });
 

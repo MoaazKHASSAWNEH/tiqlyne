@@ -1,5 +1,6 @@
 import type { MotionKeyframe } from './motion-keyframe';
 import type { MotionTargetReference } from './motion-target';
+import type { MotionEasing } from './motion-easing';
 
 export type MotionStaggerFrom = 'start' | 'end' | 'center';
 
@@ -42,7 +43,7 @@ export type MotionTimelineDefaults = {
   readonly endDelay?: number;
   readonly duration?: number;
   readonly delay?: number;
-  readonly easing?: string;
+  readonly easing?: MotionEasing;
   readonly fill?: MotionFillMode;
   readonly playbackRate?: number;
 };
@@ -56,7 +57,7 @@ export type MotionStepDefinition = {
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
   readonly duration?: number;
   readonly delay?: number;
-  readonly easing?: string;
+  readonly easing?: MotionEasing;
   readonly offset?: number;
   readonly fill?: MotionFillMode;
 };

@@ -1,6 +1,7 @@
 import type { MotionTriggerType } from './motion-trigger';
 import type { ReducedMotionStrategy } from './reduced-motion-strategy';
 import type { MotionConflictStrategy } from './motion-conflict-strategy';
+import type { MotionEasing } from './motion-easing';
 
 export type MotionConfig = {
   readonly id: string;
@@ -9,7 +10,7 @@ export type MotionConfig = {
   readonly enabled?: boolean;
   readonly duration?: number;
   readonly delay?: number;
-  readonly easing?: string;
+  readonly easing?: MotionEasing;
   readonly options?: Record<string, unknown>;
   readonly respectReducedMotion?: boolean;
   readonly reducedMotionStrategy?: ReducedMotionStrategy;

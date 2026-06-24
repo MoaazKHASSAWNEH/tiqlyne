@@ -1,4 +1,8 @@
-import type { MotionStepDefinition, ScheduledMotionTask } from '@structifyx/motion-core';
+import type {
+  MotionStepDefinition,
+  ScheduledMotionTask,
+  MotionEasing
+} from '@structifyx/motion-core';
 import { describe, expect, it } from 'vitest';
 import { toWebScheduledTaskTimingOptions, toWebStepTimingOptions } from './to-web-timing-options';
 
@@ -183,13 +187,51 @@ describe('toWebScheduledTaskTimingOptions', () => {
 
     expect(timing.iterations).toBe(Infinity);
   });
+
+  it('maps cubic bezier easing objects to web easing strings', () => {
+    expect(
+      toWebStepTimingOptions({
+        duration: 300,
+        easing: {
+          type: 'cubicBezier',
+          x1: 0.16,
+          y1: 1,
+          x2: 0.3,
+          y2: 1
+        },
+        keyframes: [
+          {
+            opacity: 1
+          }
+        ]
+      }).easing
+    ).toBe('cubic-bezier(0.16, 1, 0.3, 1)');
+  });
+
+  it('maps steps easing objects to web easing strings', () => {
+    expect(
+      toWebStepTimingOptions({
+        duration: 300,
+        easing: {
+          type: 'steps',
+          count: 4,
+          position: 'end'
+        },
+        keyframes: [
+          {
+            opacity: 1
+          }
+        ]
+      }).easing
+    ).toBe('steps(4, end)');
+  });
 });
 
 function createScheduledTask(input: {
   readonly duration: number;
   readonly delay?: number;
   readonly startTime: number;
-  readonly easing?: string;
+  readonly easing?: MotionEasing;
   readonly fill?: FillMode;
   readonly iterations?: number;
   readonly direction?: PlaybackDirection;

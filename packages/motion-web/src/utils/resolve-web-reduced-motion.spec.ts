@@ -2,7 +2,8 @@ import type {
   MotionExecutionPlan,
   MotionPlayOptions,
   MotionTimelineDefinition,
-  ScheduledMotionTimeline
+  ScheduledMotionTimeline,
+  MotionEasing
 } from '@structifyx/motion-core';
 import { describe, expect, it } from 'vitest';
 import {
@@ -324,7 +325,7 @@ describe('resolveWebReducedMotionDiagnostics', () => {
 function createTimeline(input: {
   readonly duration: number;
   readonly delay?: number;
-  readonly easing?: string;
+  readonly easing?: MotionEasing;
   readonly fill?: FillMode;
 }): MotionTimelineDefinition {
   return {

@@ -19,6 +19,7 @@ import type {
 } from '../models/motion-timeline';
 import type { MotionValidationResult } from '../models/motion-validation-result';
 import { resolveMotionStepPosition } from '../compiler/resolve-motion-step-position';
+import type { MotionEasing } from '../models/motion-easing';
 
 type TrackSchedulingState = {
   cursor: number;
@@ -87,7 +88,7 @@ function validateStep(
     readonly keyframes: ReadonlyArray<MotionKeyframe>;
     readonly duration?: number;
     readonly delay?: number;
-    readonly easing?: string;
+    readonly easing?: MotionEasing;
     readonly offset?: number;
     readonly iterations?: MotionIterationCount;
     readonly direction?: MotionPlaybackDirection;
@@ -170,7 +171,7 @@ function validateStep(
 
   const easing = step.easing ?? trackDefaults.easing;
 
-  if (easing !== undefined && easing.trim().length === 0) {
+  if (typeof easing === 'string' && easing.trim().length === 0) {
     diagnostics.push(
       createErrorDiagnostic('timeline-invalid-easing', 'Timeline step easing must not be empty.', {
         ...metadata
@@ -249,7 +250,7 @@ function validateTimelineDefaults(
     );
   }
 
-  if (defaults.easing !== undefined && defaults.easing.trim().length === 0) {
+  if (typeof defaults.easing === 'string' && defaults.easing.trim().length === 0) {
     diagnostics.push(
       createErrorDiagnostic(
         'timeline-invalid-default-easing',

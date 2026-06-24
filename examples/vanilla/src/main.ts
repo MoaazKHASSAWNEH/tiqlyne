@@ -90,7 +90,13 @@ slideInButton.addEventListener('click', () => {
     type: 'slide-in',
     trigger: 'onClick',
     duration: 500,
-    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    easing: {
+      type: 'cubicBezier',
+      x1: 0.22,
+      y1: 1,
+      x2: 0.36,
+      y2: 1
+    },
     respectReducedMotion: true,
     reducedMotionStrategy: getReducedMotionStrategy(),
     options: {
@@ -171,7 +177,13 @@ function createPlayback(): void {
     type: 'slide-in',
     trigger: 'manual',
     duration: 1600,
-    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    easing: {
+      type: 'cubicBezier',
+      x1: 0.22,
+      y1: 1,
+      x2: 0.36,
+      y2: 1
+    },
     respectReducedMotion: true,
     reducedMotionStrategy: getReducedMotionStrategy(),
     options: {

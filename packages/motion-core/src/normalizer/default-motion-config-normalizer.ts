@@ -12,6 +12,7 @@ import {
   isMotionConflictStrategy,
   type MotionConflictStrategy
 } from '../models/motion-conflict-strategy';
+import type { MotionEasing } from '../models/motion-easing';
 
 const DEFAULT_ID = 'motion_unknown';
 const DEFAULT_TYPE = 'unknown';
@@ -47,7 +48,7 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
         min: MIN_DELAY,
         max: MAX_DELAY
       }),
-      easing: normalizeString(config.easing, DEFAULT_EASING),
+      easing: this.normalizeEasing(config.easing),
       options: isRecord(config.options) ? config.options : {},
       respectReducedMotion: normalizeBoolean(config.respectReducedMotion, true),
       reducedMotionStrategy: this.normalizeReducedMotionStrategy(config.reducedMotionStrategy),
@@ -58,6 +59,18 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
       }),
       metadata: isRecord(config.metadata) ? config.metadata : {}
     };
+  }
+
+  private normalizeEasing(value: MotionEasing | undefined): MotionEasing {
+    if (value === undefined) {
+      return DEFAULT_EASING;
+    }
+
+    if (typeof value === 'string') {
+      return normalizeString(value, DEFAULT_EASING) as MotionEasing;
+    }
+
+    return value;
   }
 
   private normalizeConflictStrategy(value: unknown): MotionConflictStrategy {

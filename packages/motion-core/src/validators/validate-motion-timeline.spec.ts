@@ -660,7 +660,7 @@ describe('validateMotionTimeline', () => {
     const result = validateMotionTimeline({
       defaults: {
         duration: 300,
-        easing: ''
+        easing: '' as never
       },
       tracks: [
         {

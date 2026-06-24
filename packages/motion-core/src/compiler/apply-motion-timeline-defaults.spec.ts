@@ -387,4 +387,43 @@ describe('hasMotionTimelineDefaults', () => {
       })
     ).toBe(true);
   });
+
+  it('applies structured easing defaults to steps', () => {
+    const timeline = applyMotionTimelineDefaults({
+      defaults: {
+        easing: {
+          type: 'cubicBezier',
+          x1: 0.16,
+          y1: 1,
+          x2: 0.3,
+          y2: 1
+        }
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(timeline.tracks[0]?.steps[0]?.easing).toEqual({
+      type: 'cubicBezier',
+      x1: 0.16,
+      y1: 1,
+      x2: 0.3,
+      y2: 1
+    });
+  });
 });

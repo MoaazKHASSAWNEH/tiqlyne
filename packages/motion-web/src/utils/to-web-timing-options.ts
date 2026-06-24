@@ -1,4 +1,5 @@
 import type {
+  MotionEasing,
   MotionIterationCount,
   MotionStepDefinition,
   ScheduledMotionTask
@@ -10,7 +11,7 @@ export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnim
   return {
     duration: step.duration ?? 0,
     delay: step.delay ?? 0,
-    easing: step.easing ?? 'ease',
+    easing: toWebEasing(step.easing),
     fill: step.fill ?? 'both',
     ...(iterations !== undefined
       ? {
@@ -43,7 +44,7 @@ export function toWebScheduledTaskTimingOptions(
   return {
     duration: task.duration,
     delay: task.startTime,
-    easing: task.step.easing ?? 'ease',
+    easing: toWebEasing(task.step.easing),
     fill: task.step.fill ?? 'both',
     ...(iterations !== undefined
       ? {
@@ -74,4 +75,20 @@ function toWebIterations(iterations: MotionIterationCount | undefined): number |
   }
 
   return iterations;
+}
+
+function toWebEasing(easing: MotionEasing | undefined): string {
+  if (easing === undefined) {
+    return 'ease';
+  }
+
+  if (typeof easing === 'string') {
+    return easing;
+  }
+
+  if (easing.type === 'cubicBezier') {
+    return `cubic-bezier(${easing.x1}, ${easing.y1}, ${easing.x2}, ${easing.y2})`;
+  }
+
+  return `steps(${easing.count}, ${easing.position ?? 'end'})`;
 }

@@ -99,7 +99,7 @@ describe('DefaultMotionConfigNormalizer', () => {
       trigger: 'onEnter',
       duration: Number.NaN,
       delay: Number.POSITIVE_INFINITY,
-      easing: '',
+      easing: '' as never,
       options: [] as unknown as Record<string, unknown>,
       metadata: [] as unknown as Record<string, unknown>,
       reducedMotionStrategy: 'invalid' as never,

@@ -16,7 +16,7 @@ export type PreparedMotionStep = {
   readonly duration: number;
   readonly delay: number;
   readonly keyframes: ReadonlyArray<MotionKeyframe>;
-  readonly easing?: string;
+  readonly easing?: MotionStepDefinition['easing'];
   readonly offset?: number;
   readonly fill?: MotionStepDefinition['fill'];
   readonly source: MotionStepDefinition;

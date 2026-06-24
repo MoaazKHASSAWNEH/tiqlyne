@@ -66,6 +66,15 @@ export type {
   MotionPlaybackDirection,
   MotionIterationCount
 } from './models/motion-timeline';
+
+export type {
+  MotionCubicBezierEasing,
+  MotionEasing,
+  MotionEasingKeyword,
+  MotionStepsEasing,
+  MotionStepsEasingPosition
+} from './models/motion-easing';
+
 export type { ResolveMotionStepPositionContext } from './compiler/resolve-motion-step-position';
 export { resolveMotionStepPosition } from './compiler/resolve-motion-step-position';
 
