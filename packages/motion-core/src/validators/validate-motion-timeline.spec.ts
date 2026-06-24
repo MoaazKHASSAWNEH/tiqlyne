@@ -690,6 +690,300 @@ describe('validateMotionTimeline', () => {
     );
   });
 
+  it('rejects invalid easing keywords', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              easing: 'spring' as never,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-easing',
+          message: 'Timeline step easing is invalid.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            easing: 'spring'
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects unknown structured easing types', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              easing: {
+                type: 'spring'
+              } as never,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-easing',
+        message: 'Timeline step easing is invalid.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          easingType: 'spring'
+        })
+      })
+    );
+  });
+
+  it('rejects cubic bezier x values outside the 0 to 1 range', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              easing: {
+                type: 'cubicBezier',
+                x1: -0.1,
+                y1: 1,
+                x2: 1.1,
+                y2: 1
+              },
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
+      'timeline-invalid-easing',
+      'timeline-invalid-easing'
+    ]);
+  });
+
+  it('rejects non-finite cubic bezier y values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              easing: {
+                type: 'cubicBezier',
+                x1: 0.16,
+                y1: Number.NaN,
+                x2: 0.3,
+                y2: Infinity
+              },
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
+      'timeline-invalid-easing',
+      'timeline-invalid-easing'
+    ]);
+  });
+
+  it('rejects invalid steps easing count', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              easing: {
+                type: 'steps',
+                count: 0
+              },
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-easing',
+          message: 'Timeline step easing is invalid.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            easingType: 'steps',
+            easingField: 'count',
+            easingValue: 0
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid steps easing positions', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              easing: {
+                type: 'steps',
+                count: 4,
+                position: 'middle'
+              } as never,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-easing',
+          message: 'Timeline step easing is invalid.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            easingType: 'steps',
+            easingField: 'position',
+            easingValue: 'middle'
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid default easing values', () => {
+    const result = validateMotionTimeline({
+      defaults: {
+        easing: {
+          type: 'steps',
+          count: -1
+        } as never
+      },
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-default-easing',
+          message: 'Timeline default easing is invalid.',
+          metadata: expect.objectContaining({
+            defaultSource: 'timeline',
+            easingType: 'steps',
+            easingField: 'count',
+            easingValue: -1
+          })
+        }),
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-easing',
+          message: 'Timeline step easing is invalid.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            easingType: 'steps',
+            easingField: 'count',
+            easingValue: -1
+          })
+        })
+      ]
+    });
+  });
+
   it('accepts a valid numeric step position', () => {
     const result = validateMotionTimeline({
       tracks: [

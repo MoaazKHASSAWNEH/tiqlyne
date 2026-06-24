@@ -1,4 +1,5 @@
 import { createMotionValidationDiagnostic as createErrorDiagnostic } from './create-motion-validation-diagnostic';
+import { validateMotionEasing } from './validate-motion-easing';
 import { validateTimelineLabels } from './validate-motion-labels';
 import { validateStagger } from './validate-motion-stagger';
 import { validateTarget } from './validate-motion-target';
@@ -169,15 +170,13 @@ function validateStep(
     );
   }
 
-  const easing = step.easing ?? trackDefaults.easing;
-
-  if (typeof easing === 'string' && easing.trim().length === 0) {
-    diagnostics.push(
-      createErrorDiagnostic('timeline-invalid-easing', 'Timeline step easing must not be empty.', {
-        ...metadata
-      })
-    );
-  }
+  validateMotionEasing(
+    step.easing ?? trackDefaults.easing,
+    diagnostics,
+    metadata,
+    'timeline-invalid-easing',
+    'Timeline step easing is invalid.'
+  );
 
   const fill = step.fill ?? trackDefaults.fill;
 
@@ -250,15 +249,13 @@ function validateTimelineDefaults(
     );
   }
 
-  if (typeof defaults.easing === 'string' && defaults.easing.trim().length === 0) {
-    diagnostics.push(
-      createErrorDiagnostic(
-        'timeline-invalid-default-easing',
-        'Timeline default easing must not be empty.',
-        metadata
-      )
-    );
-  }
+  validateMotionEasing(
+    defaults.easing,
+    diagnostics,
+    metadata,
+    'timeline-invalid-default-easing',
+    'Timeline default easing is invalid.'
+  );
 
   if (defaults.fill !== undefined && !isMotionFillMode(defaults.fill)) {
     diagnostics.push(
