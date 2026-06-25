@@ -15,3 +15,17 @@ export function createMotionValidationDiagnostic(
     ...(metadata !== undefined ? { metadata } : {})
   };
 }
+
+export function createMotionValidationWarningDiagnostic(
+  code: string,
+  message: string,
+  metadata?: MotionValidationMetadata
+): MotionDiagnostic {
+  return {
+    level: 'warning',
+    code,
+    message,
+    source: 'motion-timeline-validator',
+    ...(metadata !== undefined ? { metadata } : {})
+  };
+}

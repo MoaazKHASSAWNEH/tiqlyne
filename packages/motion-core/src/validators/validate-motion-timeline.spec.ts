@@ -2309,21 +2309,19 @@ describe('validateMotionTimeline', () => {
       ]
     });
 
-    expect(result).toMatchObject({
-      valid: false,
-      diagnostics: [
-        expect.objectContaining({
-          level: 'error',
-          code: 'timeline-invalid-filter',
-          message: 'Keyframe filter must be a non-empty string or a structured filter object.',
-          metadata: expect.objectContaining({
-            trackIndex: 0,
-            stepIndex: 0,
-            keyframeIndex: 0
-          })
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-filter',
+        message: 'Keyframe filter must be a non-empty string or a structured filter object.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          keyframeIndex: 0
         })
-      ]
-    });
+      })
+    );
   });
 
   it('rejects invalid filter values', () => {
@@ -2379,22 +2377,20 @@ describe('validateMotionTimeline', () => {
       ]
     });
 
-    expect(result).toMatchObject({
-      valid: false,
-      diagnostics: [
-        expect.objectContaining({
-          level: 'error',
-          code: 'timeline-invalid-filter-value',
-          message: 'Filter numeric value must be a finite number.',
-          metadata: expect.objectContaining({
-            trackIndex: 0,
-            stepIndex: 0,
-            keyframeIndex: 0,
-            filterProperty: 'brightness'
-          })
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-filter-value',
+        message: 'Filter numeric value must be a finite number.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          keyframeIndex: 0,
+          filterProperty: 'brightness'
         })
-      ]
-    });
+      })
+    );
   });
 
   it('rejects invalid structured filter dropShadow values', () => {
@@ -2420,21 +2416,161 @@ describe('validateMotionTimeline', () => {
       ]
     });
 
-    expect(result).toMatchObject({
-      valid: false,
-      diagnostics: [
-        expect.objectContaining({
-          level: 'error',
-          code: 'timeline-invalid-filter-value',
-          message: 'Filter dropShadow value must be a non-empty string.',
-          metadata: expect.objectContaining({
-            trackIndex: 0,
-            stepIndex: 0,
-            keyframeIndex: 0,
-            filterProperty: 'dropShadow'
-          })
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-filter-value',
+        message: 'Filter dropShadow value must be a non-empty string.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          keyframeIndex: 0,
+          filterProperty: 'dropShadow'
         })
+      })
+    );
+  });
+
+  it('warns when keyframes animate filter properties', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  filter: {
+                    blur: 8
+                  }
+                }
+              ]
+            }
+          ]
+        }
       ]
     });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'warning',
+        code: 'timeline-performance-filter',
+        message: 'Animating filter can be expensive. Prefer transform and opacity when possible.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          keyframeIndex: 0,
+          property: 'filter'
+        })
+      })
+    );
+  });
+
+  it('warns when keyframes animate boxShadow', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'warning',
+        code: 'timeline-performance-shadow',
+        message: 'Animating boxShadow can trigger expensive paint work.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          keyframeIndex: 0,
+          property: 'boxShadow'
+        })
+      })
+    );
+  });
+
+  it('warns when keyframes animate paint properties', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  backgroundColor: '#ffffff'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'warning',
+        code: 'timeline-performance-paint-property',
+        message: 'Animating color properties can trigger paint work.',
+        metadata: expect.objectContaining({
+          trackIndex: 0,
+          stepIndex: 0,
+          keyframeIndex: 0,
+          property: 'backgroundColor'
+        })
+      })
+    );
+  });
+
+  it('does not warn for transform and opacity keyframes', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  opacity: 1,
+                  transform: {
+                    y: 24,
+                    scale: 0.95
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toEqual([]);
   });
 });
