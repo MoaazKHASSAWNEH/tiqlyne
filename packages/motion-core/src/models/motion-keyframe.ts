@@ -1,9 +1,10 @@
 import type { MotionTransformValue } from './motion-transform';
+import type { MotionFilterValue } from './motion-filter';
 
 export type MotionKeyframe = {
   readonly opacity?: number;
   readonly transform?: string | MotionTransformValue;
-  readonly filter?: string;
+  readonly filter?: MotionFilterValue;
   readonly backgroundColor?: string;
   readonly color?: string;
   readonly borderColor?: string;

@@ -88,6 +88,8 @@ export type {
   MotionTransformValue
 } from './models/motion-transform';
 
+export type { MotionFilterValue } from './models/motion-filter';
+
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
 

@@ -1,5 +1,8 @@
-import type { MotionKeyframe } from '@structifyx/motion-core';
-import type { MotionTransformValue } from '@structifyx/motion-core';
+import type {
+  MotionFilterValue,
+  MotionKeyframe,
+  MotionTransformValue
+} from '@structifyx/motion-core';
 
 export function toWebKeyframes(keyframes: ReadonlyArray<MotionKeyframe>): Keyframe[] {
   return keyframes.map((keyframe) => {
@@ -21,8 +24,12 @@ export function toWebKeyframes(keyframes: ReadonlyArray<MotionKeyframe>): Keyfra
       }
     }
 
-    if (typeof keyframe.filter === 'string') {
-      webKeyframe.filter = keyframe.filter;
+    if (keyframe.filter !== undefined) {
+      const filter = toWebFilter(keyframe.filter);
+
+      if (filter !== undefined) {
+        webKeyframe.filter = filter;
+      }
     }
 
     if (typeof keyframe.backgroundColor === 'string') {
@@ -136,4 +143,60 @@ function toWebAngle(value: string | number): string {
   }
 
   return value;
+}
+
+function toWebFilter(filter: MotionFilterValue): string | undefined {
+  if (typeof filter === 'string') {
+    return filter;
+  }
+
+  const parts: string[] = [];
+
+  appendLengthFilter(parts, 'blur', filter.blur);
+  appendNumberFilter(parts, 'brightness', filter.brightness);
+  appendNumberFilter(parts, 'contrast', filter.contrast);
+  appendNumberFilter(parts, 'grayscale', filter.grayscale);
+  appendAngleFilter(parts, 'hue-rotate', filter.hueRotate);
+  appendNumberFilter(parts, 'invert', filter.invert);
+  appendNumberFilter(parts, 'opacity', filter.opacity);
+  appendNumberFilter(parts, 'saturate', filter.saturate);
+  appendNumberFilter(parts, 'sepia', filter.sepia);
+
+  if (filter.dropShadow !== undefined) {
+    parts.push(`drop-shadow(${filter.dropShadow})`);
+  }
+
+  return parts.length > 0 ? parts.join(' ') : undefined;
+}
+
+function appendLengthFilter(
+  parts: string[],
+  name: string,
+  value: string | number | undefined
+): void {
+  if (value === undefined) {
+    return;
+  }
+
+  parts.push(`${name}(${toWebLength(value)})`);
+}
+
+function appendAngleFilter(
+  parts: string[],
+  name: string,
+  value: string | number | undefined
+): void {
+  if (value === undefined) {
+    return;
+  }
+
+  parts.push(`${name}(${toWebAngle(value)})`);
+}
+
+function appendNumberFilter(parts: string[], name: string, value: number | undefined): void {
+  if (value === undefined) {
+    return;
+  }
+
+  parts.push(`${name}(${value})`);
 }

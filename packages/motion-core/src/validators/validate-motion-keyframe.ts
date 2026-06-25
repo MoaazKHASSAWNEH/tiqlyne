@@ -2,6 +2,7 @@ import { createMotionValidationDiagnostic as createErrorDiagnostic } from './cre
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
 import { validateMotionTransform } from './validate-motion-transform';
+import { validateMotionFilter } from './validate-motion-filter';
 
 export function validateKeyframe(
   keyframe: MotionKeyframe,
@@ -47,6 +48,12 @@ export function validateKeyframe(
   }
 
   validateMotionTransform(keyframe.transform, diagnostics, {
+    trackIndex,
+    stepIndex,
+    keyframeIndex
+  });
+
+  validateMotionFilter(keyframe.filter, diagnostics, {
     trackIndex,
     stepIndex,
     keyframeIndex

@@ -2287,4 +2287,154 @@ describe('validateMotionTimeline', () => {
       ]
     });
   });
+
+  it('rejects empty filter strings', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  filter: '' as never
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-filter',
+          message: 'Keyframe filter must be a non-empty string or a structured filter object.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            keyframeIndex: 0
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid filter values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  filter: 123 as never
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-invalid-filter'
+      })
+    );
+  });
+
+  it('rejects invalid structured filter numeric values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  filter: {
+                    brightness: Number.NaN
+                  } as never
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-filter-value',
+          message: 'Filter numeric value must be a finite number.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            keyframeIndex: 0,
+            filterProperty: 'brightness'
+          })
+        })
+      ]
+    });
+  });
+
+  it('rejects invalid structured filter dropShadow values', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  filter: {
+                    dropShadow: ''
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toMatchObject({
+      valid: false,
+      diagnostics: [
+        expect.objectContaining({
+          level: 'error',
+          code: 'timeline-invalid-filter-value',
+          message: 'Filter dropShadow value must be a non-empty string.',
+          metadata: expect.objectContaining({
+            trackIndex: 0,
+            stepIndex: 0,
+            keyframeIndex: 0,
+            filterProperty: 'dropShadow'
+          })
+        })
+      ]
+    });
+  });
 });

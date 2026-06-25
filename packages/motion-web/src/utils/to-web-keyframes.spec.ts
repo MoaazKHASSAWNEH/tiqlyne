@@ -68,4 +68,26 @@ describe('toWebKeyframes', () => {
       }
     ]);
   });
+
+  it('converts structured filters to web filter strings', () => {
+    const result = toWebKeyframes([
+      {
+        filter: {
+          blur: 8,
+          brightness: 0.8,
+          contrast: 1.1,
+          hueRotate: 30,
+          saturate: 1.2,
+          dropShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+        }
+      }
+    ]);
+
+    expect(result).toEqual([
+      {
+        filter:
+          'blur(8px) brightness(0.8) contrast(1.1) hue-rotate(30deg) saturate(1.2) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2))'
+      }
+    ]);
+  });
 });
