@@ -2573,4 +2573,152 @@ describe('validateMotionTimeline', () => {
     expect(result.valid).toBe(true);
     expect(result.diagnostics).toEqual([]);
   });
+
+  it('allows disabling filter performance diagnostics', () => {
+    const result = validateMotionTimeline(
+      {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: 300,
+                keyframes: [
+                  {
+                    filter: {
+                      blur: 8
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        performanceDiagnostics: {
+          filter: 'off'
+        }
+      }
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).not.toContainEqual(
+      expect.objectContaining({
+        code: 'timeline-performance-filter'
+      })
+    );
+  });
+
+  it('allows downgrading filter performance diagnostics to info', () => {
+    const result = validateMotionTimeline(
+      {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: 300,
+                keyframes: [
+                  {
+                    filter: {
+                      blur: 8
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        performanceDiagnostics: {
+          filter: 'info'
+        }
+      }
+    );
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'info',
+        code: 'timeline-performance-filter'
+      })
+    );
+  });
+
+  it('allows upgrading filter performance diagnostics to errors', () => {
+    const result = validateMotionTimeline(
+      {
+        tracks: [
+          {
+            target: {
+              type: 'self'
+            },
+            steps: [
+              {
+                duration: 300,
+                keyframes: [
+                  {
+                    filter: {
+                      blur: 8
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        performanceDiagnostics: {
+          filter: 'error'
+        }
+      }
+    );
+
+    expect(result.valid).toBe(false);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        code: 'timeline-performance-filter'
+      })
+    );
+  });
+
+  it('keeps performance diagnostics as warnings by default', () => {
+    const result = validateMotionTimeline({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 300,
+              keyframes: [
+                {
+                  filter: {
+                    blur: 8
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        level: 'warning',
+        code: 'timeline-performance-filter'
+      })
+    );
+  });
 });

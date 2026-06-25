@@ -90,6 +90,12 @@ export type {
 
 export type { MotionFilterValue } from './models/motion-filter';
 
+export type {
+  MotionPerformanceDiagnosticLevel,
+  MotionPerformanceDiagnosticsOptions,
+  MotionValidationOptions
+} from './models/motion-validation-options';
+
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
 

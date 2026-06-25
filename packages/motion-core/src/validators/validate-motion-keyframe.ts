@@ -4,13 +4,15 @@ import type { MotionKeyframe } from '../models/motion-keyframe';
 import { validateMotionTransform } from './validate-motion-transform';
 import { validateMotionFilter } from './validate-motion-filter';
 import { validateKeyframePerformance } from './validate-motion-keyframe-performance';
+import type { MotionPerformanceDiagnosticsOptions } from '../models/motion-validation-options';
 
 export function validateKeyframe(
   keyframe: MotionKeyframe,
   trackIndex: number,
   stepIndex: number,
   keyframeIndex: number,
-  diagnostics: MotionDiagnostic[]
+  diagnostics: MotionDiagnostic[],
+  performanceDiagnosticsOptions?: MotionPerformanceDiagnosticsOptions
 ): void {
   if (
     keyframe.opacity !== undefined &&
@@ -60,11 +62,16 @@ export function validateKeyframe(
     keyframeIndex
   });
 
-  validateKeyframePerformance(keyframe, diagnostics, {
-    trackIndex,
-    stepIndex,
-    keyframeIndex
-  });
+  validateKeyframePerformance(
+    keyframe,
+    diagnostics,
+    {
+      trackIndex,
+      stepIndex,
+      keyframeIndex
+    },
+    performanceDiagnosticsOptions
+  );
 
   if (keyframe.custom !== undefined) {
     for (const [property, value] of Object.entries(keyframe.custom)) {

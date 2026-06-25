@@ -21,6 +21,7 @@ import type {
 import type { MotionValidationResult } from '../models/motion-validation-result';
 import { resolveMotionStepPosition } from '../compiler/resolve-motion-step-position';
 import type { MotionEasing } from '../models/motion-easing';
+import type { MotionValidationOptions } from '../models/motion-validation-options';
 
 type TrackSchedulingState = {
   cursor: number;
@@ -28,7 +29,10 @@ type TrackSchedulingState = {
   previousEndTime?: number;
 };
 
-export function validateMotionTimeline(timeline: MotionTimelineDefinition): MotionValidationResult {
+export function validateMotionTimeline(
+  timeline: MotionTimelineDefinition,
+  options?: MotionValidationOptions
+): MotionValidationResult {
   const diagnostics: MotionDiagnostic[] = [];
 
   validateTimelineDefaults(timeline.defaults, diagnostics, 'timeline');
@@ -64,7 +68,15 @@ export function validateMotionTimeline(timeline: MotionTimelineDefinition): Moti
     };
 
     track.steps.forEach((step, stepIndex) => {
-      validateStep(step, trackDefaults, timeline.labels, trackIndex, stepIndex, diagnostics);
+      validateStep(
+        step,
+        trackDefaults,
+        timeline.labels,
+        trackIndex,
+        stepIndex,
+        diagnostics,
+        options
+      );
       validateFiniteStepScheduling(
         step,
         trackDefaults,
@@ -102,7 +114,8 @@ function validateStep(
   labels: MotionTimelineLabels | undefined,
   trackIndex: number,
   stepIndex: number,
-  diagnostics: MotionDiagnostic[]
+  diagnostics: MotionDiagnostic[],
+  options?: MotionValidationOptions
 ): void {
   const metadata = {
     trackIndex,
@@ -120,7 +133,14 @@ function validateStep(
   }
 
   step.keyframes.forEach((keyframe, keyframeIndex) => {
-    validateKeyframe(keyframe, trackIndex, stepIndex, keyframeIndex, diagnostics);
+    validateKeyframe(
+      keyframe,
+      trackIndex,
+      stepIndex,
+      keyframeIndex,
+      diagnostics,
+      options?.performanceDiagnostics
+    );
   });
 
   const duration = step.duration ?? trackDefaults.duration;
