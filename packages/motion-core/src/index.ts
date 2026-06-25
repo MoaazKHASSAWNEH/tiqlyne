@@ -168,4 +168,25 @@ export type { MotionExecutionPlanSummary } from './models/motion-execution-plan-
 
 export { MotionPlanningError } from './engine/motion-planning-error';
 
+export {
+  createMotionTimeline,
+  createMotionTimelineBuilder
+} from './builders/create-motion-timeline';
+
+export type { MotionTimelineBuilderCallback } from './builders/create-motion-timeline';
+
+export type {
+  MotionTimelineBuilder,
+  MotionTrackBuilderCallback
+} from './builders/motion-timeline-builder';
+
+export type {
+  MotionTrackBuilder,
+  MotionStepBuilderCallback
+} from './builders/motion-track-builder';
+
+export type { MotionStepBuilder, MotionStepBuilderOptions } from './builders/motion-step-builder';
+
+export type { MotionTargetInput } from './builders/normalize-motion-target-input';
+
 export const motionCoreVersion = '0.1.0';
