@@ -96,6 +96,12 @@ export type {
   MotionValidationOptions
 } from './models/motion-validation-options';
 
+export type {
+  MotionKeyframeProperty,
+  MotionPerformanceTier
+} from './models/motion-performance-tier';
+export { getMotionKeyframePropertyPerformanceTier } from './models/motion-performance-tier';
+
 export type { NormalizedMotionConfig } from './models/normalized-motion-config';
 export type { ReducedMotionStrategy } from './models/reduced-motion-strategy';
 

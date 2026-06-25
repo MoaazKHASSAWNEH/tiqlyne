@@ -5,6 +5,7 @@ import type {
   MotionPerformanceDiagnosticLevel,
   MotionPerformanceDiagnosticsOptions
 } from '../models/motion-validation-options';
+import { getMotionKeyframePropertyPerformanceTier } from '../models/motion-performance-tier';
 
 const DEFAULT_PERFORMANCE_DIAGNOSTICS_OPTIONS = {
   filter: 'warning',
@@ -38,12 +39,10 @@ function pushPerformanceDiagnostic(
   }
 
   diagnostics.push(
-    createMotionValidationLevelDiagnostic(
-      level satisfies MotionDiagnosticLevel,
-      code,
-      message,
-      metadata
-    )
+    createMotionValidationLevelDiagnostic(level satisfies MotionDiagnosticLevel, code, message, {
+      ...metadata,
+      performanceTier: getMotionKeyframePropertyPerformanceTier(metadata.property)
+    })
   );
 }
 

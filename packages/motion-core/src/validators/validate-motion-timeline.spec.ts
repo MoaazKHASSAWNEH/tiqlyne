@@ -2465,7 +2465,8 @@ describe('validateMotionTimeline', () => {
           trackIndex: 0,
           stepIndex: 0,
           keyframeIndex: 0,
-          property: 'filter'
+          property: 'filter',
+          performanceTier: 'paint'
         })
       })
     );
@@ -2502,7 +2503,8 @@ describe('validateMotionTimeline', () => {
           trackIndex: 0,
           stepIndex: 0,
           keyframeIndex: 0,
-          property: 'boxShadow'
+          property: 'boxShadow',
+          performanceTier: 'paint'
         })
       })
     );
@@ -2539,7 +2541,8 @@ describe('validateMotionTimeline', () => {
           trackIndex: 0,
           stepIndex: 0,
           keyframeIndex: 0,
-          property: 'backgroundColor'
+          property: 'backgroundColor',
+          performanceTier: 'paint'
         })
       })
     );
