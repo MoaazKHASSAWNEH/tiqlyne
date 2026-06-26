@@ -196,4 +196,7 @@ export {
   type NormalizedMotionTimelinePlayOptions
 } from './engine/normalize-motion-timeline-play-options';
 
+export { createMotionEngine } from './engine/create-motion-engine';
+export type { MotionEngineConfig } from './engine/motion-engine-config';
+
 export const motionCoreVersion = '0.1.0';
