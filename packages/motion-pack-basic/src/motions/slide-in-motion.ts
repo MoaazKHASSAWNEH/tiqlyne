@@ -5,7 +5,9 @@ import {
   type MotionBuildContext,
   type MotionCategory,
   type MotionOptionDefinition,
-  type MotionTimelineDefinition
+  type MotionTimelineDefinition,
+  type MotionKeyframe,
+  createMotionTimeline
 } from '@structifyx/motion-core';
 
 export type SlideInDirection = 'left' | 'right' | 'top' | 'bottom';
@@ -110,75 +112,65 @@ export class SlideInMotion extends BaseMotionDefinition<SlideInMotionOptions> {
   }
 
   buildTimeline(context: MotionBuildContext<SlideInMotionOptions>): MotionTimelineDefinition {
-    const initialKeyframe = context.options.fade
+    const initialKeyframe: MotionKeyframe = context.options.fade
       ? {
           transform: buildInitialTransform(context.options.direction, context.options.distance),
-          opacity: 0,
-          offset: 0
+          opacity: 0
         }
       : {
-          transform: buildInitialTransform(context.options.direction, context.options.distance),
-          offset: 0
+          transform: buildInitialTransform(context.options.direction, context.options.distance)
         };
 
-    const finalKeyframe = context.options.fade
+    const finalKeyframe: MotionKeyframe = context.options.fade
       ? {
           transform: 'translate3d(0, 0, 0)',
-          opacity: 1,
-          offset: 1
+          opacity: 1
         }
       : {
-          transform: 'translate3d(0, 0, 0)',
-          offset: 1
+          transform: 'translate3d(0, 0, 0)'
         };
 
-    return {
-      tracks: [
-        {
-          target: {
-            type: 'self'
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step(
+          {
+            duration: context.duration,
+            delay: context.delay,
+            easing: context.easing,
+            fill: 'both'
           },
-          steps: [
-            {
-              duration: context.duration,
-              delay: context.delay,
-              easing: context.easing,
-              fill: 'both',
-              keyframes: [initialKeyframe, finalKeyframe]
-            }
-          ]
-        }
-      ]
-    };
+          (step) => {
+            step.from(initialKeyframe);
+            step.to(finalKeyframe);
+          }
+        );
+      });
+    });
   }
 
   buildReducedMotionTimeline(
     context: MotionBuildContext<SlideInMotionOptions>
   ): MotionTimelineDefinition {
-    return {
-      tracks: [
-        {
-          target: {
-            type: 'self'
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step(
+          {
+            duration: Math.min(context.duration, 150),
+            delay: 0,
+            easing: 'ease-out',
+            fill: 'both'
           },
-          steps: [
-            {
-              duration: Math.min(context.duration, 150),
-              delay: 0,
-              easing: 'ease-out',
-              fill: 'both',
-              keyframes: [
-                {
-                  opacity: 0
-                },
-                {
-                  opacity: 1
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    };
+          (step) => {
+            step.from({
+              opacity: 0
+            });
+
+            step.to({
+              opacity: 1
+            });
+          }
+        );
+      });
+    });
   }
 }

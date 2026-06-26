@@ -4,7 +4,8 @@ import {
   type MotionBuildContext,
   type MotionCategory,
   type MotionOptionDefinition,
-  type MotionTimelineDefinition
+  type MotionTimelineDefinition,
+  createMotionTimeline
 } from '@structifyx/motion-core';
 
 export type FadeOutMotionOptions = {
@@ -74,32 +75,26 @@ export class FadeOutMotion extends BaseMotionDefinition<FadeOutMotionOptions> {
   }
 
   buildTimeline(context: MotionBuildContext<FadeOutMotionOptions>): MotionTimelineDefinition {
-    return {
-      tracks: [
-        {
-          target: {
-            type: 'self'
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step(
+          {
+            duration: context.duration,
+            delay: context.delay,
+            easing: context.easing,
+            fill: 'both'
           },
-          steps: [
-            {
-              duration: context.duration,
-              delay: context.delay,
-              easing: context.easing,
-              fill: 'both',
-              keyframes: [
-                {
-                  opacity: context.options.fromOpacity,
-                  offset: 0
-                },
-                {
-                  opacity: context.options.toOpacity,
-                  offset: 1
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    };
+          (step) => {
+            step.from({
+              opacity: context.options.fromOpacity
+            });
+
+            step.to({
+              opacity: context.options.toOpacity
+            });
+          }
+        );
+      });
+    });
   }
 }

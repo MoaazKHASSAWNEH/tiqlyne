@@ -1,6 +1,7 @@
 import {
   BaseMotionDefinition,
   normalizeNumber,
+  createMotionTimeline,
   type MotionBuildContext,
   type MotionCategory,
   type MotionOptionDefinition,
@@ -74,32 +75,26 @@ export class FadeInMotion extends BaseMotionDefinition<FadeInMotionOptions> {
   }
 
   buildTimeline(context: MotionBuildContext<FadeInMotionOptions>): MotionTimelineDefinition {
-    return {
-      tracks: [
-        {
-          target: {
-            type: 'self'
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step(
+          {
+            duration: context.duration,
+            delay: context.delay,
+            easing: context.easing,
+            fill: 'both'
           },
-          steps: [
-            {
-              duration: context.duration,
-              delay: context.delay,
-              easing: context.easing,
-              fill: 'both',
-              keyframes: [
-                {
-                  opacity: context.options.fromOpacity,
-                  offset: 0
-                },
-                {
-                  opacity: context.options.toOpacity,
-                  offset: 1
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    };
+          (step) => {
+            step.from({
+              opacity: context.options.fromOpacity
+            });
+
+            step.to({
+              opacity: context.options.toOpacity
+            });
+          }
+        );
+      });
+    });
   }
 }
