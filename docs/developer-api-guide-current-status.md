@@ -1,7 +1,7 @@
 # Structifyx Motion Engine - Current API Status
 
 > Status: documentation addendum.
-> Purpose: keep the developer documentation aligned with the current implementation after the engine events and skip event features.
+> Purpose: keep the developer documentation aligned with the current implementation after the engine events, skip event and Web driver quickstart documentation.
 > Scope: documentation only. No source code change is included in this document.
 
 ## 1. Why this addendum exists
@@ -20,6 +20,7 @@ The engine has since evolved. In particular, the following features are now impl
 - motion-pack-basic using createMotionTimeline() internally
 - global engine events through createMotionEngine({ events })
 - skip lifecycle event through onSkip
+- Web driver quickstart documentation
 ```
 
 This document clarifies the current state until the main guide is reorganized into smaller official documentation pages.
@@ -36,8 +37,9 @@ Registry workflow: good
 Global config: first version ready
 Event system: first version implemented
 Skip event: implemented
+Web driver documentation: quickstart available
 Plugin/preset documentation: partial
-Integration guides: not yet implemented
+Integration guides: first Web quickstart available
 Versioning policy: not yet implemented
 ```
 
@@ -60,11 +62,12 @@ const motion = createMotionEngine({
 });
 ```
 
-For the complete event references, see:
+For the complete event references and Web quickstart, see:
 
 ```txt
 docs/engine-events-api.md
 docs/skip-event-api.md
+docs/web-driver-quickstart.md
 ```
 
 ## 3. Current public engine config
@@ -223,7 +226,41 @@ For the complete skip reference, see:
 docs/skip-event-api.md
 ```
 
-## 7. Current documentation map
+## 7. Web driver quickstart summary
+
+The Web driver documentation now explains how to use:
+
+```txt
+@structifyx/motion-core
+@structifyx/motion-web
+@structifyx/motion-pack-basic
+createMotionEngine<Element>()
+WebMotionDriver
+createMotionTimeline()
+motion.playTimeline()
+motion.play()
+engine events
+```
+
+The Web driver quickstart is based on audited current code behavior:
+
+```txt
+- WebMotionDriver implements MotionDriver<Element>.
+- WebMotionDriver exposes reducedMotion and cancelPreviousAnimations options.
+- Web target resolution supports self, child, selector and named targets.
+- Web keyframe conversion maps numeric lengths to px and numeric angles to deg.
+- Web timing conversion maps iterations, direction, endDelay and playbackRate.
+- Reduced motion skip/simplify behavior is documented.
+- Conflict behavior for ignore, replace and cancelPreviousAnimations is documented.
+```
+
+For the complete Web reference, see:
+
+```txt
+docs/web-driver-quickstart.md
+```
+
+## 8. Current documentation map
 
 The current documentation files have the following roles:
 
@@ -240,6 +277,9 @@ docs/engine-events-api.md
 docs/skip-event-api.md
   Detailed reference for the onSkip lifecycle event.
 
+docs/web-driver-quickstart.md
+  Audited quickstart for motion-core + motion-web usage.
+
 docs/development-architecture-audit.md
   Internal architecture audit and technical analysis.
 
@@ -252,7 +292,7 @@ docs/project-handoff.md
 
 This addendum should be used as the current status correction for the main guide until the documentation is split into smaller pages.
 
-## 8. Current completed milestones
+## 9. Current completed milestones
 
 The completed milestones are now:
 
@@ -269,23 +309,24 @@ The completed milestones are now:
 10. docs: add current API status addendum
 11. feat(core): add skip event
 12. docs: document skip event behavior
+13. docs: add web driver quickstart
 ```
 
 The current implementation has moved beyond a pure prototype. It is now a strong developer API foundation.
 
-## 9. Recommended next technical steps
+## 10. Recommended next technical steps
 
-Recommended next steps after the skip event documentation:
+Recommended next steps after the Web driver quickstart:
 
 ```txt
-1. docs: add web driver quickstart
-2. docs: add examples using motion-core + motion-web together
-3. docs: add writing a custom MotionDefinition guide
-4. docs: add writing a custom MotionDriver guide
-5. feat(core): add dynamic event subscription API later, for example motion.on(...)
+1. docs: add examples using motion-core + motion-web together
+2. docs: add writing a custom MotionDefinition guide
+3. docs: add writing a custom MotionDriver guide
+4. feat(core): add dynamic event subscription API later, for example motion.on(...)
+5. docs: split the large developer guide into concepts/api/guides pages
 ```
 
-## 10. Rules to preserve
+## 11. Rules to preserve
 
 The following rules remain important:
 
@@ -302,7 +343,7 @@ The following rules remain important:
 - Optional properties must be omitted rather than set to undefined.
 ```
 
-## 11. Local validation reminder
+## 12. Local validation reminder
 
 Documentation-only changes should still be pulled locally and formatted.
 
