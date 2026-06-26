@@ -168,7 +168,7 @@ Ce mode est important pour :
 Le mode direct joue une timeline sans passer par une classe de motion.
 
 ```ts
-const timeline = motion.createTimeline((timeline) => {
+const timeline = createMotionTimeline((timeline) => {
   timeline.track('self', (track) => {
     track.step({ duration: 300 }, (step) => {
       step.from({ opacity: 0, transform: { y: 24 } });
@@ -259,189 +259,66 @@ Une API chainable pourra etre ajoutee plus tard si elle n'affaiblit pas le model
 
 ## 8. Target input
 
-Le builder doit accepter des raccourcis lisibles.
+Pour simplifier l'usage courant, le builder accepte `self` comme raccourci.
 
 ```ts
-timeline.track('self', ...);
-timeline.track({ type: 'self' }, ...);
-timeline.track({ type: 'child', name: 'title' }, ...);
-timeline.track({ type: 'selector', selector: '.item' }, ...);
-timeline.track({ type: 'named', name: 'modal-title' }, ...);
+timeline.track('self', (track) => {
+  // ...
+});
 ```
 
-Decision : `'self'` est un raccourci officiel pour `{ type: 'self' }`.
-
-Les autres targets restent explicites pour eviter l'ambiguite.
-
-## 9. Step helpers
-
-Le `StepBuilder` doit supporter :
-
-```txt
-keyframe(keyframe)
-keyframes(keyframes)
-from(keyframe)
-to(keyframe)
-```
-
-Regles :
-
-```txt
-from(k) -> keyframe({ ...k, offset: 0 })
-to(k)   -> keyframe({ ...k, offset: 1 })
-```
-
-Si le developpeur veut des offsets precis, il utilise directement `keyframe()`.
-
-Exemple :
+Ce raccourci produit :
 
 ```ts
-step.keyframe({ offset: 0, opacity: 0 });
-step.keyframe({ offset: 0.4, opacity: 0.6 });
-step.keyframe({ offset: 1, opacity: 1 });
-```
-
-## 10. Utilisation dans les MotionDefinition
-
-Le builder doit aussi simplifier les classes de motion.
-
-Exemple cible :
-
-```ts
-export class SlideInMotion extends BaseMotionDefinition<SlideInOptions> {
-  readonly type = 'slide-in';
-
-  buildTimeline(options: SlideInOptions): MotionTimelineDefinition {
-    const distance = options.distance ?? 32;
-
-    return createMotionTimeline((timeline) => {
-      timeline.track('self', (track) => {
-        track.step(
-          {
-            duration: options.duration ?? 300,
-            easing: options.easing ?? 'ease-out'
-          },
-          (step) => {
-            step.from({
-              opacity: options.fade === false ? 1 : 0,
-              transform: { y: distance }
-            });
-
-            step.to({
-              opacity: 1,
-              transform: { y: 0 }
-            });
-          }
-        );
-      });
-    });
-  }
+{
+  type: 'self'
 }
 ```
 
-## 11. Engine API cible
-
-L'engine doit devenir la facade officielle.
-
-API cible progressive :
+Les references structurees restent disponibles :
 
 ```ts
-const motion = createMotionEngine({ driver, registry });
-
-motion.register(new SlideInMotion());
-motion.registerMany([new FadeInMotion(), new FadeOutMotion()]);
-
-const timeline = motion.createTimeline((timeline) => {
-  timeline.track('self', (track) => {
-    track.step({ duration: 300 }, (step) => {
-      step.from({ opacity: 0 });
-      step.to({ opacity: 1 });
-    });
-  });
-});
-
-await motion.play(target, { type: 'fade-in' });
-await motion.playTimeline(target, timeline);
-```
-
-L'engine pourra aussi accepter des ecouteurs globaux plus tard :
-
-```ts
-const motion = createMotionEngine({
-  driver,
-  events: {
-    onStart(event) {},
-    onFinish(event) {},
-    onFail(event) {}
-  }
+timeline.track({ type: 'child', name: 'title' }, (track) => {
+  // ...
 });
 ```
 
-Decision : les listeners globaux sont une future feature, pas dans la premiere implementation.
+## 9. Etat d'implementation actuel
 
-## 12. Separation des timelines / scenes
-
-Il faut prevoir la separation des timelines, mais ne pas l'ajouter trop tot.
-
-Future API possible :
-
-```ts
-const scene = createMotionScene((scene) => {
-  scene.timeline('intro', (timeline) => {});
-  scene.timeline('content', (timeline) => {});
-  scene.timeline('outro', (timeline) => {});
-});
-```
-
-Decision actuelle :
+Les elements suivants sont maintenant implementes :
 
 ```txt
-Maintenant : TimelineBuilder robuste
-Plus tard : SceneBuilder / MotionSequence / TimelineGroup
+- createMotionTimeline()
+- createMotionTimelineBuilder()
+- createMotionEngine()
+- engine defaults
+- engine validation options
+- playTimeline()
+- createTimelinePlayback()
+- planTimeline()
+- register()
+- registerMany()
+- has()
+- get()
+- getAll()
+- getByCategory()
 ```
 
-Le TimelineBuilder doit donc rester extensible et ne pas bloquer cette couche superieure.
+Le document public detaille se trouve dans :
 
-## 13. Ordre d'implementation recommande
+```txt
+docs/developer-api-guide.md
+```
+
+## 10. Ordre d'implementation retenu
 
 ```txt
 1. feat(core): add timeline builder API
 2. feat(core): add direct timeline playback API
 3. feat(core): add createMotionEngine facade
-4. docs: document direct API and registry usage modes
-5. refactor(pack-basic): use timeline builder in basic motions
-6. feat(core): add global engine config
-7. feat(core): add global playback event listeners
-```
-
-La premiere implementation doit rester petite mais solide :
-
-```txt
-- createMotionTimeline(callback)
-- createMotionTimelineBuilder()
-- MotionTimelineBuilder
-- MotionTrackBuilder
-- MotionStepBuilder
-- target input normalization
-- tests multi-tracks / multi-steps / labels / defaults / stagger / from/to
-```
-
-## 14. Decision finale
-
-L'API officielle doit etre confortable, mais elle ne doit jamais cacher ou limiter la puissance du modele.
-
-Le principe est :
-
-```txt
-API confortable
-  -> produit le meme modele abstrait
-  -> utilise le meme pipeline
-  -> donne les memes performances
-  -> ne bloque aucune feature avancee
-```
-
-La prochaine etape de code est donc :
-
-```txt
-feat(core): add timeline builder API
+4. feat(core): add engine defaults and validation config
+5. feat(core): add engine registry helpers
+6. docs: add developer API guide and audit
+7. refactor(pack-basic): use timeline builder in basic motions
+8. feat(core): add global playback event listeners
 ```
