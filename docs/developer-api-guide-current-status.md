@@ -1,7 +1,7 @@
 # Structifyx Motion Engine - Current API Status
 
 > Status: documentation addendum.
-> Purpose: keep the developer documentation aligned with the current implementation after the engine events feature.
+> Purpose: keep the developer documentation aligned with the current implementation after the engine events and skip event features.
 > Scope: documentation only. No source code change is included in this document.
 
 ## 1. Why this addendum exists
@@ -19,6 +19,7 @@ The engine has since evolved. In particular, the following features are now impl
 - engine registry helpers
 - motion-pack-basic using createMotionTimeline() internally
 - global engine events through createMotionEngine({ events })
+- skip lifecycle event through onSkip
 ```
 
 This document clarifies the current state until the main guide is reorganized into smaller official documentation pages.
@@ -34,12 +35,13 @@ Direct API usability: good
 Registry workflow: good
 Global config: first version ready
 Event system: first version implemented
+Skip event: implemented
 Plugin/preset documentation: partial
 Integration guides: not yet implemented
 Versioning policy: not yet implemented
 ```
 
-The previous wording `Event system: not yet implemented` is now obsolete.
+The previous wording `Event system: not yet implemented` is obsolete.
 
 The first event system version is implemented as global engine listeners configured through:
 
@@ -52,15 +54,17 @@ const motion = createMotionEngine({
     onPlay(event) {},
     onFinish(event) {},
     onCancel(event) {},
+    onSkip(event) {},
     onError(event) {}
   }
 });
 ```
 
-For the complete event reference, see:
+For the complete event references, see:
 
 ```txt
 docs/engine-events-api.md
+docs/skip-event-api.md
 ```
 
 ## 3. Current public engine config
@@ -103,7 +107,7 @@ events
 
 ## 4. Event system summary
 
-The current event system exposes six callbacks:
+The current event system exposes seven callbacks:
 
 ```txt
 onBeforePlan
@@ -111,6 +115,7 @@ onPlan
 onPlay
 onFinish
 onCancel
+onSkip
 onError
 ```
 
@@ -149,6 +154,8 @@ onBeforePlan
 onPlan
 ```
 
+`onSkip` is emitted for controlled skipped results such as disabled registered motions, unknown registered motion types, and unsupported driver control operations.
+
 `onError` is emitted by `play()` and `playTimeline()` when they catch planning or runtime errors and return a failed `MotionPlaybackResult`.
 
 Direct calls to `plan()` and `planTimeline()` still throw directly and do not currently emit `onError` when they fail.
@@ -158,7 +165,6 @@ Direct calls to `plan()` and `planTimeline()` still throw directly and do not cu
 The current implementation deliberately does not include:
 
 ```txt
-- onSkip
 - onProgress
 - onPause
 - onResume
@@ -176,7 +182,48 @@ The current implementation deliberately does not include:
 
 Those features should not be documented as available until they are implemented and tested.
 
-## 6. Current documentation map
+## 6. Skip event summary
+
+`onSkip` observes skipped operations.
+
+Current skip reasons:
+
+```txt
+motion-disabled
+unknown-motion-type
+driver-cancel-not-supported
+driver-finish-not-supported
+driver-reset-not-supported
+```
+
+Expected event orders:
+
+```txt
+motion-disabled
+  onSkip
+
+unknown-motion-type
+  onSkip
+
+driver-cancel-not-supported
+  onSkip -> onCancel
+
+driver-finish-not-supported
+  onSkip
+
+driver-reset-not-supported
+  onSkip
+```
+
+Invalid timelines are not skips. They remain planning errors and are observed through `onError` when using `play()` or `playTimeline()`.
+
+For the complete skip reference, see:
+
+```txt
+docs/skip-event-api.md
+```
+
+## 7. Current documentation map
 
 The current documentation files have the following roles:
 
@@ -190,6 +237,9 @@ docs/developer-api-guide-current-status.md
 docs/engine-events-api.md
   Detailed reference for global engine events.
 
+docs/skip-event-api.md
+  Detailed reference for the onSkip lifecycle event.
+
 docs/development-architecture-audit.md
   Internal architecture audit and technical analysis.
 
@@ -202,7 +252,7 @@ docs/project-handoff.md
 
 This addendum should be used as the current status correction for the main guide until the documentation is split into smaller pages.
 
-## 7. Current completed milestones
+## 8. Current completed milestones
 
 The completed milestones are now:
 
@@ -216,61 +266,24 @@ The completed milestones are now:
 7. refactor(pack-basic): use timeline builder
 8. feat(core): add global playback event listeners
 9. docs: document engine events API
+10. docs: add current API status addendum
+11. feat(core): add skip event
+12. docs: document skip event behavior
 ```
 
 The current implementation has moved beyond a pure prototype. It is now a strong developer API foundation.
 
-## 8. Recommended next technical steps
+## 9. Recommended next technical steps
 
-Recommended next steps after the documentation update:
-
-```txt
-1. feat(core): add onSkip event
-2. docs: document onSkip behavior once implemented
-3. docs: add web driver quickstart
-4. docs: add examples using motion-core + motion-web together
-5. docs: add writing a custom MotionDefinition guide
-6. docs: add writing a custom MotionDriver guide
-7. feat(core): add dynamic event subscription API later, for example motion.on(...)
-```
-
-## 9. Recommended next code feature: onSkip
-
-`onSkip` is the next clean lifecycle event candidate.
-
-It would cover cases that currently return early before the full planning/playback lifecycle starts:
+Recommended next steps after the skip event documentation:
 
 ```txt
-- motion disabled
-- unknown registered motion type
-- driver cancel not supported
-- driver finish not supported
-- driver reset not supported
+1. docs: add web driver quickstart
+2. docs: add examples using motion-core + motion-web together
+3. docs: add writing a custom MotionDefinition guide
+4. docs: add writing a custom MotionDriver guide
+5. feat(core): add dynamic event subscription API later, for example motion.on(...)
 ```
-
-A possible first shape could be:
-
-```ts
-type MotionSkipReason =
-  | 'motion-disabled'
-  | 'unknown-motion-type'
-  | 'driver-cancel-not-supported'
-  | 'driver-finish-not-supported'
-  | 'driver-reset-not-supported';
-
-type MotionSkipEvent<TTarget = unknown> = {
-  readonly type: 'skip';
-  readonly target?: TTarget;
-  readonly source?: MotionEngineEventSource;
-  readonly motionId?: string;
-  readonly motionType?: string;
-  readonly reason: MotionSkipReason;
-  readonly result: MotionPlaybackResult;
-  readonly timestamp: number;
-};
-```
-
-This is only a proposal. The code should not be changed from this document alone without a dedicated implementation step and tests.
 
 ## 10. Rules to preserve
 
