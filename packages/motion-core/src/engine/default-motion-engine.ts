@@ -11,6 +11,9 @@ import { validateMotionTimeline } from '../validators/validate-motion-timeline';
 import { createMotionExecutionPlan } from '../planner/create-motion-execution-plan';
 import type { MotionExecutionPlan } from '../models/motion-execution-plan';
 import { MotionPlanningError } from './motion-planning-error';
+import { normalizeMotionTimelinePlayOptions } from './normalize-motion-timeline-play-options';
+import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -53,6 +56,56 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         ...(executionPlan.reducedMotionTimeline !== undefined
           ? {
               reducedMotionTimeline: executionPlan.reducedMotionTimeline,
+              reducedMotionTimelineValidated: true
+            }
+          : {})
+      });
+    } catch (error: unknown) {
+      if (error instanceof MotionPlanningError) {
+        return {
+          status: 'failed',
+          reason: error.code,
+          ...(error.diagnostics.length > 0
+            ? {
+                diagnostics: error.diagnostics
+              }
+            : {}),
+          ...(error.validationErrors.length > 0
+            ? {
+                error: error.validationErrors
+              }
+            : {})
+        };
+      }
+
+      return {
+        status: 'failed',
+        reason: 'motion-engine-error',
+        error
+      };
+    }
+  }
+
+  async playTimeline(
+    target: TTarget,
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): Promise<MotionPlaybackResult> {
+    const normalizedOptions = normalizeMotionTimelinePlayOptions(options);
+
+    try {
+      const executionPlan = this.planTimeline(timeline, options);
+
+      return await this.dependencies.driver.play(target, executionPlan.timeline, {
+        trigger: normalizedOptions.trigger,
+        respectReducedMotion: normalizedOptions.respectReducedMotion,
+        reducedMotionStrategy: normalizedOptions.reducedMotionStrategy,
+        conflictStrategy: normalizedOptions.conflictStrategy,
+        executionPlan,
+        timelineValidated: true,
+        ...(options?.reducedMotionTimeline !== undefined
+          ? {
+              reducedMotionTimeline: options.reducedMotionTimeline,
               reducedMotionTimelineValidated: true
             }
           : {})
@@ -135,6 +188,49 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
     if (reducedMotionTimeline !== undefined) {
       const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
+
+      if (reducedTimelineValidationResult) {
+        throw new MotionPlanningError(
+          'Reduced motion timeline is invalid.',
+          'invalid-reduced-motion-timeline',
+          reducedTimelineValidationResult.diagnostics ?? []
+        );
+      }
+    }
+
+    return createMotionExecutionPlan({
+      timeline,
+      ...(reducedMotionTimeline !== undefined
+        ? {
+            reducedMotionTimeline
+          }
+        : {})
+    });
+  }
+
+  planTimeline(
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionExecutionPlan {
+    const normalizedOptions = normalizeMotionTimelinePlayOptions(options);
+
+    const timelineValidationResult = this.validateTimeline(timeline, normalizedOptions.validation);
+
+    if (timelineValidationResult) {
+      throw new MotionPlanningError(
+        'Motion timeline is invalid.',
+        'invalid-timeline',
+        timelineValidationResult.diagnostics ?? []
+      );
+    }
+
+    const reducedMotionTimeline = options?.reducedMotionTimeline;
+
+    if (reducedMotionTimeline !== undefined) {
+      const reducedTimelineValidationResult = this.validateTimeline(
+        reducedMotionTimeline,
+        normalizedOptions.validation
+      );
 
       if (reducedTimelineValidationResult) {
         throw new MotionPlanningError(
@@ -239,10 +335,55 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
   }
 
+  createTimelinePlayback(
+    target: TTarget,
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionPlaybackController {
+    const fallback = (): MotionPlaybackController => {
+      const finished = this.playTimeline(target, timeline, options);
+
+      return new PromiseMotionPlaybackController(
+        'direct_timeline',
+        finished,
+        () => this.cancel(target),
+        () => this.finish(target)
+      );
+    };
+
+    try {
+      const executionPlan = this.planTimeline(timeline, options);
+
+      if (!this.dependencies.driver.createPlayback) {
+        return fallback();
+      }
+
+      const normalizedOptions = normalizeMotionTimelinePlayOptions(options);
+
+      return this.dependencies.driver.createPlayback(target, executionPlan.timeline, {
+        trigger: normalizedOptions.trigger,
+        respectReducedMotion: normalizedOptions.respectReducedMotion,
+        reducedMotionStrategy: normalizedOptions.reducedMotionStrategy,
+        conflictStrategy: normalizedOptions.conflictStrategy,
+        executionPlan,
+        timelineValidated: true,
+        ...(executionPlan.reducedMotionTimeline !== undefined
+          ? {
+              reducedMotionTimeline: executionPlan.reducedMotionTimeline,
+              reducedMotionTimelineValidated: true
+            }
+          : {})
+      });
+    } catch {
+      return fallback();
+    }
+  }
+
   private validateTimeline(
-    timeline: ReturnType<MotionDefinition['buildTimeline']>
+    timeline: MotionTimelineDefinition,
+    validationOptions?: MotionTimelinePlayOptions['validation']
   ): MotionPlaybackResult | null {
-    const validation = validateMotionTimeline(timeline);
+    const validation = validateMotionTimeline(timeline, validationOptions);
 
     if (validation.valid) {
       return null;

@@ -10,6 +10,7 @@ import { DefaultMotionEngine } from './default-motion-engine';
 import type { MotionDriver, MotionPlayOptions } from '../contracts/motion-driver';
 import type { MotionPlaybackController } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import { createMotionTimeline } from '../builders/create-motion-timeline';
 
 type TestOptions = {
   readonly intensity: number;
@@ -1013,5 +1014,94 @@ describe('DefaultMotionEngine', () => {
     expect(driver.createPlaybackCalls).toHaveLength(1);
     expect(driver.createPlaybackCalls[0]?.options.timelineValidated).toBe(true);
     expect(driver.createPlaybackCalls[0]?.options.reducedMotionTimelineValidated).toBe(true);
+  });
+
+  it('plays a direct timeline without resolving a registered motion definition', async () => {
+    const { engine } = createEngine();
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step({ duration: 300 }, (step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const result = await engine.playTimeline('target', timeline);
+
+    expect(result.status).toBe('finished');
+  });
+
+  it('creates an execution plan from a direct timeline', () => {
+    const { engine } = createEngine();
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step({ duration: 300 }, (step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const plan = engine.planTimeline(timeline);
+
+    expect(plan.summary.trackCount).toBe(1);
+    expect(plan.summary.taskCount).toBe(1);
+    expect(plan.timeline).toEqual(timeline);
+  });
+
+  it('returns a failed result when a direct timeline is invalid', async () => {
+    const { engine } = createEngine();
+
+    const result = await engine.playTimeline('target', {
+      tracks: []
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        status: 'failed',
+        reason: 'invalid-timeline'
+      })
+    );
+
+    expect(result.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: 'timeline-empty-tracks'
+      })
+    );
+  });
+
+  it('uses direct timeline validation options', () => {
+    const { engine } = createEngine();
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step({ duration: 300 }, (step) => {
+          step.from({
+            filter: {
+              blur: 8
+            }
+          });
+
+          step.to({
+            filter: {
+              blur: 0
+            }
+          });
+        });
+      });
+    });
+
+    expect(() =>
+      engine.planTimeline(timeline, {
+        validation: {
+          performanceDiagnostics: {
+            filter: 'error'
+          }
+        }
+      })
+    ).toThrow();
   });
 });

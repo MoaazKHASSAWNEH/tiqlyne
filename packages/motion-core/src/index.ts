@@ -189,4 +189,11 @@ export type { MotionStepBuilder, MotionStepBuilderOptions } from './builders/mot
 
 export type { MotionTargetInput } from './builders/normalize-motion-target-input';
 
+export type { MotionTimelinePlayOptions } from './models/motion-timeline-play-options';
+
+export {
+  normalizeMotionTimelinePlayOptions,
+  type NormalizedMotionTimelinePlayOptions
+} from './engine/normalize-motion-timeline-play-options';
+
 export const motionCoreVersion = '0.1.0';
