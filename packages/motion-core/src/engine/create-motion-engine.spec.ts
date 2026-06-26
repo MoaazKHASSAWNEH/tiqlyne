@@ -122,4 +122,167 @@ describe('createMotionEngine', () => {
 
     expect(driver.getCalls()).toHaveLength(0);
   });
+
+  it('applies engine defaults to direct timelines', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver,
+      defaults: {
+        duration: 450,
+        easing: 'ease-out',
+        fill: 'both'
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step((step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const plan = motion.planTimeline(timeline);
+
+    expect(plan.timeline.tracks[0]?.steps[0]).toEqual(
+      expect.objectContaining({
+        duration: 450,
+        easing: 'ease-out',
+        fill: 'both'
+      })
+    );
+  });
+
+  it('keeps timeline defaults above engine defaults', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver,
+      defaults: {
+        duration: 450,
+        easing: 'ease-out'
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.defaults({
+        duration: 120
+      });
+
+      timelineBuilder.track('self', (track) => {
+        track.step((step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const plan = motion.planTimeline(timeline);
+
+    expect(plan.timeline.tracks[0]?.steps[0]).toEqual(
+      expect.objectContaining({
+        duration: 120,
+        easing: 'ease-out'
+      })
+    );
+  });
+
+  it('keeps step values above engine defaults', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver,
+      defaults: {
+        duration: 450
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step({ duration: 90 }, (step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const plan = motion.planTimeline(timeline);
+
+    expect(plan.timeline.tracks[0]?.steps[0]).toEqual(
+      expect.objectContaining({
+        duration: 90
+      })
+    );
+  });
+
+  it('uses engine validation options for direct timelines', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver,
+      validation: {
+        performanceDiagnostics: {
+          filter: 'error'
+        }
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step({ duration: 300 }, (step) => {
+          step.from({
+            filter: {
+              blur: 8
+            }
+          });
+
+          step.to({
+            filter: {
+              blur: 0
+            }
+          });
+        });
+      });
+    });
+
+    expect(() => motion.planTimeline(timeline)).toThrow();
+  });
+
+  it('lets direct play validation options override engine validation options', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver,
+      validation: {
+        performanceDiagnostics: {
+          filter: 'error'
+        }
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step({ duration: 300 }, (step) => {
+          step.from({
+            filter: {
+              blur: 8
+            }
+          });
+
+          step.to({
+            filter: {
+              blur: 0
+            }
+          });
+        });
+      });
+    });
+
+    expect(() =>
+      motion.planTimeline(timeline, {
+        validation: {
+          performanceDiagnostics: {
+            filter: 'warning'
+          }
+        }
+      })
+    ).not.toThrow();
+  });
 });

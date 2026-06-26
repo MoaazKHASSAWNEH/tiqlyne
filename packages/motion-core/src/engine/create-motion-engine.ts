@@ -10,6 +10,16 @@ export function createMotionEngine<TTarget = unknown>(
   return new DefaultMotionEngine<TTarget>({
     driver: config.driver,
     registry: config.registry ?? new DefaultMotionRegistry(),
-    normalizer: config.normalizer ?? new DefaultMotionConfigNormalizer()
+    normalizer: config.normalizer ?? new DefaultMotionConfigNormalizer(),
+    ...(config.defaults !== undefined
+      ? {
+          defaults: config.defaults
+        }
+      : {}),
+    ...(config.validation !== undefined
+      ? {
+          validation: config.validation
+        }
+      : {})
   });
 }

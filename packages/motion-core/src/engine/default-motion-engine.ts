@@ -14,11 +14,17 @@ import { MotionPlanningError } from './motion-planning-error';
 import { normalizeMotionTimelinePlayOptions } from './normalize-motion-timeline-play-options';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
+import { applyMotionTimelineDefaults } from '../compiler/apply-motion-timeline-defaults';
+import type { MotionTimelineDefaults } from '../models/motion-timeline';
+import type { MotionValidationOptions } from '../models/motion-validation-options';
+import type { MotionTrackDefinition } from '../models/motion-timeline';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
   readonly driver: MotionDriver<TTarget>;
   readonly normalizer: MotionConfigNormalizer;
+  readonly defaults?: MotionTimelineDefaults;
+  readonly validation?: MotionValidationOptions;
 };
 
 export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTarget> {
@@ -169,7 +175,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       trigger: normalizedConfig.trigger
     };
 
-    const timeline = definition.buildTimeline(buildContext);
+    const timeline = this.applyEngineDefaults(definition.buildTimeline(buildContext));
 
     const timelineValidationResult = this.validateTimeline(timeline);
 
@@ -198,11 +204,16 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       }
     }
 
+    const reducedMotionTimelineWithDefaults =
+      reducedMotionTimeline !== undefined
+        ? this.applyEngineDefaults(reducedMotionTimeline)
+        : undefined;
+
     return createMotionExecutionPlan({
       timeline,
-      ...(reducedMotionTimeline !== undefined
+      ...(reducedMotionTimelineWithDefaults !== undefined
         ? {
-            reducedMotionTimeline
+            reducedMotionTimeline: reducedMotionTimelineWithDefaults
           }
         : {})
     });
@@ -214,7 +225,12 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
   ): MotionExecutionPlan {
     const normalizedOptions = normalizeMotionTimelinePlayOptions(options);
 
-    const timelineValidationResult = this.validateTimeline(timeline, normalizedOptions.validation);
+    const timelineWithDefaults = this.applyEngineDefaults(timeline);
+
+    const timelineValidationResult = this.validateTimeline(
+      timelineWithDefaults,
+      normalizedOptions.validation
+    );
 
     if (timelineValidationResult) {
       throw new MotionPlanningError(
@@ -224,7 +240,10 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       );
     }
 
-    const reducedMotionTimeline = options?.reducedMotionTimeline;
+    const reducedMotionTimeline =
+      options?.reducedMotionTimeline !== undefined
+        ? this.applyEngineDefaults(options.reducedMotionTimeline)
+        : undefined;
 
     if (reducedMotionTimeline !== undefined) {
       const reducedTimelineValidationResult = this.validateTimeline(
@@ -242,7 +261,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
 
     return createMotionExecutionPlan({
-      timeline,
+      timeline: timelineWithDefaults,
       ...(reducedMotionTimeline !== undefined
         ? {
             reducedMotionTimeline
@@ -381,9 +400,12 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
   private validateTimeline(
     timeline: MotionTimelineDefinition,
-    validationOptions?: MotionTimelinePlayOptions['validation']
+    validationOptions?: MotionValidationOptions
   ): MotionPlaybackResult | null {
-    const validation = validateMotionTimeline(timeline, validationOptions);
+    const validation = validateMotionTimeline(
+      timeline,
+      validationOptions ?? this.dependencies.validation
+    );
 
     if (validation.valid) {
       return null;
@@ -394,5 +416,33 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       reason: 'invalid-timeline',
       diagnostics: validation.diagnostics
     };
+  }
+
+  private applyEngineDefaults(timeline: MotionTimelineDefinition): MotionTimelineDefinition {
+    if (this.dependencies.defaults === undefined) {
+      return applyMotionTimelineDefaults(timeline);
+    }
+
+    const timelineWithEngineDefaults: MotionTimelineDefinition = {
+      ...timeline,
+      defaults: {
+        ...this.dependencies.defaults,
+        ...(timeline.defaults ?? {})
+      },
+      tracks: timeline.tracks.map((track): MotionTrackDefinition => {
+        if (track.defaults === undefined) {
+          return track;
+        }
+
+        return {
+          ...track,
+          defaults: {
+            ...track.defaults
+          }
+        };
+      })
+    };
+
+    return applyMotionTimelineDefaults(timelineWithEngineDefaults);
   }
 }
