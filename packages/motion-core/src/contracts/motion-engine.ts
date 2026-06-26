@@ -4,8 +4,22 @@ import type { MotionPlaybackController } from '../models/motion-playback-control
 import type { MotionExecutionPlan } from '../models/motion-execution-plan';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
+import type { MotionDefinition } from './motion-definition';
+import type { MotionCategory } from '../models/motion-category';
 
 export interface MotionEngine<TTarget = unknown> {
+  register<TOptions extends object>(definition: MotionDefinition<TOptions>): MotionEngine<TTarget>;
+
+  registerMany(definitions: ReadonlyArray<MotionDefinition<object>>): MotionEngine<TTarget>;
+
+  has(type: string): boolean;
+
+  get(type: string): MotionDefinition<object> | undefined;
+
+  getAll(): ReadonlyArray<MotionDefinition<object>>;
+
+  getByCategory(category: MotionCategory): ReadonlyArray<MotionDefinition<object>>;
+
   play(target: TTarget, config: MotionConfig): Promise<MotionPlaybackResult>;
 
   playTimeline(

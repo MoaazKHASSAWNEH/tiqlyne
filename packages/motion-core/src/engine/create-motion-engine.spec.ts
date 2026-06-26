@@ -14,9 +14,9 @@ type FadeOptions = {
 };
 
 class TestFadeMotion extends BaseMotionDefinition<FadeOptions> {
-  readonly type = 'test-fade';
-  readonly label = 'Test fade';
-  readonly description = 'Test fade motion.';
+  readonly type: string = 'test-fade';
+  readonly label: string = 'Test fade';
+  readonly description: string = 'Test fade motion.';
   readonly category: MotionCategory = 'custom';
   readonly optionDefinitions: ReadonlyArray<MotionOptionDefinition> = [];
 
@@ -49,6 +49,37 @@ class TestFadeMotion extends BaseMotionDefinition<FadeOptions> {
                 },
                 {
                   opacity: context.options.opacity
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
+}
+
+class TestFadeOutMotion extends TestFadeMotion {
+  override readonly type = 'test-fade-out';
+  override readonly label = 'Test fade out';
+
+  override buildTimeline(context: MotionBuildContext<FadeOptions>): MotionTimelineDefinition {
+    return {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: context.duration,
+              easing: context.easing,
+              keyframes: [
+                {
+                  opacity: context.options.opacity
+                },
+                {
+                  opacity: 0
                 }
               ]
             }
@@ -284,5 +315,65 @@ describe('createMotionEngine', () => {
         }
       })
     ).not.toThrow();
+  });
+
+  it('registers a motion definition through the engine facade', async () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver
+    });
+
+    motion.register(new TestFadeMotion());
+
+    expect(motion.has('test-fade')).toBe(true);
+    expect(motion.get('test-fade')?.type).toBe('test-fade');
+
+    const result = await motion.play('target', {
+      id: 'motion_001',
+      type: 'test-fade'
+    });
+
+    expect(result.status).toBe('finished');
+    expect(driver.getCalls()).toHaveLength(1);
+  });
+
+  it('returns the engine from register for chaining', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver
+    });
+
+    const returned = motion.register(new TestFadeMotion());
+
+    expect(returned).toBe(motion);
+  });
+
+  it('registers many motion definitions through the engine facade', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver
+    });
+
+    motion.registerMany([new TestFadeMotion(), new TestFadeOutMotion()]);
+
+    expect(motion.has('test-fade')).toBe(true);
+    expect(motion.has('test-fade-out')).toBe(true);
+    expect(motion.getAll().map((definition) => definition.type)).toEqual([
+      'test-fade',
+      'test-fade-out'
+    ]);
+  });
+
+  it('gets registered motions by category through the engine facade', () => {
+    const driver = new TestMotionDriver<string>();
+    const motion = createMotionEngine({
+      driver
+    });
+
+    motion.register(new TestFadeMotion());
+
+    expect(motion.getByCategory('custom').map((definition) => definition.type)).toEqual([
+      'test-fade'
+    ]);
   });
 });

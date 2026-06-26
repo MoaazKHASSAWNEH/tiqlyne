@@ -18,6 +18,7 @@ import { applyMotionTimelineDefaults } from '../compiler/apply-motion-timeline-d
 import type { MotionTimelineDefaults } from '../models/motion-timeline';
 import type { MotionValidationOptions } from '../models/motion-validation-options';
 import type { MotionTrackDefinition } from '../models/motion-timeline';
+import type { MotionCategory } from '../models/motion-category';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -29,6 +30,36 @@ export type DefaultMotionEngineDependencies<TTarget = unknown> = {
 
 export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTarget> {
   constructor(private readonly dependencies: DefaultMotionEngineDependencies<TTarget>) {}
+
+  register<TOptions extends object>(definition: MotionDefinition<TOptions>): MotionEngine<TTarget> {
+    this.dependencies.registry.register(definition);
+
+    return this;
+  }
+
+  registerMany(definitions: ReadonlyArray<MotionDefinition<object>>): MotionEngine<TTarget> {
+    for (const definition of definitions) {
+      this.dependencies.registry.register(definition);
+    }
+
+    return this;
+  }
+
+  has(type: string): boolean {
+    return this.dependencies.registry.has(type);
+  }
+
+  get(type: string): MotionDefinition<object> | undefined {
+    return this.dependencies.registry.get(type);
+  }
+
+  getAll(): ReadonlyArray<MotionDefinition<object>> {
+    return this.dependencies.registry.getAll();
+  }
+
+  getByCategory(category: MotionCategory): ReadonlyArray<MotionDefinition<object>> {
+    return this.dependencies.registry.getByCategory(category);
+  }
 
   async play(target: TTarget, config: MotionConfig): Promise<MotionPlaybackResult> {
     const normalizedConfig = this.dependencies.normalizer.normalize(config);
