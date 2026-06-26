@@ -28,7 +28,8 @@ import type {
   MotionErrorEvent,
   MotionFinishEvent,
   MotionPlanEvent,
-  MotionPlayEvent
+  MotionPlayEvent,
+  MotionSkipEvent
 } from '../models/motion-engine-events';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
@@ -77,19 +78,43 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     const normalizedConfig = this.dependencies.normalizer.normalize(config);
 
     if (!normalizedConfig.enabled) {
-      return {
+      const result: MotionPlaybackResult = {
         status: 'skipped',
         reason: 'motion-disabled'
       };
+
+      this.emitSkip({
+        type: 'skip',
+        source: 'registered-motion',
+        target,
+        motionId: normalizedConfig.id,
+        motionType: normalizedConfig.type,
+        reason: 'motion-disabled',
+        result
+      });
+
+      return result;
     }
 
     const definition = this.dependencies.registry.get(normalizedConfig.type);
 
     if (!definition) {
-      return {
+      const result: MotionPlaybackResult = {
         status: 'skipped',
         reason: 'unknown-motion-type'
       };
+
+      this.emitSkip({
+        type: 'skip',
+        source: 'registered-motion',
+        target,
+        motionId: normalizedConfig.id,
+        motionType: normalizedConfig.type,
+        reason: 'unknown-motion-type',
+        result
+      });
+
+      return result;
     }
 
     try {
@@ -406,6 +431,13 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         reason: 'driver-cancel-not-supported'
       };
 
+      this.emitSkip({
+        type: 'skip',
+        target,
+        reason: 'driver-cancel-not-supported',
+        result
+      });
+
       this.emitCancel({
         type: 'cancel',
         target,
@@ -428,10 +460,19 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
   async finish(target: TTarget): Promise<MotionPlaybackResult> {
     if (!this.dependencies.driver.finish) {
-      return {
+      const result: MotionPlaybackResult = {
         status: 'skipped',
         reason: 'driver-finish-not-supported'
       };
+
+      this.emitSkip({
+        type: 'skip',
+        target,
+        reason: 'driver-finish-not-supported',
+        result
+      });
+
+      return result;
     }
 
     return await this.dependencies.driver.finish(target);
@@ -439,10 +480,19 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
   async reset(target: TTarget): Promise<MotionPlaybackResult> {
     if (!this.dependencies.driver.reset) {
-      return {
+      const result: MotionPlaybackResult = {
         status: 'skipped',
         reason: 'driver-reset-not-supported'
       };
+
+      this.emitSkip({
+        type: 'skip',
+        target,
+        reason: 'driver-reset-not-supported',
+        result
+      });
+
+      return result;
     }
 
     return await this.dependencies.driver.reset(target);
@@ -646,6 +696,35 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       target: event.target,
       result: event.result,
       timestamp: Date.now()
+    });
+  }
+
+  private emitSkip(event: Omit<MotionSkipEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onSkip?.({
+      type: event.type,
+      reason: event.reason,
+      result: event.result,
+      timestamp: Date.now(),
+      ...(event.target !== undefined
+        ? {
+            target: event.target
+          }
+        : {}),
+      ...(event.source !== undefined
+        ? {
+            source: event.source
+          }
+        : {}),
+      ...(event.motionId !== undefined
+        ? {
+            motionId: event.motionId
+          }
+        : {}),
+      ...(event.motionType !== undefined
+        ? {
+            motionType: event.motionType
+          }
+        : {})
     });
   }
 

@@ -5,6 +5,13 @@ import type { MotionTimelineDefinition } from './motion-timeline';
 
 export type MotionEngineEventSource = 'registered-motion' | 'direct-timeline';
 
+export type MotionSkipReason =
+  | 'motion-disabled'
+  | 'unknown-motion-type'
+  | 'driver-cancel-not-supported'
+  | 'driver-finish-not-supported'
+  | 'driver-reset-not-supported';
+
 export type MotionEngineEventBase<TTarget = unknown> = {
   readonly source: MotionEngineEventSource;
   readonly target?: TTarget;
@@ -48,19 +55,32 @@ export type MotionErrorEvent<TTarget = unknown> = MotionEngineEventBase<TTarget>
   readonly error: unknown;
 };
 
-export type MotionEngineEvent<TTarget = unknown> =
-  | MotionBeforePlanEvent<TTarget>
-  | MotionPlanEvent<TTarget>
-  | MotionPlayEvent<TTarget>
-  | MotionFinishEvent<TTarget>
-  | MotionCancelEvent<TTarget>
-  | MotionErrorEvent<TTarget>;
-
 export type MotionEngineEvents<TTarget = unknown> = {
   readonly onBeforePlan?: (event: MotionBeforePlanEvent<TTarget>) => void;
   readonly onPlan?: (event: MotionPlanEvent<TTarget>) => void;
   readonly onPlay?: (event: MotionPlayEvent<TTarget>) => void;
   readonly onFinish?: (event: MotionFinishEvent<TTarget>) => void;
   readonly onCancel?: (event: MotionCancelEvent<TTarget>) => void;
+  readonly onSkip?: (event: MotionSkipEvent<TTarget>) => void;
   readonly onError?: (event: MotionErrorEvent<TTarget>) => void;
 };
+
+export type MotionSkipEvent<TTarget = unknown> = {
+  readonly type: 'skip';
+  readonly reason: MotionSkipReason;
+  readonly result: MotionPlaybackResult;
+  readonly timestamp: number;
+  readonly target?: TTarget;
+  readonly source?: MotionEngineEventSource;
+  readonly motionId?: string;
+  readonly motionType?: string;
+};
+
+export type MotionEngineEvent<TTarget = unknown> =
+  | MotionBeforePlanEvent<TTarget>
+  | MotionPlanEvent<TTarget>
+  | MotionPlayEvent<TTarget>
+  | MotionFinishEvent<TTarget>
+  | MotionCancelEvent<TTarget>
+  | MotionSkipEvent<TTarget>
+  | MotionErrorEvent<TTarget>;

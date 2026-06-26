@@ -8,6 +8,7 @@ import { DefaultMotionRegistry } from '../registry/default-motion-registry';
 import { createMotionEngine } from './create-motion-engine';
 import type { MotionCategory } from '../models/motion-category';
 import type { MotionOptionDefinition } from '../models/motion-option-definition';
+import type { MotionDriver } from '../contracts/motion-driver';
 
 type FadeOptions = {
   readonly opacity: number;
@@ -89,6 +90,16 @@ class TestFadeOutMotion extends TestFadeMotion {
     };
   }
 }
+
+const createDriverWithoutControlMethods = (): MotionDriver<string> => ({
+  name: 'test-driver-without-control-methods',
+
+  async play() {
+    return {
+      status: 'finished'
+    };
+  }
+});
 
 describe('createMotionEngine', () => {
   it('creates an engine with default registry and normalizer', async () => {
@@ -521,5 +532,165 @@ describe('createMotionEngine', () => {
 
     expect(result.status).toBe('failed');
     expect(errors).toHaveLength(1);
+  });
+
+  it('emits skip event when a registered motion is disabled', async () => {
+    const driver = new TestMotionDriver<string>();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onSkip(event) {
+          events.push(event.type);
+          expect(event.reason).toBe('motion-disabled');
+          expect(event.source).toBe('registered-motion');
+          expect(event.motionType).toBe('test-fade');
+          expect(event.target).toBe('target');
+          expect(event.result).toEqual({
+            status: 'skipped',
+            reason: 'motion-disabled'
+          });
+        }
+      }
+    });
+
+    motion.register(new TestFadeMotion());
+
+    const result = await motion.play('target', {
+      id: 'motion_001',
+      type: 'test-fade',
+      enabled: false
+    });
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'motion-disabled'
+    });
+
+    expect(events).toEqual(['skip']);
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('emits skip event when a registered motion type is unknown', async () => {
+    const driver = new TestMotionDriver<string>();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onSkip(event) {
+          events.push(event.type);
+          expect(event.reason).toBe('unknown-motion-type');
+          expect(event.source).toBe('registered-motion');
+          expect(event.motionType).toBe('unknown-motion');
+          expect(event.target).toBe('target');
+          expect(event.result).toEqual({
+            status: 'skipped',
+            reason: 'unknown-motion-type'
+          });
+        }
+      }
+    });
+
+    const result = await motion.play('target', {
+      id: 'motion_001',
+      type: 'unknown-motion'
+    });
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'unknown-motion-type'
+    });
+
+    expect(events).toEqual(['skip']);
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('emits skip event when cancel is not supported by the driver', async () => {
+    const driver = createDriverWithoutControlMethods();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onSkip(event) {
+          events.push(event.type);
+          expect(event.reason).toBe('driver-cancel-not-supported');
+          expect(event.target).toBe('target');
+          expect(event.result).toEqual({
+            status: 'skipped',
+            reason: 'driver-cancel-not-supported'
+          });
+        }
+      }
+    });
+
+    const result = await motion.cancel('target');
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'driver-cancel-not-supported'
+    });
+
+    expect(events).toEqual(['skip']);
+  });
+
+  it('emits skip event when finish is not supported by the driver', async () => {
+    const driver = createDriverWithoutControlMethods();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onSkip(event) {
+          events.push(event.type);
+          expect(event.reason).toBe('driver-finish-not-supported');
+          expect(event.target).toBe('target');
+          expect(event.result).toEqual({
+            status: 'skipped',
+            reason: 'driver-finish-not-supported'
+          });
+        }
+      }
+    });
+
+    const result = await motion.finish('target');
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'driver-finish-not-supported'
+    });
+
+    expect(events).toEqual(['skip']);
+  });
+
+  it('emits skip event when reset is not supported by the driver', async () => {
+    const driver = createDriverWithoutControlMethods();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onSkip(event) {
+          events.push(event.type);
+          expect(event.reason).toBe('driver-reset-not-supported');
+          expect(event.target).toBe('target');
+          expect(event.result).toEqual({
+            status: 'skipped',
+            reason: 'driver-reset-not-supported'
+          });
+        }
+      }
+    });
+
+    const result = await motion.reset('target');
+
+    expect(result).toEqual({
+      status: 'skipped',
+      reason: 'driver-reset-not-supported'
+    });
+
+    expect(events).toEqual(['skip']);
   });
 });

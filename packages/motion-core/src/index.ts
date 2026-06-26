@@ -209,7 +209,9 @@ export type {
   MotionErrorEvent,
   MotionFinishEvent,
   MotionPlanEvent,
-  MotionPlayEvent
+  MotionPlayEvent,
+  MotionSkipEvent,
+  MotionSkipReason
 } from './models/motion-engine-events';
 
 export const motionCoreVersion = '0.1.0';
