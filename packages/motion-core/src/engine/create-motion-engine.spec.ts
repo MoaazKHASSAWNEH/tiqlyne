@@ -376,4 +376,150 @@ describe('createMotionEngine', () => {
       'test-fade'
     ]);
   });
+
+  it('emits planning events for direct timelines', () => {
+    const driver = new TestMotionDriver<string>();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      defaults: {
+        duration: 100
+      },
+      events: {
+        onBeforePlan(event) {
+          events.push(event.type);
+          expect(event.source).toBe('direct-timeline');
+        },
+        onPlan(event) {
+          events.push(event.type);
+          expect(event.source).toBe('direct-timeline');
+          expect(event.plan.timeline.tracks).toHaveLength(1);
+        }
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step((step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    motion.planTimeline(timeline);
+
+    expect(events).toEqual(['before-plan', 'plan']);
+  });
+
+  it('emits play and finish events for direct timelines', async () => {
+    const driver = new TestMotionDriver<string>();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      defaults: {
+        duration: 100
+      },
+      events: {
+        onPlay(event) {
+          events.push(event.type);
+          expect(event.source).toBe('direct-timeline');
+          expect(event.target).toBe('target');
+        },
+        onFinish(event) {
+          events.push(event.type);
+          expect(event.source).toBe('direct-timeline');
+          expect(event.target).toBe('target');
+          expect(event.result.status).toBe('finished');
+        }
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step((step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const result = await motion.playTimeline('target', timeline);
+
+    expect(result.status).toBe('finished');
+    expect(events).toEqual(['play', 'finish']);
+  });
+
+  it('emits events for registered motion playback', async () => {
+    const driver = new TestMotionDriver<string>();
+    const events: string[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onBeforePlan(event) {
+          events.push(event.type);
+          expect(event.source).toBe('registered-motion');
+          expect(event.motionType).toBe('test-fade');
+        },
+        onPlan(event) {
+          events.push(event.type);
+          expect(event.source).toBe('registered-motion');
+          expect(event.motionType).toBe('test-fade');
+        },
+        onPlay(event) {
+          events.push(event.type);
+          expect(event.source).toBe('registered-motion');
+          expect(event.target).toBe('target');
+        },
+        onFinish(event) {
+          events.push(event.type);
+          expect(event.source).toBe('registered-motion');
+          expect(event.result.status).toBe('finished');
+        }
+      }
+    });
+
+    motion.register(new TestFadeMotion());
+
+    const result = await motion.play('target', {
+      id: 'motion_001',
+      type: 'test-fade'
+    });
+
+    expect(result.status).toBe('finished');
+    expect(events).toEqual(['before-plan', 'plan', 'play', 'finish']);
+  });
+
+  it('emits error events when timeline planning fails', async () => {
+    const driver = new TestMotionDriver<string>();
+    const errors: unknown[] = [];
+
+    const motion = createMotionEngine({
+      driver,
+      events: {
+        onError(event) {
+          expect(event.type).toBe('error');
+          expect(event.source).toBe('direct-timeline');
+          errors.push(event.error);
+        }
+      }
+    });
+
+    const timeline = createMotionTimeline((timelineBuilder) => {
+      timelineBuilder.track('self', (track) => {
+        track.step((step) => {
+          step.from({ opacity: 0 });
+          step.to({ opacity: 1 });
+        });
+      });
+    });
+
+    const result = await motion.playTimeline('target', timeline);
+
+    expect(result.status).toBe('failed');
+    expect(errors).toHaveLength(1);
+  });
 });

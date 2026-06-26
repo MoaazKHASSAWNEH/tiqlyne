@@ -20,6 +20,11 @@ export function createMotionEngine<TTarget = unknown>(
       ? {
           validation: config.validation
         }
+      : {}),
+    ...(config.events !== undefined
+      ? {
+          events: config.events
+        }
       : {})
   });
 }

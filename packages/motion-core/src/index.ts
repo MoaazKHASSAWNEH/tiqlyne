@@ -199,4 +199,17 @@ export {
 export { createMotionEngine } from './engine/create-motion-engine';
 export type { MotionEngineConfig } from './engine/motion-engine-config';
 
+export type {
+  MotionBeforePlanEvent,
+  MotionCancelEvent,
+  MotionEngineEvent,
+  MotionEngineEventBase,
+  MotionEngineEvents,
+  MotionEngineEventSource,
+  MotionErrorEvent,
+  MotionFinishEvent,
+  MotionPlanEvent,
+  MotionPlayEvent
+} from './models/motion-engine-events';
+
 export const motionCoreVersion = '0.1.0';

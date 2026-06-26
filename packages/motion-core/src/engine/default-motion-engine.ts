@@ -12,13 +12,24 @@ import { createMotionExecutionPlan } from '../planner/create-motion-execution-pl
 import type { MotionExecutionPlan } from '../models/motion-execution-plan';
 import { MotionPlanningError } from './motion-planning-error';
 import { normalizeMotionTimelinePlayOptions } from './normalize-motion-timeline-play-options';
-import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type {
+  MotionTimelineDefaults,
+  MotionTimelineDefinition,
+  MotionTrackDefinition
+} from '../models/motion-timeline';
 import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
 import { applyMotionTimelineDefaults } from '../compiler/apply-motion-timeline-defaults';
-import type { MotionTimelineDefaults } from '../models/motion-timeline';
 import type { MotionValidationOptions } from '../models/motion-validation-options';
-import type { MotionTrackDefinition } from '../models/motion-timeline';
 import type { MotionCategory } from '../models/motion-category';
+import type {
+  MotionBeforePlanEvent,
+  MotionCancelEvent,
+  MotionEngineEvents,
+  MotionErrorEvent,
+  MotionFinishEvent,
+  MotionPlanEvent,
+  MotionPlayEvent
+} from '../models/motion-engine-events';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -26,6 +37,7 @@ export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly normalizer: MotionConfigNormalizer;
   readonly defaults?: MotionTimelineDefaults;
   readonly validation?: MotionValidationOptions;
+  readonly events?: MotionEngineEvents<TTarget>;
 };
 
 export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTarget> {
@@ -83,7 +95,16 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     try {
       const executionPlan = this.plan(config);
 
-      return await this.dependencies.driver.play(target, executionPlan.timeline, {
+      this.emitPlay({
+        type: 'play',
+        source: 'registered-motion',
+        target,
+        motionId: normalizedConfig.id,
+        motionType: normalizedConfig.type,
+        plan: executionPlan
+      });
+
+      const result = await this.dependencies.driver.play(target, executionPlan.timeline, {
         trigger: normalizedConfig.trigger,
         respectReducedMotion: normalizedConfig.respectReducedMotion,
         reducedMotionStrategy: normalizedConfig.reducedMotionStrategy,
@@ -97,7 +118,27 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
             }
           : {})
       });
+
+      this.emitFinish({
+        type: 'finish',
+        source: 'registered-motion',
+        target,
+        motionId: normalizedConfig.id,
+        motionType: normalizedConfig.type,
+        result
+      });
+
+      return result;
     } catch (error: unknown) {
+      this.emitError({
+        type: 'error',
+        source: 'registered-motion',
+        target,
+        motionId: normalizedConfig.id,
+        motionType: normalizedConfig.type,
+        error
+      });
+
       if (error instanceof MotionPlanningError) {
         return {
           status: 'failed',
@@ -133,21 +174,44 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     try {
       const executionPlan = this.planTimeline(timeline, options);
 
-      return await this.dependencies.driver.play(target, executionPlan.timeline, {
+      this.emitPlay({
+        type: 'play',
+        source: 'direct-timeline',
+        target,
+        plan: executionPlan
+      });
+
+      const result = await this.dependencies.driver.play(target, executionPlan.timeline, {
         trigger: normalizedOptions.trigger,
         respectReducedMotion: normalizedOptions.respectReducedMotion,
         reducedMotionStrategy: normalizedOptions.reducedMotionStrategy,
         conflictStrategy: normalizedOptions.conflictStrategy,
         executionPlan,
         timelineValidated: true,
-        ...(options?.reducedMotionTimeline !== undefined
+        ...(executionPlan.reducedMotionTimeline !== undefined
           ? {
-              reducedMotionTimeline: options.reducedMotionTimeline,
+              reducedMotionTimeline: executionPlan.reducedMotionTimeline,
               reducedMotionTimelineValidated: true
             }
           : {})
       });
+
+      this.emitFinish({
+        type: 'finish',
+        source: 'direct-timeline',
+        target,
+        result
+      });
+
+      return result;
     } catch (error: unknown) {
+      this.emitError({
+        type: 'error',
+        source: 'direct-timeline',
+        target,
+        error
+      });
+
       if (error instanceof MotionPlanningError) {
         return {
           status: 'failed',
@@ -175,6 +239,14 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
   plan(config: MotionConfig): MotionExecutionPlan {
     const normalizedConfig = this.dependencies.normalizer.normalize(config);
+
+    this.emitBeforePlan({
+      type: 'before-plan',
+      source: 'registered-motion',
+      motionId: normalizedConfig.id,
+      motionType: normalizedConfig.type,
+      config
+    });
 
     if (!normalizedConfig.enabled) {
       throw new MotionPlanningError('Motion is disabled.', 'motion-disabled');
@@ -223,8 +295,15 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         ? definition.buildReducedMotionTimeline?.(buildContext)
         : undefined;
 
-    if (reducedMotionTimeline !== undefined) {
-      const reducedTimelineValidationResult = this.validateTimeline(reducedMotionTimeline);
+    const reducedMotionTimelineWithDefaults =
+      reducedMotionTimeline !== undefined
+        ? this.applyEngineDefaults(reducedMotionTimeline)
+        : undefined;
+
+    if (reducedMotionTimelineWithDefaults !== undefined) {
+      const reducedTimelineValidationResult = this.validateTimeline(
+        reducedMotionTimelineWithDefaults
+      );
 
       if (reducedTimelineValidationResult) {
         throw new MotionPlanningError(
@@ -235,12 +314,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       }
     }
 
-    const reducedMotionTimelineWithDefaults =
-      reducedMotionTimeline !== undefined
-        ? this.applyEngineDefaults(reducedMotionTimeline)
-        : undefined;
-
-    return createMotionExecutionPlan({
+    const executionPlan = createMotionExecutionPlan({
       timeline,
       ...(reducedMotionTimelineWithDefaults !== undefined
         ? {
@@ -248,6 +322,16 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
           }
         : {})
     });
+
+    this.emitPlan({
+      type: 'plan',
+      source: 'registered-motion',
+      motionId: normalizedConfig.id,
+      motionType: normalizedConfig.type,
+      plan: executionPlan
+    });
+
+    return executionPlan;
   }
 
   planTimeline(
@@ -255,6 +339,12 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     options?: MotionTimelinePlayOptions
   ): MotionExecutionPlan {
     const normalizedOptions = normalizeMotionTimelinePlayOptions(options);
+
+    this.emitBeforePlan({
+      type: 'before-plan',
+      source: 'direct-timeline',
+      timeline
+    });
 
     const timelineWithDefaults = this.applyEngineDefaults(timeline);
 
@@ -291,7 +381,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       }
     }
 
-    return createMotionExecutionPlan({
+    const executionPlan = createMotionExecutionPlan({
       timeline: timelineWithDefaults,
       ...(reducedMotionTimeline !== undefined
         ? {
@@ -299,17 +389,41 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
           }
         : {})
     });
+
+    this.emitPlan({
+      type: 'plan',
+      source: 'direct-timeline',
+      plan: executionPlan
+    });
+
+    return executionPlan;
   }
 
   async cancel(target: TTarget): Promise<MotionPlaybackResult> {
     if (!this.dependencies.driver.cancel) {
-      return {
+      const result: MotionPlaybackResult = {
         status: 'skipped',
         reason: 'driver-cancel-not-supported'
       };
+
+      this.emitCancel({
+        type: 'cancel',
+        target,
+        result
+      });
+
+      return result;
     }
 
-    return await this.dependencies.driver.cancel(target);
+    const result = await this.dependencies.driver.cancel(target);
+
+    this.emitCancel({
+      type: 'cancel',
+      target,
+      result
+    });
+
+    return result;
   }
 
   async finish(target: TTarget): Promise<MotionPlaybackResult> {
@@ -427,6 +541,136 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     } catch {
       return fallback();
     }
+  }
+
+  private emitBeforePlan(event: Omit<MotionBeforePlanEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onBeforePlan?.({
+      type: event.type,
+      source: event.source,
+      timestamp: Date.now(),
+      ...(event.target !== undefined
+        ? {
+            target: event.target
+          }
+        : {}),
+      ...(event.motionId !== undefined
+        ? {
+            motionId: event.motionId
+          }
+        : {}),
+      ...(event.motionType !== undefined
+        ? {
+            motionType: event.motionType
+          }
+        : {}),
+      ...(event.config !== undefined
+        ? {
+            config: event.config
+          }
+        : {}),
+      ...(event.timeline !== undefined
+        ? {
+            timeline: event.timeline
+          }
+        : {})
+    });
+  }
+
+  private emitPlan(event: Omit<MotionPlanEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onPlan?.({
+      type: event.type,
+      source: event.source,
+      plan: event.plan,
+      timestamp: Date.now(),
+      ...(event.target !== undefined
+        ? {
+            target: event.target
+          }
+        : {}),
+      ...(event.motionId !== undefined
+        ? {
+            motionId: event.motionId
+          }
+        : {}),
+      ...(event.motionType !== undefined
+        ? {
+            motionType: event.motionType
+          }
+        : {})
+    });
+  }
+
+  private emitPlay(event: Omit<MotionPlayEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onPlay?.({
+      type: event.type,
+      source: event.source,
+      target: event.target,
+      plan: event.plan,
+      timestamp: Date.now(),
+      ...(event.motionId !== undefined
+        ? {
+            motionId: event.motionId
+          }
+        : {}),
+      ...(event.motionType !== undefined
+        ? {
+            motionType: event.motionType
+          }
+        : {})
+    });
+  }
+
+  private emitFinish(event: Omit<MotionFinishEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onFinish?.({
+      type: event.type,
+      source: event.source,
+      target: event.target,
+      result: event.result,
+      timestamp: Date.now(),
+      ...(event.motionId !== undefined
+        ? {
+            motionId: event.motionId
+          }
+        : {}),
+      ...(event.motionType !== undefined
+        ? {
+            motionType: event.motionType
+          }
+        : {})
+    });
+  }
+
+  private emitCancel(event: Omit<MotionCancelEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onCancel?.({
+      type: event.type,
+      target: event.target,
+      result: event.result,
+      timestamp: Date.now()
+    });
+  }
+
+  private emitError(event: Omit<MotionErrorEvent<TTarget>, 'timestamp'>): void {
+    this.dependencies.events?.onError?.({
+      type: event.type,
+      source: event.source,
+      error: event.error,
+      timestamp: Date.now(),
+      ...(event.target !== undefined
+        ? {
+            target: event.target
+          }
+        : {}),
+      ...(event.motionId !== undefined
+        ? {
+            motionId: event.motionId
+          }
+        : {}),
+      ...(event.motionType !== undefined
+        ? {
+            motionType: event.motionType
+          }
+        : {})
+    });
   }
 
   private validateTimeline(
