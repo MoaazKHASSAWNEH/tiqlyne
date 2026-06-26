@@ -271,7 +271,7 @@ Ce raccourci produit :
 
 ```ts
 {
-  type: 'self'
+  type: 'self';
 }
 ```
 

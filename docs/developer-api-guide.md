@@ -48,9 +48,7 @@ const motion = createMotionEngine({
 It can register reusable motion definitions:
 
 ```ts
-motion
-  .register(new FadeInMotion())
-  .register(new FadeOutMotion());
+motion.register(new FadeInMotion()).register(new FadeOutMotion());
 ```
 
 It can also play a timeline directly:
@@ -388,7 +386,10 @@ interface MotionEngine<TTarget = unknown> {
   ): MotionPlaybackController;
 
   plan(config: MotionConfig): MotionExecutionPlan;
-  planTimeline(timeline: MotionTimelineDefinition, options?: MotionTimelinePlayOptions): MotionExecutionPlan;
+  planTimeline(
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionExecutionPlan;
 }
 ```
 
@@ -601,19 +602,13 @@ motion.register(new FadeInMotion());
 `register()` returns the engine instance, so it can be chained.
 
 ```ts
-motion
-  .register(new FadeInMotion())
-  .register(new FadeOutMotion());
+motion.register(new FadeInMotion()).register(new FadeOutMotion());
 ```
 
 ### 8.3 Registering many motions
 
 ```ts
-motion.registerMany([
-  new FadeInMotion(),
-  new FadeOutMotion(),
-  new SlideInMotion()
-]);
+motion.registerMany([new FadeInMotion(), new FadeOutMotion(), new SlideInMotion()]);
 ```
 
 ### 8.4 Registry helper methods
@@ -646,10 +641,7 @@ Direct timeline playback lets developers create and play a timeline without defi
 Example:
 
 ```ts
-import {
-  createMotionEngine,
-  createMotionTimeline
-} from '@structifyx/motion-core';
+import { createMotionEngine, createMotionTimeline } from '@structifyx/motion-core';
 
 const motion = createMotionEngine({
   driver
@@ -844,7 +836,7 @@ This becomes:
 
 ```ts
 {
-  type: 'self'
+  type: 'self';
 }
 ```
 
@@ -1115,11 +1107,7 @@ const motion = createMotionEngine({
   }
 });
 
-motion.registerMany([
-  new FadeInMotion(),
-  new FadeOutMotion(),
-  new SlideInMotion()
-]);
+motion.registerMany([new FadeInMotion(), new FadeOutMotion(), new SlideInMotion()]);
 ```
 
 ### 20.2 Play a preset animation
@@ -1203,7 +1191,7 @@ Avoid adding several names for the same operation.
 For now, the official timeline builder helper is:
 
 ```ts
-createMotionTimeline(callback)
+createMotionTimeline(callback);
 ```
 
 Do not document `motion.createTimeline()` unless that method is actually implemented.
