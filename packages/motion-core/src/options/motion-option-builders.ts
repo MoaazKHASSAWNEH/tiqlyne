@@ -2,7 +2,6 @@ import type {
   BooleanMotionOptionDefinition,
   ColorMotionOptionDefinition,
   MotionOptionDefinition,
-  MotionOptionUnit,
   NumberMotionOptionDefinition,
   RangeMotionOptionDefinition,
   SelectMotionOptionDefinition,
@@ -22,7 +21,6 @@ export type MotionOptionDefinitionInput =
 
 export type MotionOptionSchemaEntry<TValue> = {
   readonly definition: MotionOptionDefinitionInput;
-  readonly defaultValue: TValue;
   normalize(value: unknown): TValue;
 };
 
@@ -31,25 +29,9 @@ export type SelectMotionOptionChoice<TValue extends string = string> = {
   readonly value: TValue;
 };
 
-type NumberOptionConfig = {
-  readonly label: string;
-  readonly description?: string;
-  readonly defaultValue: number;
-  readonly min?: number;
-  readonly max?: number;
-  readonly step?: number;
-  readonly unit?: MotionOptionUnit;
-};
+type NumberOptionConfig = Omit<NumberMotionOptionDefinition, 'name' | 'type'>;
 
-type RangeOptionConfig = {
-  readonly label: string;
-  readonly description?: string;
-  readonly defaultValue: number;
-  readonly min: number;
-  readonly max: number;
-  readonly step?: number;
-  readonly unit?: MotionOptionUnit;
-};
+type RangeOptionConfig = Omit<RangeMotionOptionDefinition, 'name' | 'type'>;
 
 type StringOptionConfig = Omit<StringMotionOptionDefinition, 'name' | 'type'>;
 
@@ -88,7 +70,6 @@ export const option = {
         ...config,
         type: 'number'
       },
-      defaultValue: config.defaultValue,
       normalize(value: unknown): number {
         return normalizeNumber(value, createNormalizeNumberOptions(config));
       }
@@ -101,7 +82,6 @@ export const option = {
         ...config,
         type: 'range'
       },
-      defaultValue: config.defaultValue,
       normalize(value: unknown): number {
         return normalizeNumber(value, {
           defaultValue: config.defaultValue,
@@ -118,7 +98,6 @@ export const option = {
         ...config,
         type: 'string'
       },
-      defaultValue: config.defaultValue,
       normalize(value: unknown): string {
         return normalizeString(value, config.defaultValue);
       }
@@ -131,7 +110,6 @@ export const option = {
         ...config,
         type: 'boolean'
       },
-      defaultValue: config.defaultValue,
       normalize(value: unknown): boolean {
         return normalizeBoolean(value, config.defaultValue);
       }
@@ -146,7 +124,6 @@ export const option = {
         ...config,
         type: 'select'
       },
-      defaultValue: config.defaultValue,
       normalize(value: unknown): TChoices[number]['value'] {
         const allowedValues = config.choices.map((choice) => choice.value);
 
@@ -163,7 +140,6 @@ export const option = {
         ...config,
         type: 'color'
       },
-      defaultValue: config.defaultValue,
       normalize(value: unknown): string {
         return normalizeString(value, config.defaultValue);
       }
