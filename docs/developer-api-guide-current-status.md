@@ -1,34 +1,19 @@
 # Structifyx Motion Engine - Current API Status
 
 > Status: documentation addendum.
-> Purpose: keep the developer documentation aligned with the current implementation after the engine events, skip event, Web driver quickstart and examples documentation.
-> Scope: documentation only. No source code change is included in this document.
+> Purpose: keep the developer documentation aligned with the current implementation.
+> Scope: documentation only.
+> Last verified state: after `5880634 fix(web): skip finish for infinite playback controllers`.
 
 ## 1. Why this addendum exists
 
-`docs/developer-api-guide.md` is the main developer-facing guide, but it was originally written while some features were still in progress.
+`docs/developer-api-guide.md` is the main developer-facing guide, but it was written while the API was still moving quickly.
 
-The engine has since evolved. In particular, the following features are now implemented and should be considered part of the current documented API foundation:
-
-```txt
-- timeline builder API
-- direct timeline playback API
-- createMotionEngine() facade
-- engine defaults
-- engine validation options
-- engine registry helpers
-- motion-pack-basic using createMotionTimeline() internally
-- global engine events through createMotionEngine({ events })
-- skip lifecycle event through onSkip
-- Web driver quickstart documentation
-- motion-core + motion-web examples documentation
-```
-
-This document clarifies the current state until the main guide is reorganized into smaller official documentation pages.
+This addendum summarizes the current implementation state and points to the smaller reference documents that should be trusted for recent behavior.
 
 ## 2. Current maturity level
 
-The current maturity status should be read as:
+Current status:
 
 ```txt
 Architecture foundation: strong
@@ -36,42 +21,18 @@ Core / driver separation: strong
 Direct API usability: good
 Registry workflow: good
 Global config: first version ready
-Event system: first version implemented
+Engine events: first version implemented
 Skip event: implemented
-Web driver documentation: quickstart available
-Examples documentation: first practical guide available
+Playback controller: implemented
+Web driver: implemented and tested
+Vanilla example: minimal infinite/yoyo controller test
 Plugin/preset documentation: partial
-Integration guides: Web quickstart and examples available
+Custom MotionDefinition guide: not yet written
+Custom MotionDriver guide: not yet written
 Versioning policy: not yet implemented
 ```
 
-The previous wording `Event system: not yet implemented` is obsolete.
-
-The first event system version is implemented as global engine listeners configured through:
-
-```ts
-const motion = createMotionEngine({
-  driver,
-  events: {
-    onBeforePlan(event) {},
-    onPlan(event) {},
-    onPlay(event) {},
-    onFinish(event) {},
-    onCancel(event) {},
-    onSkip(event) {},
-    onError(event) {}
-  }
-});
-```
-
-For the complete event references, Web quickstart and examples guide, see:
-
-```txt
-docs/engine-events-api.md
-docs/skip-event-api.md
-docs/web-driver-quickstart.md
-docs/motion-core-web-examples.md
-```
+The project has moved beyond a pure prototype. The core API foundation is now usable and tested, but the public documentation still needs to be split into smaller guides.
 
 ## 3. Current public engine config
 
@@ -111,9 +72,46 @@ events
   Events are observational and should not be used to mutate planning/playback behavior.
 ```
 
-## 4. Event system summary
+## 4. Current usage modes
 
-The current event system exposes seven callbacks:
+The engine supports two main usage modes.
+
+### 4.1 Registered motions
+
+```ts
+await motion.play(element, {
+  id: 'hero-in',
+  type: 'slide-in',
+  options: {
+    direction: 'bottom',
+    distance: 56,
+    fade: true
+  }
+});
+```
+
+Use registered motions for reusable named effects distributed by packages such as `@structifyx/motion-pack-basic`.
+
+### 4.2 Direct timelines
+
+```ts
+const timeline = createMotionTimeline((timeline) => {
+  timeline.track('self', (track) => {
+    track.step((step) => {
+      step.from({ opacity: 0 });
+      step.to({ opacity: 1 });
+    });
+  });
+});
+
+await motion.playTimeline(element, timeline);
+```
+
+Use direct timelines for custom runtime animations, examples, builders and low-level testing.
+
+## 5. Event system summary
+
+The current engine event system exposes these callbacks:
 
 ```txt
 onBeforePlan
@@ -125,17 +123,17 @@ onSkip
 onError
 ```
 
-The event source is one of:
+Event sources:
 
 ```txt
 registered-motion
-  The event comes from motion.play(target, config).
+  Comes from motion.play(target, config).
 
 direct-timeline
-  The event comes from motion.playTimeline(target, timeline) or motion.planTimeline(timeline).
+  Comes from motion.playTimeline(target, timeline) or motion.planTimeline(timeline).
 ```
 
-Successful registered motion playback order:
+Successful playback order:
 
 ```txt
 onBeforePlan
@@ -144,55 +142,46 @@ onPlay
 onFinish
 ```
 
-Successful direct timeline playback order:
-
-```txt
-onBeforePlan
-onPlan
-onPlay
-onFinish
-```
-
-Planning-only calls emit only planning events:
+Planning-only calls emit:
 
 ```txt
 onBeforePlan
 onPlan
 ```
 
-`onSkip` is emitted for controlled skipped results such as disabled registered motions, unknown registered motion types, and unsupported driver control operations.
+`onSkip` is emitted for controlled skipped results such as disabled registered motions, unknown registered motion types, unsupported driver control operations and other explicit skip paths.
 
 `onError` is emitted by `play()` and `playTimeline()` when they catch planning or runtime errors and return a failed `MotionPlaybackResult`.
 
-Direct calls to `plan()` and `planTimeline()` still throw directly and do not currently emit `onError` when they fail.
+Direct calls to `plan()` and `planTimeline()` still throw directly when planning fails.
 
-## 5. Important event limits
+## 6. Event limits
 
 The current implementation deliberately does not include:
 
 ```txt
-- onProgress
-- onPause
-- onResume
-- onRepeat
-- onReverse
-- onSeek
-- onStepStart
-- onStepFinish
-- onTrackStart
-- onTrackFinish
-- onEveryFrame
-- dynamic motion.on(...) subscriptions
-- unsubscribe support
+onProgress
+onPause
+onResume
+onRepeat
+onReverse
+onSeek
+onStepStart
+onStepFinish
+onTrackStart
+onTrackFinish
+onEveryFrame
+dynamic motion.on(...) subscriptions
+engine listener unsubscribe support
 ```
 
-Those features should not be documented as available until they are implemented and tested.
+Do not document those as available until implemented and tested.
 
-## 6. Skip event summary
+## 7. Skip event summary
 
 `onSkip` observes skipped operations.
 
-Current skip reasons:
+Current important skip reasons include:
 
 ```txt
 motion-disabled
@@ -200,36 +189,119 @@ unknown-motion-type
 driver-cancel-not-supported
 driver-finish-not-supported
 driver-reset-not-supported
-```
-
-Expected event orders:
-
-```txt
-motion-disabled
-  onSkip
-
-unknown-motion-type
-  onSkip
-
-driver-cancel-not-supported
-  onSkip -> onCancel
-
-driver-finish-not-supported
-  onSkip
-
-driver-reset-not-supported
-  onSkip
 ```
 
 Invalid timelines are not skips. They remain planning errors and are observed through `onError` when using `play()` or `playTimeline()`.
 
-For the complete skip reference, see:
+For complete skip details:
 
 ```txt
 docs/skip-event-api.md
 ```
 
-## 7. Web driver quickstart summary
+## 8. Playback controller status
+
+Playback controllers are implemented for controlled playback.
+
+Typical usage:
+
+```ts
+const playback = motion.createTimelinePlayback(element, timeline);
+
+await playback.pause();
+await playback.resume();
+await playback.finish();
+await playback.cancel();
+playback.dispose();
+```
+
+Controller events:
+
+```txt
+start
+statusChange
+pause
+resume
+cancel
+finish
+skip
+fail
+```
+
+Important recent behavior:
+
+```txt
+finish() on an infinite Web animation returns skipped, not failed.
+```
+
+Expected result:
+
+```txt
+status: skipped
+reason: web-playback-finish-not-supported-for-infinite-animation
+```
+
+The controller keeps its previous `running` or `paused` status so the UI can still use `pause`, `resume` or `cancel` after an unsupported `finish()` attempt.
+
+For complete controller behavior:
+
+```txt
+docs/playback-controller-behavior.md
+```
+
+## 9. Infinite, yoyo and direction status
+
+Current timing support includes:
+
+```txt
+iterations: number | 'infinite'
+direction: normal | reverse | alternate | alternate-reverse
+yoyo: boolean
+endDelay: number
+playbackRate: number
+```
+
+Important validation rule:
+
+```txt
+yoyo: true cannot be used together with direction.
+```
+
+Valid infinite yoyo:
+
+```ts
+{
+  iterations: 'infinite',
+  yoyo: true
+}
+```
+
+Valid infinite alternate:
+
+```ts
+{
+  iterations: 'infinite',
+  direction: 'alternate'
+}
+```
+
+Invalid:
+
+```ts
+{
+  iterations: 'infinite',
+  yoyo: true,
+  direction: 'alternate'
+}
+```
+
+Diagnostic:
+
+```txt
+timeline-yoyo-direction-conflict
+```
+
+## 10. Web driver summary
 
 The Web driver documentation explains how to use:
 
@@ -243,66 +315,68 @@ createMotionTimeline()
 motion.playTimeline()
 motion.play()
 engine events
+playback controllers
 ```
 
-The Web driver quickstart is based on audited current code behavior:
+The Web driver currently supports:
 
 ```txt
-- WebMotionDriver implements MotionDriver<Element>.
-- WebMotionDriver exposes reducedMotion and cancelPreviousAnimations options.
-- Web target resolution supports self, child, selector and named targets.
-- Web keyframe conversion maps numeric lengths to px and numeric angles to deg.
-- Web timing conversion maps iterations, direction, endDelay and playbackRate.
-- Reduced motion skip/simplify behavior is documented.
-- Conflict behavior for ignore, replace and cancelPreviousAnimations is documented.
+- Element targets
+- self / child / selector / named target resolution
+- transform conversion
+- filter and paint property conversion
+- numeric length -> px
+- numeric angle -> deg
+- iterations / direction / yoyo / endDelay / playbackRate mapping
+- reduced motion skip/simplify/preserve
+- conflict strategy ignore/replace/parallel
+- controller pause/resume/cancel/finish/dispose
 ```
 
-For the complete Web reference, see:
+For the complete Web reference:
 
 ```txt
 docs/web-driver-quickstart.md
 ```
 
-## 8. Examples guide summary
+## 11. Examples status
 
-The examples guide documents practical scenarios that should be represented later in the complete `examples/vanilla` visual interface.
+`examples/vanilla` is currently intentionally simple.
 
-Covered examples:
+It is not a full visual builder.
+
+Current purpose:
 
 ```txt
-- direct fade timeline
-- direct transform timeline
-- registered fade-in
-- registered slide-in
-- multi-target timeline
-- named global target
-- reduced motion skip
-- reduced motion simplify
-- conflict strategy ignore
-- conflict strategy replace
-- controlled playback
-- global engine events log
-- disabled registered motion
-- unknown registered motion
-- target-not-found failure
+- test iterations: 'infinite'
+- test yoyo
+- test createTimelinePlayback()
+- test pause/resume
+- test finish on infinite -> skipped
+- test cancel/reset
+- display result and controller events
 ```
 
-For the complete guide, see:
+The complete visual builder idea was postponed because it mixed two goals:
 
 ```txt
-docs/motion-core-web-examples.md
+1. testing the engine
+2. building an animation editor
 ```
 
-## 9. Current documentation map
+The current recommended approach is to keep examples small, focused and useful for debugging.
 
-The current documentation files have the following roles:
+## 12. Documentation map
 
 ```txt
+docs/project-handoff.md
+  Main project handoff. Read first when resuming the project.
+
 docs/developer-api-guide.md
-  Main developer guide and broad API overview.
+  Main historical developer guide.
 
 docs/developer-api-guide-current-status.md
-  Current status addendum for the main guide.
+  This current status addendum.
 
 docs/engine-events-api.md
   Detailed reference for global engine events.
@@ -313,6 +387,9 @@ docs/skip-event-api.md
 docs/web-driver-quickstart.md
   Audited quickstart for motion-core + motion-web usage.
 
+docs/playback-controller-behavior.md
+  Detailed playback controller behavior reference.
+
 docs/motion-core-web-examples.md
   Practical examples guide for core + Web usage.
 
@@ -321,16 +398,9 @@ docs/development-architecture-audit.md
 
 docs/development-direct-api-design.md
   Direct API design notes and implementation order.
-
-docs/project-handoff.md
-  Reprise/handoff document for future work.
 ```
 
-This addendum should be used as the current status correction for the main guide until the documentation is split into smaller pages.
-
-## 10. Current completed milestones
-
-The completed milestones are now:
+## 13. Current completed milestones
 
 ```txt
 1. feat(core): add timeline builder API
@@ -338,35 +408,37 @@ The completed milestones are now:
 3. feat(core): add createMotionEngine facade
 4. feat(core): add engine defaults and validation config
 5. feat(core): add engine registry helpers
-6. docs: add developer API guide and audit
-7. refactor(pack-basic): use timeline builder
-8. feat(core): add global playback event listeners
-9. docs: document engine events API
-10. docs: add current API status addendum
-11. feat(core): add skip event
-12. docs: document skip event behavior
-13. docs: add web driver quickstart
-14. docs: add motion core web examples
+6. refactor(pack-basic): use timeline builder
+7. feat(core): add global playback event listeners
+8. feat(core): add skip event
+9. docs: add web driver quickstart
+10. docs: add motion core web examples
+11. feat(core,web): add execution plans / scheduling path
+12. feat(core,web): add stagger and advanced stagger
+13. feat(core,web): add labels and anchors
+14. feat(core,web): add playback timing options
+15. feat(core,web): add playbackRate support
+16. feat(core,web): add iterations infinite / yoyo support
+17. feat(example): add minimal infinite yoyo visual test
+18. fix(web): skip finish for infinite playback controllers
+19. docs: document playback controller behavior
 ```
 
-The current implementation has moved beyond a pure prototype. It is now a strong developer API foundation.
+## 14. Recommended next steps
 
-## 11. Recommended next technical steps
-
-Recommended next steps after the examples guide:
+Recommended next steps now:
 
 ```txt
-1. feat(example): build complete vanilla visual test interface
-2. docs: document the complete vanilla visual test interface
-3. docs: add writing a custom MotionDefinition guide
-4. docs: add writing a custom MotionDriver guide
+1. docs: finish aligning docs around infinite/yoyo/controller behavior
+2. docs: add writing a custom MotionDefinition guide
+3. docs: add writing a custom MotionDriver guide
+4. docs: split the large developer guide into concepts/api/guides pages
 5. feat(core): add dynamic event subscription API later, for example motion.on(...)
-6. docs: split the large developer guide into concepts/api/guides pages
 ```
 
-## 12. Rules to preserve
+Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as a focused test until the engine documentation is more complete.
 
-The following rules remain important:
+## 15. Rules to preserve
 
 ```txt
 - motion-core must stay framework-agnostic.
@@ -377,13 +449,14 @@ The following rules remain important:
 - DefaultMotionEngine is an implementation detail for most users.
 - Engine defaults must not override timeline, track or step values.
 - Per-play validation must override engine validation.
-- Events are observational.
+- Engine events are observational.
+- Controller events are separate from engine events.
 - Optional properties must be omitted rather than set to undefined.
+- Use skipped for controlled unsupported operations.
+- Use failed for unexpected runtime failures.
 ```
 
-## 13. Local validation reminder
-
-Documentation-only changes should still be pulled locally and formatted.
+## 16. Local validation reminder
 
 Recommended local commands:
 
@@ -395,4 +468,4 @@ pnpm typecheck
 pnpm -r --workspace-concurrency=1 test
 ```
 
-The build and tests should still pass because this document does not change source code.
+Last known complete validation passed after the Web infinite finish fix.
