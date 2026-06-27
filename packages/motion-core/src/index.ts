@@ -214,4 +214,26 @@ export type {
   MotionSkipReason
 } from './models/motion-engine-events';
 
+export { SchemaMotionDefinition } from './base/schema-motion-definition';
+
+export {
+  option,
+  attachMotionOptionName,
+  type MotionOptionDefinitionInput,
+  type MotionOptionSchemaEntry,
+  type SelectMotionOptionChoice
+} from './options/motion-option-builders';
+
+export { defineMotionOptions, type DefinedMotionOptions } from './options/define-motion-options';
+
+export type { InferMotionOptions, MotionOptionsSchema } from './options/infer-motion-options';
+
+export { normalizeMotionOptions } from './options/normalize-motion-options';
+
+export {
+  runMotionOptionValidators,
+  validateDifferent,
+  type MotionOptionValidator
+} from './options/motion-option-validator';
+
 export const motionCoreVersion = '0.1.0';
