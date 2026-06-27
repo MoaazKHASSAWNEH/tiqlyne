@@ -1469,6 +1469,59 @@ describe('WebMotionDriver', () => {
     expect(events).toEqual(['fail:failed']);
   });
 
+  it('does not fail when finishing an infinite native playback controller', async () => {
+    const driver = new WebMotionDriver();
+    const target = new FakeElement();
+    const timeline = createInfiniteTimeline();
+    const executionPlan = createMotionExecutionPlan({
+      timeline
+    });
+
+    const playback = driver.createPlayback(asElement(target), timeline, {
+      ...defaultPlayOptions,
+      executionPlan,
+      timelineValidated: true
+    });
+
+    const createdAnimation = target.getLastAnimation();
+
+    Object.defineProperty(createdAnimation, 'effect', {
+      value: {
+        getComputedTiming: vi.fn(() => ({
+          iterations: Number.POSITIVE_INFINITY
+        }))
+      }
+    });
+
+    const events: string[] = [];
+
+    playback.on('skip', (event) => {
+      events.push(`${event.type}:${event.status}:${event.result?.reason}`);
+    });
+
+    const result = await playback.finish();
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'web-playback-finish-not-supported-for-infinite-animation',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-finish-not-supported-for-infinite-animation',
+          message:
+            'Web playback cannot finish an infinite animation. Use cancel() or reset() instead.',
+          source: 'web-motion-playback-controller'
+        }
+      ]
+    });
+
+    expect(playback.status).toBe('running');
+    expect(createdAnimation.finish).not.toHaveBeenCalled();
+    expect(events).toEqual([
+      'skip:running:web-playback-finish-not-supported-for-infinite-animation'
+    ]);
+  });
+
   it('pauses only animations created by the native playback controller', async () => {
     const driver = new WebMotionDriver();
     const target = new FakeElement();
@@ -2470,6 +2523,20 @@ function createAnimationMock(playState: AnimationPlayState = 'finished'): Animat
   };
 
   return animation as unknown as Animation;
+}
+
+function createInfiniteAnimationMock(playState: AnimationPlayState = 'running'): Animation {
+  const animation = createAnimationMock(playState);
+
+  Object.defineProperty(animation, 'effect', {
+    value: {
+      getComputedTiming: vi.fn(() => ({
+        iterations: Number.POSITIVE_INFINITY
+      }))
+    }
+  });
+
+  return animation;
 }
 
 function createFailingFinishAnimationMock(): Animation {

@@ -96,6 +96,15 @@ export class WebMotionPlaybackController
       return this.createInvalidTransitionResult('finish');
     }
 
+    if (this.hasInfiniteAnimation()) {
+      const result = this.createFinishNotSupportedForInfiniteAnimationResult();
+      const previousStatus = this.currentStatus;
+
+      this.emitResult(result, previousStatus);
+
+      return result;
+    }
+
     const result = this.finishAnimations();
 
     const previousStatus = this.currentStatus;
@@ -250,6 +259,36 @@ export class WebMotionPlaybackController
         ]
       };
     }
+  }
+
+  private hasInfiniteAnimation(): boolean {
+    return this.animations.some((animation) => {
+      const effect = animation.effect;
+
+      if (effect === null || effect === undefined) {
+        return false;
+      }
+
+      const timing = effect.getComputedTiming();
+
+      return timing.iterations === Number.POSITIVE_INFINITY;
+    });
+  }
+
+  private createFinishNotSupportedForInfiniteAnimationResult(): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-finish-not-supported-for-infinite-animation',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-finish-not-supported-for-infinite-animation',
+          message:
+            'Web playback cannot finish an infinite animation. Use cancel() or reset() instead.',
+          source: 'web-motion-playback-controller'
+        }
+      ]
+    };
   }
 
   private finishAnimations(): MotionPlaybackResult {

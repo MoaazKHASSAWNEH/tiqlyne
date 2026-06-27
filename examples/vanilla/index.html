@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Structifyx Motion Engine - Vanilla Example</title>
+    <title>Structifyx Motion Engine - Infinite Yoyo Test</title>
   </head>
 
   <body>
@@ -11,73 +11,52 @@
       <section class="panel" aria-labelledby="title">
         <p class="eyebrow">Structifyx Motion Engine</p>
 
-        <h1 id="title">Test réel du moteur d’animation</h1>
+        <h1 id="title">Infinite + Yoyo test</h1>
 
         <p class="description">
-          Cette page utilise le vrai moteur, le pack basic et le WebMotionDriver pour jouer des
-          animations dans le navigateur.
+          Exemple minimal pour tester une timeline infinie avec <code>iterations: 'infinite'</code>,
+          <code>yoyo: true</code>, <code>direction: 'alternate'</code> et le playback controller.
         </p>
 
-        <section class="demo-section" aria-labelledby="simpleMotionTitle">
-          <h2 id="simpleMotionTitle">Animations simples</h2>
+        <section class="stage" aria-label="Scène de test">
+          <article id="motionTarget" class="card" tabindex="0">
+            <p class="card-label">Target self</p>
+            <h2>Animation infinite yoyo</h2>
+            <p>
+              Cette carte doit bouger en boucle de gauche à droite, avec rotation, scale et opacity.
+            </p>
+          </article>
+        </section>
 
-          <p class="section-description">
-            Ces boutons utilisent <code>engine.play(...)</code> et attendent directement le résultat
-            final.
-          </p>
+        <section class="demo-section" aria-labelledby="actionsTitle">
+          <h2 id="actionsTitle">Actions</h2>
 
-          <div class="actions" aria-label="Actions d’animation simples">
-            <button id="fadeInButton" type="button">Fade In</button>
-            <button id="fadeOutButton" type="button">Fade Out</button>
-            <button id="slideInButton" type="button">Slide In</button>
+          <div class="actions">
+            <button id="playInfiniteButton" type="button">Play infinite yoyo</button>
+            <button id="createControllerButton" type="button">Create controller</button>
+            <button id="pauseButton" type="button">Pause</button>
+            <button id="resumeButton" type="button">Resume</button>
+            <button id="finishButton" type="button">Finish</button>
+            <button id="cancelButton" type="button">Cancel</button>
             <button id="resetButton" type="button">Reset</button>
           </div>
+
+          <p id="controllerStatus" class="status" aria-live="polite"></p>
         </section>
 
-        <section class="demo-section" aria-labelledby="playbackTitle">
-          <h2 id="playbackTitle">Playback Controller</h2>
-
-          <p class="section-description">
-            Ces boutons utilisent <code>engine.createPlayback(...)</code> pour tester le cycle de
-            vie complet : pause, reprise, annulation, fin forcée et nettoyage.
-          </p>
-
-          <div class="actions" aria-label="Actions du playback controller">
-            <button id="createPlaybackButton" type="button">Create Playback</button>
-            <button id="pausePlaybackButton" type="button">Pause</button>
-            <button id="resumePlaybackButton" type="button">Resume</button>
-            <button id="finishPlaybackButton" type="button">Finish</button>
-            <button id="cancelPlaybackButton" type="button">Cancel</button>
-            <button id="disposePlaybackButton" type="button">Dispose</button>
-          </div>
-
-          <p id="playbackStatus" class="status" aria-live="polite"></p>
+        <section class="log-section" aria-labelledby="timelineTitle">
+          <h2 id="timelineTitle">Timeline testée</h2>
+          <pre id="timelineLog" class="log"></pre>
         </section>
 
-        <div class="settings" aria-label="Réglages d’accessibilité">
-          <label for="reducedMotionStrategySelect">Stratégie reduced motion</label>
+        <section class="log-section" aria-labelledby="resultTitle">
+          <h2 id="resultTitle">Dernier résultat</h2>
+          <pre id="resultLog" class="log" aria-live="polite"></pre>
+        </section>
 
-          <select id="reducedMotionStrategySelect">
-            <option value="skip">skip — ignorer l’animation</option>
-            <option value="preserve">preserve — garder l’animation</option>
-            <option value="simplify">simplify — simplifier l’animation</option>
-          </select>
-
-          <p id="reducedMotionStatus" class="status"></p>
-        </div>
-
-        <article id="motionTarget" class="card" tabindex="0">
-          <p class="card-label">Carte animée</p>
-          <h2>Le moteur bouge vraiment 🎯</h2>
-          <p>
-            Cette carte est animée avec une configuration JSON, une définition de motion et le
-            WebMotionDriver.
-          </p>
-        </article>
-
-        <section class="log-section" aria-labelledby="logTitle">
-          <h2 id="logTitle">Journal</h2>
-          <pre id="log" class="log" aria-live="polite"></pre>
+        <section class="log-section" aria-labelledby="eventsTitle">
+          <h2 id="eventsTitle">Events controller</h2>
+          <ol id="eventsLog" class="event-list" aria-live="polite"></ol>
         </section>
       </section>
     </main>

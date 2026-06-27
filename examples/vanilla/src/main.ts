@@ -1,395 +1,320 @@
 import {
-  DefaultMotionConfigNormalizer,
-  DefaultMotionEngine,
-  DefaultMotionRegistry,
-  type MotionConfig,
+  createMotionEngine,
+  createMotionTimeline,
   type MotionPlaybackController,
+  type MotionPlaybackEvent,
   type MotionPlaybackResult,
-  type ReducedMotionStrategy
+  type MotionTimelineDefinition
 } from '@structifyx/motion-core';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
 import { WebMotionDriver } from '@structifyx/motion-web';
 import './styles.css';
 
-const registry = new DefaultMotionRegistry();
-registerBasicMotions(registry);
-
-const driver = new WebMotionDriver({
-  reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-});
-
-const engine = new DefaultMotionEngine<Element>({
-  registry,
-  driver,
-  normalizer: new DefaultMotionConfigNormalizer()
-});
-
-const target = getElementByIdOrThrow('motionTarget');
-const log = getElementByIdOrThrow('log');
-
-const reducedMotionStrategySelect = getElementByIdOrThrow(
-  'reducedMotionStrategySelect'
-) as HTMLSelectElement;
-
-const reducedMotionStatus = getElementByIdOrThrow('reducedMotionStatus');
-const playbackStatus = getElementByIdOrThrow('playbackStatus');
-
-const fadeInButton = getElementByIdOrThrow('fadeInButton');
-const fadeOutButton = getElementByIdOrThrow('fadeOutButton');
-const slideInButton = getElementByIdOrThrow('slideInButton');
-const resetButton = getElementByIdOrThrow('resetButton');
-
-const createPlaybackButton = getElementByIdOrThrow('createPlaybackButton');
-const pausePlaybackButton = getElementByIdOrThrow('pausePlaybackButton');
-const resumePlaybackButton = getElementByIdOrThrow('resumePlaybackButton');
-const finishPlaybackButton = getElementByIdOrThrow('finishPlaybackButton');
-const cancelPlaybackButton = getElementByIdOrThrow('cancelPlaybackButton');
-const disposePlaybackButton = getElementByIdOrThrow('disposePlaybackButton');
+const target = getElementByIdOrThrow<HTMLElement>('motionTarget');
+const timelineLog = getElementByIdOrThrow<HTMLElement>('timelineLog');
+const resultLog = getElementByIdOrThrow<HTMLElement>('resultLog');
+const eventsLog = getElementByIdOrThrow<HTMLOListElement>('eventsLog');
+const controllerStatus = getElementByIdOrThrow<HTMLElement>('controllerStatus');
 
 let currentPlayback: MotionPlaybackController | null = null;
+let unsubscribePlaybackEvents: Array<() => void> = [];
 const playbackEvents: string[] = [];
 
-writeReducedMotionStatus();
-writePlaybackStatus();
+const motion = createMotionEngine<Element>({
+  driver: new WebMotionDriver({
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }),
+  defaults: {
+    duration: 900,
+    easing: 'ease-in-out',
+    fill: 'both'
+  }
+});
 
-fadeInButton.addEventListener('click', () => {
-  void playMotion({
-    id: 'example_fade_in',
-    type: 'fade-in',
-    trigger: 'onClick',
-    duration: 450,
-    easing: 'ease-out',
-    respectReducedMotion: true,
-    reducedMotionStrategy: getReducedMotionStrategy(),
-    options: {
-      fromOpacity: 0,
-      toOpacity: 1
-    }
+writeTimeline();
+writeResult('ready', {
+  status: 'finished',
+  reason: 'infinite-yoyo-example-ready'
+});
+writeControllerStatus();
+
+bindButton('playInfiniteButton', () => {
+  void runPlayback('play infinite yoyo', async () => {
+    disposeCurrentPlayback();
+
+    return await motion.playTimeline(target, createInfiniteYoyoTimeline());
   });
 });
 
-fadeOutButton.addEventListener('click', () => {
-  void playMotion({
-    id: 'example_fade_out',
-    type: 'fade-out',
-    trigger: 'onClick',
-    duration: 350,
-    easing: 'ease-in',
-    respectReducedMotion: true,
-    reducedMotionStrategy: getReducedMotionStrategy(),
-    options: {
-      fromOpacity: 1,
-      toOpacity: 0
-    }
+bindButton('createControllerButton', () => {
+  createController();
+});
+
+bindButton('pauseButton', () => {
+  void runControllerAction('pause');
+});
+
+bindButton('resumeButton', () => {
+  void runControllerAction('resume');
+});
+
+bindButton('finishButton', () => {
+  void runControllerAction('finish');
+});
+
+bindButton('cancelButton', () => {
+  void runControllerAction('cancel');
+});
+
+bindButton('resetButton', () => {
+  void runPlayback('reset', async () => {
+    disposeCurrentPlayback();
+
+    const result = await motion.reset(target);
+    target.removeAttribute('style');
+
+    return result;
   });
 });
 
-slideInButton.addEventListener('click', () => {
-  void playMotion({
-    id: 'example_slide_in',
-    type: 'slide-in',
-    trigger: 'onClick',
-    duration: 500,
-    easing: {
-      type: 'cubicBezier',
-      x1: 0.22,
-      y1: 1,
-      x2: 0.36,
-      y2: 1
-    },
-    respectReducedMotion: true,
-    reducedMotionStrategy: getReducedMotionStrategy(),
-    options: {
-      direction: 'bottom',
-      distance: 56,
-      fade: true
-    }
+function createInfiniteYoyoTimeline(): MotionTimelineDefinition {
+  return createMotionTimeline((timeline) => {
+    timeline.defaults({
+      duration: 900,
+      easing: 'ease-in-out',
+      fill: 'both',
+      iterations: 'infinite',
+      yoyo: true
+    });
+
+    timeline.track('self', (track) => {
+      track.step(
+        {
+          duration: 900,
+          iterations: 'infinite',
+          yoyo: true,
+          easing: 'ease-in-out',
+          fill: 'both'
+        },
+        (step) => {
+          step.from({
+            opacity: 0.75,
+            transform: {
+              x: -120,
+              y: 0,
+              scale: 0.92,
+              rotate: -8
+            },
+            filter: {
+              blur: 0
+            },
+            backgroundColor: '#f8fafc'
+          });
+
+          step.to({
+            opacity: 1,
+            transform: {
+              x: 120,
+              y: 0,
+              scale: 1.08,
+              rotate: 8
+            },
+            filter: {
+              blur: 0
+            },
+            backgroundColor: '#ccfbf1'
+          });
+        }
+      );
+    });
   });
-});
-
-resetButton.addEventListener('click', () => {
-  void resetMotion();
-});
-
-createPlaybackButton.addEventListener('click', () => {
-  createPlayback();
-});
-
-pausePlaybackButton.addEventListener('click', () => {
-  void runPlaybackAction('pause');
-});
-
-resumePlaybackButton.addEventListener('click', () => {
-  void runPlaybackAction('resume');
-});
-
-finishPlaybackButton.addEventListener('click', () => {
-  void runPlaybackAction('finish');
-});
-
-cancelPlaybackButton.addEventListener('click', () => {
-  void runPlaybackAction('cancel');
-});
-
-disposePlaybackButton.addEventListener('click', () => {
-  disposeCurrentPlayback();
-});
-
-async function resetMotion(): Promise<void> {
-  disposeCurrentPlayback();
-
-  const result = await engine.reset(target);
-
-  writeLog({
-    action: 'reset',
-    result
-  });
-
-  writePlaybackStatus();
 }
 
-async function playMotion(config: MotionConfig): Promise<void> {
+function createController(): void {
   disposeCurrentPlayback();
 
-  writeLog({
-    action: 'play',
-    message: `Playing ${config.type}`,
-    config
-  });
-
-  const result = await engine.play(target, config);
-
-  writeLog({
-    action: 'play:finished',
-    result
-  });
-
-  writePlaybackStatus();
-}
-
-function createPlayback(): void {
-  disposeCurrentPlayback();
-
-  playbackEvents.length = 0;
-
-  const playback = engine.createPlayback(target, {
-    id: 'example_controlled_slide_in',
-    type: 'slide-in',
-    trigger: 'manual',
-    duration: 1600,
-    easing: {
-      type: 'cubicBezier',
-      x1: 0.22,
-      y1: 1,
-      x2: 0.36,
-      y2: 1
-    },
-    respectReducedMotion: true,
-    reducedMotionStrategy: getReducedMotionStrategy(),
-    options: {
-      direction: 'bottom',
-      distance: 72,
-      fade: true
-    }
-  });
+  const playback = motion.createTimelinePlayback(target, createInfiniteYoyoTimeline());
 
   currentPlayback = playback;
+  playbackEvents.length = 0;
 
-  attachPlaybackListeners(playback);
-  writePlaybackStatus();
+  attachPlaybackEvents(playback);
 
-  writeLog({
-    action: 'createPlayback',
-    playback: createPlaybackSnapshot(playback),
-    events: playbackEvents
+  writeResult('create controller', {
+    status: playback.status === 'running' ? 'running' : 'finished',
+    reason: playback.status
   });
+
+  writeControllerStatus();
 
   void playback.finished.then((result) => {
     if (currentPlayback !== playback) {
       return;
     }
 
-    writeLog({
-      action: 'playback.finished',
-      playback: createPlaybackSnapshot(playback),
-      events: playbackEvents,
-      result
-    });
-
-    writePlaybackStatus();
+    writeResult('controller finished', result);
+    writeControllerStatus();
   });
 }
 
-function attachPlaybackListeners(playback: MotionPlaybackController): void {
-  playback.on('pause', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
+async function runControllerAction(
+  action: 'pause' | 'resume' | 'finish' | 'cancel'
+): Promise<void> {
+  if (!currentPlayback) {
+    writeResult(action, {
+      status: 'skipped',
+      reason: 'no-active-controller'
+    });
+    return;
+  }
 
-  playback.on('resume', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
+  if (currentPlayback.disposed) {
+    writeResult(action, {
+      status: 'skipped',
+      reason: 'controller-disposed'
+    });
+    writeControllerStatus();
+    return;
+  }
 
-  playback.on('cancel', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
+  const result = await currentPlayback[action]();
 
-  playback.on('finish', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
-
-  playback.on('skip', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
-
-  playback.on('fail', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
-
-  playback.on('statusChange', (event) => {
-    pushPlaybackEvent(formatPlaybackEvent(event));
-    writePlaybackEventLog(playback);
-  });
-
-  playback.once('finish', (event) => {
-    pushPlaybackEvent(`once:${formatPlaybackEvent(event)}`);
-    writePlaybackEventLog(playback);
-  });
+  writeResult(`controller ${action}`, result);
+  writeControllerStatus();
 }
 
-async function runPlaybackAction(action: 'pause' | 'resume' | 'finish' | 'cancel'): Promise<void> {
-  const playback = currentPlayback;
-
-  if (!playback) {
-    writeLog({
-      action,
-      message: 'No playback controller. Click "Create Playback" first.'
-    });
-
-    return;
-  }
-
-  if (playback.disposed) {
-    writeLog({
-      action,
-      message: 'Playback controller is disposed. Create a new playback first.',
-      playback: createPlaybackSnapshot(playback)
-    });
-
-    return;
-  }
-
-  const result = await playback[action]();
-
-  writeLog({
-    action,
-    playback: createPlaybackSnapshot(playback),
-    events: playbackEvents,
-    result
+async function runPlayback(
+  label: string,
+  action: () => Promise<MotionPlaybackResult>
+): Promise<void> {
+  writeResult(label, {
+    status: 'running',
+    reason: 'action-started'
   });
 
-  writePlaybackStatus();
+  try {
+    const result = await action();
+
+    writeResult(label, result);
+    writeControllerStatus();
+  } catch (error) {
+    writeResult(label, {
+      status: 'failed',
+      reason: 'example-error',
+      error
+    });
+  }
+}
+
+function attachPlaybackEvents(playback: MotionPlaybackController): void {
+  const eventTypes = [
+    'start',
+    'statusChange',
+    'pause',
+    'resume',
+    'cancel',
+    'finish',
+    'skip',
+    'fail'
+  ] as const;
+
+  for (const eventType of eventTypes) {
+    unsubscribePlaybackEvents.push(
+      playback.on(eventType, (event) => {
+        pushPlaybackEvent(event);
+      })
+    );
+  }
+}
+
+function pushPlaybackEvent(event: MotionPlaybackEvent): void {
+  playbackEvents.unshift(
+    `${new Date(event.timestamp).toLocaleTimeString()} | ${event.type} | ${
+      event.previousStatus
+    } -> ${event.status}${event.result?.reason ? ` | ${event.result.reason}` : ''}`
+  );
+
+  if (playbackEvents.length > 30) {
+    playbackEvents.length = 30;
+  }
+
+  renderPlaybackEvents();
+  writeControllerStatus();
+}
+
+function renderPlaybackEvents(): void {
+  eventsLog.replaceChildren(
+    ...playbackEvents.map((event) => {
+      const item = document.createElement('li');
+      item.textContent = event;
+      return item;
+    })
+  );
 }
 
 function disposeCurrentPlayback(): void {
+  for (const unsubscribe of unsubscribePlaybackEvents) {
+    unsubscribe();
+  }
+
+  unsubscribePlaybackEvents = [];
+
   if (!currentPlayback) {
-    writePlaybackStatus();
+    writeControllerStatus();
     return;
   }
 
-  const playback = currentPlayback;
-
-  playback.dispose();
-
-  writeLog({
-    action: 'dispose',
-    playback: createPlaybackSnapshot(playback),
-    events: playbackEvents
-  });
-
-  writePlaybackStatus();
+  currentPlayback.dispose();
+  currentPlayback = null;
+  writeControllerStatus();
 }
 
-function pushPlaybackEvent(event: string): void {
-  playbackEvents.push(event);
-  writePlaybackStatus();
+function writeTimeline(): void {
+  writeJson(timelineLog, createInfiniteYoyoTimeline());
 }
 
-function writePlaybackEventLog(playback: MotionPlaybackController): void {
-  writeLog({
-    action: 'playback:event',
-    playback: createPlaybackSnapshot(playback),
-    events: playbackEvents
+function writeResult(label: string, result: unknown): void {
+  writeJson(resultLog, {
+    label,
+    result,
+    at: new Date().toISOString()
   });
 }
 
-function createPlaybackSnapshot(playback: MotionPlaybackController): {
-  readonly id: string;
-  readonly status: string;
-  readonly disposed: boolean;
-} {
-  return {
-    id: playback.id,
-    status: playback.status,
-    disposed: playback.disposed
-  };
+function writeControllerStatus(): void {
+  controllerStatus.textContent = currentPlayback
+    ? `Controller: ${currentPlayback.status} | disposed: ${
+        currentPlayback.disposed ? 'true' : 'false'
+      }`
+    : 'Controller: aucun';
 }
 
-function writeLog(value: unknown): void {
-  log.textContent = JSON.stringify(value, null, 2);
+function bindButton(id: string, listener: () => void): void {
+  getElementByIdOrThrow<HTMLButtonElement>(id).addEventListener('click', listener);
 }
 
-function writePlaybackStatus(): void {
-  if (!currentPlayback) {
-    playbackStatus.textContent = 'Aucun playback controller actif.';
-    return;
-  }
-
-  playbackStatus.textContent = `Playback status: ${currentPlayback.status} | disposed: ${
-    currentPlayback.disposed ? 'true' : 'false'
-  }`;
-}
-
-function getReducedMotionStrategy(): ReducedMotionStrategy {
-  const value = reducedMotionStrategySelect.value;
-
-  if (value === 'preserve' || value === 'simplify' || value === 'skip') {
-    return value;
-  }
-
-  return 'skip';
-}
-
-function writeReducedMotionStatus(): void {
-  const reducedMotionEnabled = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  reducedMotionStatus.textContent = `prefers-reduced-motion: ${
-    reducedMotionEnabled ? 'reduce' : 'no-preference'
-  }`;
-}
-
-function getElementByIdOrThrow(id: string): HTMLElement {
+function getElementByIdOrThrow<TElement extends HTMLElement>(id: string): TElement {
   const element = document.getElementById(id);
 
   if (!element) {
     throw new Error(`Element not found: ${id}`);
   }
 
-  return element;
+  return element as TElement;
 }
 
-function formatPlaybackEvent(event: {
-  readonly type: string;
-  readonly previousStatus: string;
-  readonly status: string;
-  readonly timestamp: number;
-}): string {
-  return `${event.type}:${event.previousStatus}->${event.status} @ ${new Date(
-    event.timestamp
-  ).toLocaleTimeString()}`;
+function writeJson(targetElement: HTMLElement, value: unknown): void {
+  targetElement.textContent = JSON.stringify(value, createJsonReplacer(), 2);
+}
+
+function createJsonReplacer(): (key: string, value: unknown) => unknown {
+  return (_key, value) => {
+    if (value instanceof Error) {
+      return {
+        name: value.name,
+        message: value.message
+      };
+    }
+
+    return value;
+  };
 }
