@@ -62,7 +62,7 @@ type MotionEngineEvents<TTarget = unknown> = {
 
 ## 3. Type model
 
-The current skip reasons are:
+The current engine-level skip reasons are:
 
 ```ts
 export type MotionSkipReason =
@@ -143,19 +143,6 @@ Returned result:
 }
 ```
 
-Event shape:
-
-```txt
-type = skip
-reason = motion-disabled
-source = registered-motion
-target = element
-motionId = hero-intro
-motionType = fade-in
-result.status = skipped
-result.reason = motion-disabled
-```
-
 Event order:
 
 ```txt
@@ -164,14 +151,6 @@ return skipped result
 ```
 
 No planning events are emitted in this case because the engine does not enter `plan()`.
-
-```txt
-onBeforePlan is not emitted
-onPlan is not emitted
-onPlay is not emitted
-onFinish is not emitted
-onError is not emitted
-```
 
 ### 4.2 Unknown registered motion type
 
@@ -193,19 +172,6 @@ Returned result:
   status: 'skipped',
   reason: 'unknown-motion-type'
 }
-```
-
-Event shape:
-
-```txt
-type = skip
-reason = unknown-motion-type
-source = registered-motion
-target = element
-motionId = hero-intro
-motionType = unknown-motion
-result.status = skipped
-result.reason = unknown-motion-type
 ```
 
 Event order:
@@ -288,7 +254,7 @@ onSkip
 return skipped result
 ```
 
-## 5. Cases that are not `onSkip`
+## 5. Cases that are not engine `onSkip`
 
 Invalid timelines are not skipped.
 
@@ -312,7 +278,7 @@ motion disabled
 unknown registered motion type
   -> onSkip
 
-unsupported driver control operation
+unsupported driver control operation from engine methods
   -> onSkip
 
 invalid timeline
@@ -322,7 +288,35 @@ invalid motion options
   -> onError during play(...)
 ```
 
-This distinction keeps the event model clean.
+### 5.1 Controller skip events are separate
+
+Playback controllers have their own event system.
+
+A controller may emit a controller-level `skip` event, for example when calling `playback.finish()` on an infinite Web animation:
+
+```txt
+playback.finish() on infinite Web animation
+  -> controller event: skip
+  -> result.reason: web-playback-finish-not-supported-for-infinite-animation
+```
+
+This is not the same as the global engine `onSkip` callback documented here.
+
+For controller-level behavior, read:
+
+```txt
+docs/playback-controller-behavior.md
+```
+
+This separation keeps the event model clean:
+
+```txt
+engine events
+  observe engine-level play/plan/control requests
+
+controller events
+  observe one concrete playback instance
+```
 
 ## 6. Recommended usage
 
@@ -444,6 +438,8 @@ driver-reset-not-supported
   onSkip
 ```
 
+Controller-level skip tests belong with playback controller tests, not with global engine `onSkip` tests.
+
 ## 9. Future improvements
 
 Potential future additions:
@@ -459,9 +455,9 @@ Those features are not implemented yet.
 
 ## 10. Documentation status
 
-`onSkip` is now implemented and should no longer be listed as a missing engine event.
+`onSkip` is implemented and should no longer be listed as a missing engine event.
 
-Current event callbacks:
+Current engine event callbacks:
 
 ```txt
 onBeforePlan
