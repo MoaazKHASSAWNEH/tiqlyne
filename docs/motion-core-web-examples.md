@@ -3,10 +3,11 @@
 > Status: developer-facing examples guide.
 > Scope: practical browser examples using `@structifyx/motion-core`, `@structifyx/motion-web`, and optionally `@structifyx/motion-pack-basic`.
 > Rule: every example in this document is based on APIs and behavior present in the current codebase.
+> Last aligned state: after `5880634 fix(web): skip finish for infinite playback controllers`.
 
 ## 1. Purpose
 
-This guide shows how to combine the core engine and the Web driver in real browser scenarios.
+This guide shows how to combine the core engine and the Web driver in browser scenarios.
 
 It is a companion to:
 
@@ -14,9 +15,19 @@ It is a companion to:
 docs/web-driver-quickstart.md
 docs/engine-events-api.md
 docs/skip-event-api.md
+docs/playback-controller-behavior.md
 ```
 
-The goal is to prepare the next step: a complete visual interface in `examples/vanilla` that demonstrates the engine capabilities.
+The goal is to provide small, focused examples that help developers test and understand the current engine behavior.
+
+Important scope decision:
+
+```txt
+examples/vanilla should stay simple for now.
+It should test the engine, not become a full visual animation builder yet.
+```
+
+A future visual lab can be designed later, after the public documentation and extension guides are stronger.
 
 ## 2. Audited API surface
 
@@ -438,7 +449,89 @@ fail
 statusChange
 ```
 
-## 15. Example 12 - Global engine events log
+## 15. Example 12 - Infinite yoyo controlled playback
+
+This is the most important current `examples/vanilla` scenario.
+
+```ts
+const infiniteYoyoTimeline = createMotionTimeline((timeline) => {
+  timeline.track('self', (track) => {
+    track.step(
+      {
+        duration: 500,
+        iterations: 'infinite',
+        yoyo: true
+      },
+      (step) => {
+        step.from({ transform: { x: -20 } });
+        step.to({ transform: { x: 20 } });
+      }
+    );
+  });
+});
+
+const playback = motion.createTimelinePlayback(card, infiniteYoyoTimeline);
+```
+
+Valid timing shape:
+
+```ts
+{
+  iterations: 'infinite',
+  yoyo: true
+}
+```
+
+Invalid timing shape:
+
+```ts
+{
+  iterations: 'infinite',
+  yoyo: true,
+  direction: 'alternate'
+}
+```
+
+Reason:
+
+```txt
+yoyo: true already expresses alternate playback semantics.
+Combining it with direction creates ambiguous timing semantics.
+```
+
+For infinite animations, use `cancel()` or engine `reset()` to stop the animation.
+
+## 16. Example 13 - finish() on infinite Web playback
+
+WAAPI cannot safely finish an infinite animation. Browsers can throw an `InvalidStateError` if `animation.finish()` is called on an infinite animation.
+
+The Web controller detects infinite animations first and returns a controlled skipped result:
+
+```json
+{
+  "status": "skipped",
+  "reason": "web-playback-finish-not-supported-for-infinite-animation",
+  "diagnostics": [
+    {
+      "level": "warning",
+      "code": "web-playback-finish-not-supported-for-infinite-animation",
+      "message": "Web playback cannot finish an infinite animation. Use cancel() or reset() instead.",
+      "source": "web-motion-playback-controller"
+    }
+  ]
+}
+```
+
+Important behavior:
+
+```txt
+- animation.finish() is not called
+- the controller does not move to failed
+- the controller keeps its previous running or paused status
+- pause/resume/cancel remain usable after the skipped finish attempt
+```
+
+## 17. Example 14 - Global engine events log
 
 ```ts
 const events: string[] = [];
@@ -458,6 +551,9 @@ const motion = createMotionEngine<Element>({
     },
     onFinish(event) {
       events.push(`finish:${event.result.status}`);
+    },
+    onCancel(event) {
+      events.push(`cancel:${event.result.status}`);
     },
     onSkip(event) {
       events.push(`skip:${event.reason}`);
@@ -488,7 +584,7 @@ play:direct-timeline
 finish:finished
 ```
 
-## 16. Example 13 - Disabled registered motion
+## 18. Example 15 - Disabled registered motion
 
 ```ts
 const result = await motion.play(card, {
@@ -515,7 +611,7 @@ onSkip
 
 No planning event should be emitted because the engine does not enter planning for disabled motions.
 
-## 17. Example 14 - Unknown registered motion
+## 19. Example 16 - Unknown registered motion
 
 ```ts
 const result = await motion.play(card, {
@@ -541,7 +637,7 @@ onSkip
 
 This is not treated as `onError` by `play()`.
 
-## 18. Example 15 - Target not found
+## 20. Example 17 - Target not found
 
 ```ts
 const missingTargetTimeline = createMotionTimeline((timeline) => {
@@ -565,62 +661,44 @@ reason = target-not-found
 
 This failure is produced by the Web driver target resolution phase.
 
-## 19. Visual example plan for examples/vanilla
+## 21. Current recommended examples/vanilla scope
 
-The next `examples/vanilla` interface should include sections for:
+The current `examples/vanilla` app should stay focused on a small manual test surface:
 
 ```txt
-1. Direct timeline examples
-   - fade
-   - transform
-   - multi-step timeline
-
-2. Registered motion examples
-   - fade-in
-   - fade-out
-   - slide-in
-
-3. Target resolution examples
-   - self
-   - child
-   - selector
-   - named
-
-4. Reduced motion examples
-   - preserve
-   - simplify
-   - skip
-
-5. Conflict examples
-   - parallel
-   - ignore
-   - replace
-
-6. Playback controller examples
-   - create
-   - pause
-   - resume
-   - finish
-   - cancel
-   - dispose
-
-7. Engine events panel
-   - before-plan
-   - plan
-   - play
-   - finish
-   - skip
-   - error
-
-8. Result panel
-   - last MotionPlaybackResult
-   - plan summary when available
-   - diagnostics when available
+1. iterations: 'infinite'
+2. yoyo: true
+3. createTimelinePlayback()
+4. pause
+5. resume
+6. finish on infinite -> skipped, not failed
+7. cancel
+8. reset
+9. controller events
+10. last MotionPlaybackResult display
 ```
 
-The visual example should not introduce new engine behavior. It should demonstrate existing behavior.
+Do not turn this example into a complete visual builder yet.
 
-## 20. Validation commands
+Future examples can be added as small, separate sections or cookbook pages instead of one large UI refactor.
+
+## 22. Future cookbook ideas
+
+Useful future docs or small example pages:
+
+```txt
+- direct timeline cookbook
+- registered motion cookbook
+- reduced motion cookbook
+- conflict strategy cookbook
+- playback controller cookbook
+- target resolution cookbook
+- engine events debugging cookbook
+```
+
+Those should demonstrate existing behavior and avoid introducing new engine APIs.
+
+## 23. Validation commands
 
 Before committing changes to the example app:
 
@@ -635,4 +713,16 @@ For local browser testing:
 
 ```bash
 pnpm --filter @structifyx/motion-example-vanilla dev
+```
+
+Manual vanilla checks:
+
+```txt
+1. Create infinite/yoyo controller.
+2. Pause -> status becomes paused.
+3. Resume -> status becomes running.
+4. Finish -> returns skipped, not failed.
+5. After skipped finish, pause/resume/cancel should still work.
+6. Cancel -> status becomes cancelled.
+7. Reset -> visual state is cleaned.
 ```
