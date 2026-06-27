@@ -165,13 +165,13 @@ This was introduced to avoid the earlier behavior where `finish()` on an infinit
 A timeline is infinite when at least one relevant timing path uses:
 
 ```ts
-iterations: 'infinite'
+iterations: 'infinite';
 ```
 
 The Web timing conversion maps this to:
 
 ```ts
-iterations: Infinity
+iterations: Infinity;
 ```
 
 For one-shot playback:

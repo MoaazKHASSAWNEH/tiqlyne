@@ -316,7 +316,7 @@ playbackRate?: number;
 Dans le Web driver, `iterations: 'infinite'` est mappe vers:
 
 ```ts
-iterations: Infinity
+iterations: Infinity;
 ```
 
 Regle de validation importante:
