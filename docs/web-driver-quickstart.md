@@ -3,10 +3,11 @@
 > Status: developer-facing quickstart.
 > Scope: using `@structifyx/motion-core` with `@structifyx/motion-web` in a browser environment.
 > Rule: this document describes only APIs and behavior verified in the current codebase.
+> Last verified state: after `5880634 fix(web): skip finish for infinite playback controllers`.
 
 ## 1. Audit summary
 
-The Web package currently exports `WebMotionDriver` and `WebMotionDriverOptions` from `packages/motion-web/src/index.ts`.
+The Web package exports `WebMotionDriver` and `WebMotionDriverOptions` from `packages/motion-web/src/index.ts`.
 
 `WebMotionDriver` implements the core `MotionDriver<Element>` contract. Its target type is `Element`, so Web usage should create an engine typed with `Element`:
 
@@ -22,13 +23,14 @@ The current Web driver can:
 - play a MotionTimelineDefinition on an Element
 - create a WebMotionPlaybackController
 - cancel animations on a target subtree
-- finish animations on a target subtree
+- finish finite animations on a target subtree
 - reset animations on a target subtree
 - resolve timeline targets to DOM elements
 - translate motion keyframes to Web keyframes
 - translate timing options to KeyframeAnimationOptions
 - handle reduced motion behavior
 - handle animation conflict behavior
+- safely skip finish() on infinite playback controllers
 ```
 
 ## 2. Packages used
@@ -46,8 +48,6 @@ If reusable basic motions are needed:
 import { DefaultMotionRegistry } from '@structifyx/motion-core';
 import { registerBasicMotions } from '@structifyx/motion-pack-basic';
 ```
-
-The existing vanilla example uses workspace dependencies for `motion-core`, `motion-pack-basic` and `motion-web`.
 
 ## 3. Minimal direct timeline example
 
@@ -322,6 +322,7 @@ easing
 fill
 iterations
 direction
+yoyo
 endDelay
 playbackRate
 ```
@@ -338,7 +339,72 @@ Important details:
 - scheduled task delay uses task.startTime
 ```
 
-## 10. Reduced motion behavior
+Validation rule:
+
+```txt
+yoyo: true cannot be used together with direction.
+```
+
+Valid:
+
+```ts
+{
+  iterations: 'infinite',
+  yoyo: true
+}
+```
+
+Valid:
+
+```ts
+{
+  iterations: 'infinite',
+  direction: 'alternate'
+}
+```
+
+Invalid:
+
+```ts
+{
+  iterations: 'infinite',
+  yoyo: true,
+  direction: 'alternate'
+}
+```
+
+## 10. Infinite playback behavior
+
+When a direct timeline is infinite, `playTimeline()` does not wait forever.
+
+Expected result:
+
+```json
+{
+  "status": "running",
+  "reason": "web-playback-infinite"
+}
+```
+
+This means the animation was started successfully and remains active.
+
+For manual control, use a controller:
+
+```ts
+const playback = motion.createTimelinePlayback(element, infiniteTimeline);
+```
+
+Then use:
+
+```ts
+await playback.pause();
+await playback.resume();
+await playback.cancel();
+```
+
+For infinite animations, `cancel()` or engine `reset()` is the recommended way to stop the animation.
+
+## 11. Reduced motion behavior
 
 The Web driver receives reduced motion as a boolean option:
 
@@ -373,7 +439,7 @@ The generic simplified Web timeline currently:
 - keeps fill from step, track defaults, timeline defaults, or both
 ```
 
-## 11. Conflict behavior
+## 12. Conflict behavior
 
 Current behavior:
 
@@ -390,7 +456,7 @@ WebMotionDriver option cancelPreviousAnimations = false
 
 The Web driver considers an animation active when its play state is running or paused, or when it is pending.
 
-## 12. Playback controllers
+## 13. Playback controllers
 
 The Web driver implements `createPlayback()`.
 
@@ -399,7 +465,6 @@ The engine can create a controller:
 ```ts
 const playback = motion.createTimelinePlayback(element, timeline);
 
-await playback.play();
 await playback.pause();
 await playback.resume();
 await playback.finish();
@@ -407,21 +472,62 @@ await playback.cancel();
 playback.dispose();
 ```
 
-The current vanilla example attaches playback listeners for:
+Controller events:
 
 ```txt
+start
+statusChange
 pause
 resume
 cancel
 finish
 skip
 fail
-statusChange
 ```
 
 This is controller-level playback event behavior, separate from global engine events.
 
-## 13. Current limitations and careful points
+### 13.1 `finish()` on finite animations
+
+For finite animations, `finish()` calls WAAPI `animation.finish()` and returns:
+
+```json
+{
+  "status": "finished",
+  "reason": "web-playback-finish"
+}
+```
+
+### 13.2 `finish()` on infinite animations
+
+WAAPI cannot safely finish an infinite animation. Browsers can throw an `InvalidStateError` if `animation.finish()` is called on an infinite animation.
+
+The Web controller detects infinite animations first and returns a controlled skipped result:
+
+```json
+{
+  "status": "skipped",
+  "reason": "web-playback-finish-not-supported-for-infinite-animation",
+  "diagnostics": [
+    {
+      "level": "warning",
+      "code": "web-playback-finish-not-supported-for-infinite-animation",
+      "message": "Web playback cannot finish an infinite animation. Use cancel() or reset() instead.",
+      "source": "web-motion-playback-controller"
+    }
+  ]
+}
+```
+
+Important: this does not put the controller in `failed`. The controller keeps its previous status, so `pause`, `resume` or `cancel` can still be used.
+
+For full controller behavior:
+
+```txt
+docs/playback-controller-behavior.md
+```
+
+## 14. Current limitations and careful points
 
 ```txt
 - WebMotionDriver works with Element targets, not arbitrary objects.
@@ -432,9 +538,10 @@ This is controller-level playback event behavior, separate from global engine ev
 - The current pack registration helper requires an explicit registry object.
 - Global engine events and playback controller events are separate systems.
 - Dynamic engine event subscriptions through motion.on(...) are not implemented yet.
+- A full visual animation builder is not implemented yet.
 ```
 
-## 14. Validation commands
+## 15. Validation commands
 
 From the repository root:
 
@@ -449,4 +556,16 @@ For the vanilla browser example:
 
 ```bash
 pnpm --filter @structifyx/motion-example-vanilla dev
+```
+
+Manual vanilla checks:
+
+```txt
+1. Create infinite/yoyo controller.
+2. Pause.
+3. Resume.
+4. Finish -> should return skipped, not failed.
+5. After skipped finish, pause/resume/cancel should still work.
+6. Cancel.
+7. Reset.
 ```
