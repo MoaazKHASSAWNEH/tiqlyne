@@ -48,15 +48,37 @@ describe('FadeOutMotion', () => {
     });
   });
 
-  it('validates that fromOpacity and toOpacity are different', () => {
+  it('validates that opacity decreases', () => {
+    const motion = new FadeOutMotion();
+
+    const result = motion.validateOptions({
+      fromOpacity: 1,
+      toOpacity: 0
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it('rejects equal opacity values', () => {
+    const motion = new FadeOutMotion();
+
+    const result = motion.validateOptions({
+      fromOpacity: 0.5,
+      toOpacity: 0.5
+    });
+
+    expect(result).toEqual(['Fade out opacity must decrease']);
+  });
+
+  it('rejects increasing opacity values', () => {
     const motion = new FadeOutMotion();
 
     const result = motion.validateOptions({
       fromOpacity: 0,
-      toOpacity: 0
+      toOpacity: 1
     });
 
-    expect(result).toEqual(['fromOpacity and toOpacity must be different']);
+    expect(result).toEqual(['Fade out opacity must decrease']);
   });
 
   it('builds a valid fade-out timeline', () => {

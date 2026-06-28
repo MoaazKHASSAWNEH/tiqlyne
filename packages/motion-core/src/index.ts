@@ -232,7 +232,13 @@ export { normalizeMotionOptions } from './options/normalize-motion-options';
 
 export {
   runMotionOptionValidators,
+  validateDecreasing,
   validateDifferent,
+  validateGreaterThan,
+  validateGreaterThanOrEqual,
+  validateIncreasing,
+  validateLessThan,
+  validateLessThanOrEqual,
   type MotionOptionValidator
 } from './options/motion-option-validator';
 

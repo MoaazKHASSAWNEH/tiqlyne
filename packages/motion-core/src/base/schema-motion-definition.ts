@@ -19,8 +19,9 @@ export abstract class SchemaMotionDefinition<
 
   protected abstract readonly options: DefinedMotionOptions<TSchema>;
 
-  protected readonly validators: ReadonlyArray<MotionOptionValidator<InferMotionOptions<TSchema>>> =
-    [];
+  protected readonly optionValidators: ReadonlyArray<
+    MotionOptionValidator<InferMotionOptions<TSchema>>
+  > = [];
 
   get optionDefinitions(): ReadonlyArray<MotionOptionDefinition> {
     return this.options.optionDefinitions;
@@ -35,7 +36,7 @@ export abstract class SchemaMotionDefinition<
   }
 
   validateOptions(options: InferMotionOptions<TSchema>): ReadonlyArray<string> {
-    return runMotionOptionValidators(options, this.validators);
+    return runMotionOptionValidators(options, this.optionValidators);
   }
 
   abstract buildTimeline(

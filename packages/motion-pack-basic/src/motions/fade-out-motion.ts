@@ -3,7 +3,7 @@ import {
   createMotionTimeline,
   defineMotionOptions,
   option,
-  validateDifferent,
+  validateDecreasing,
   type InferMotionOptions,
   type MotionBuildContext,
   type MotionCategory,
@@ -41,8 +41,8 @@ export class FadeOutMotion extends SchemaMotionDefinition<typeof fadeOutMotionOp
 
   protected readonly options = fadeOutMotionOptions;
 
-  protected override readonly validators = [
-    validateDifferent('fromOpacity', 'toOpacity', 'fromOpacity and toOpacity must be different')
+  protected override readonly optionValidators = [
+    validateDecreasing('fromOpacity', 'toOpacity', 'Fade out opacity must decrease')
   ];
 
   buildTimeline(context: MotionBuildContext<FadeOutMotionOptions>): MotionTimelineDefinition {

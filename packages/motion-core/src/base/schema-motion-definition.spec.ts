@@ -33,7 +33,7 @@ class TestFadeInMotion extends SchemaMotionDefinition<typeof fadeInOptions.schem
 
   protected readonly options = fadeInOptions;
 
-  protected override readonly validators = [
+  protected override readonly optionValidators = [
     validateDifferent('fromOpacity', 'toOpacity', 'fromOpacity and toOpacity must be different.')
   ];
 
