@@ -252,4 +252,15 @@ export type {
 
 export { compileMotionComposition } from './composition/compile-motion-composition';
 
+export {
+  MotionCompositionBuilder,
+  type MotionCompositionMotionInput,
+  type MotionCompositionTimelineInput
+} from './composition/motion-composition-builder';
+
+export {
+  createMotionComposition,
+  type MotionCompositionBuilderCallback
+} from './composition/create-motion-composition';
+
 export const motionCoreVersion = '0.1.0';
