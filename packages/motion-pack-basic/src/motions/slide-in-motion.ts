@@ -1,30 +1,58 @@
 import {
-  BaseMotionDefinition,
-  normalizeBoolean,
-  normalizeNumber,
+  SchemaMotionDefinition,
+  createMotionTimeline,
+  defineMotionOptions,
+  option,
+  type InferMotionOptions,
   type MotionBuildContext,
   type MotionCategory,
-  type MotionOptionDefinition,
-  type MotionTimelineDefinition,
   type MotionKeyframe,
-  createMotionTimeline
+  type MotionTimelineDefinition
 } from '@structifyx/motion-core';
 
 export type SlideInDirection = 'left' | 'right' | 'top' | 'bottom';
 
-export type SlideInMotionOptions = {
-  readonly direction: SlideInDirection;
-  readonly distance: number;
-  readonly fade: boolean;
-};
+const slideInMotionOptions = defineMotionOptions({
+  direction: option.select({
+    label: 'Direction',
+    description: 'Direction from which the target enters.',
+    defaultValue: 'bottom',
+    choices: [
+      {
+        label: 'Left',
+        value: 'left'
+      },
+      {
+        label: 'Right',
+        value: 'right'
+      },
+      {
+        label: 'Top',
+        value: 'top'
+      },
+      {
+        label: 'Bottom',
+        value: 'bottom'
+      }
+    ] as const
+  }),
+  distance: option.range({
+    label: 'Distance',
+    description: 'Slide distance in pixels.',
+    defaultValue: 24,
+    min: 0,
+    max: 300,
+    step: 1,
+    unit: 'px'
+  }),
+  fade: option.boolean({
+    label: 'Fade',
+    description: 'Whether opacity should be animated too.',
+    defaultValue: true
+  })
+});
 
-const SLIDE_IN_DIRECTIONS: ReadonlyArray<SlideInDirection> = ['left', 'right', 'top', 'bottom'];
-
-function normalizeDirection(value: unknown): SlideInDirection {
-  return SLIDE_IN_DIRECTIONS.includes(value as SlideInDirection)
-    ? (value as SlideInDirection)
-    : 'bottom';
-}
+export type SlideInMotionOptions = InferMotionOptions<typeof slideInMotionOptions.schema>;
 
 function buildInitialTransform(direction: SlideInDirection, distance: number): string {
   switch (direction) {
@@ -39,77 +67,13 @@ function buildInitialTransform(direction: SlideInDirection, distance: number): s
   }
 }
 
-export class SlideInMotion extends BaseMotionDefinition<SlideInMotionOptions> {
+export class SlideInMotion extends SchemaMotionDefinition<typeof slideInMotionOptions.schema> {
   readonly type = 'slide-in';
   readonly label = 'Slide in';
   readonly description = 'Makes the target enter with a directional slide.';
   readonly category: MotionCategory = 'entrance';
 
-  readonly optionDefinitions: ReadonlyArray<MotionOptionDefinition> = [
-    {
-      name: 'direction',
-      label: 'Direction',
-      description: 'Direction from which the target enters.',
-      type: 'select',
-      defaultValue: 'bottom',
-      choices: [
-        {
-          label: 'Left',
-          value: 'left'
-        },
-        {
-          label: 'Right',
-          value: 'right'
-        },
-        {
-          label: 'Top',
-          value: 'top'
-        },
-        {
-          label: 'Bottom',
-          value: 'bottom'
-        }
-      ]
-    },
-    {
-      name: 'distance',
-      label: 'Distance',
-      description: 'Slide distance in pixels.',
-      type: 'range',
-      defaultValue: 24,
-      min: 0,
-      max: 300,
-      step: 1,
-      unit: 'px'
-    },
-    {
-      name: 'fade',
-      label: 'Fade',
-      description: 'Whether opacity should be animated too.',
-      type: 'boolean',
-      defaultValue: true
-    }
-  ];
-
-  getDefaultOptions(): SlideInMotionOptions {
-    return {
-      direction: 'bottom',
-      distance: 24,
-      fade: true
-    };
-  }
-
-  normalizeOptions(options: Record<string, unknown> | undefined): SlideInMotionOptions {
-    return {
-      direction: normalizeDirection(options?.['direction']),
-      distance: normalizeNumber(options?.['distance'], {
-        defaultValue: 24,
-        min: 0,
-        max: 300
-      }),
-      fade: normalizeBoolean(options?.['fade'], true)
-    };
-  }
+  protected readonly options = slideInMotionOptions;
 
   buildTimeline(context: MotionBuildContext<SlideInMotionOptions>): MotionTimelineDefinition {
     const initialKeyframe: MotionKeyframe = context.options.fade
@@ -148,7 +112,7 @@ export class SlideInMotion extends BaseMotionDefinition<SlideInMotionOptions> {
     });
   }
 
-  buildReducedMotionTimeline(
+  override buildReducedMotionTimeline(
     context: MotionBuildContext<SlideInMotionOptions>
   ): MotionTimelineDefinition {
     return createMotionTimeline((timeline) => {
