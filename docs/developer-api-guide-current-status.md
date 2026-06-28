@@ -3,7 +3,7 @@
 > Status: documentation addendum.
 > Purpose: keep the developer documentation aligned with the current implementation.
 > Scope: documentation only.
-> Last verified state: after `5880634 fix(web): skip finish for infinite playback controllers`.
+> Last verified state: after `7f9e6df feat(core): add numeric option validators` and the custom motion definition guide.
 
 ## 1. Why this addendum exists
 
@@ -27,12 +27,12 @@ Playback controller: implemented
 Web driver: implemented and tested
 Vanilla example: minimal infinite/yoyo controller test
 Plugin/preset documentation: partial
-Custom MotionDefinition guide: not yet written
+Custom MotionDefinition guide: written
 Custom MotionDriver guide: not yet written
 Versioning policy: not yet implemented
 ```
 
-The project has moved beyond a pure prototype. The core API foundation is now usable and tested, but the public documentation still needs to be split into smaller guides.
+The project has moved beyond a pure prototype. The core API foundation is usable and tested, and the documentation has started to split into focused guides.
 
 ## 3. Current public engine config
 
@@ -74,7 +74,7 @@ events
 
 ## 4. Current usage modes
 
-The engine supports two main usage modes.
+The engine supports three main usage modes.
 
 ### 4.1 Registered motions
 
@@ -108,6 +108,45 @@ await motion.playTimeline(element, timeline);
 ```
 
 Use direct timelines for custom runtime animations, examples, builders and low-level testing.
+
+### 4.3 Custom motion definitions
+
+The recommended way to create reusable custom motions is now documented in:
+
+```txt
+docs/writing-custom-motion-definition.md
+```
+
+The recommended API is:
+
+```txt
+SchemaMotionDefinition
+  Base class for typed reusable motions.
+
+defineMotionOptions()
+  Single source of truth for option metadata, defaults and normalization.
+
+option.*
+  Builders for number, range, string, boolean, select and color options.
+
+optionValidators
+  Semantic validators for relationships between normalized options.
+
+createMotionTimeline()
+  Explicit builder for serializable timelines.
+```
+
+Current reusable option validators include:
+
+```txt
+validateDifferent()
+validateGreaterThan()
+validateGreaterThanOrEqual()
+validateLessThan()
+validateLessThanOrEqual()
+validateIncreasing()
+validateDecreasing()
+```
 
 ## 5. Event system summary
 
@@ -189,6 +228,7 @@ unknown-motion-type
 driver-cancel-not-supported
 driver-finish-not-supported
 driver-reset-not-supported
+web-playback-finish-not-supported-for-infinite-animation
 ```
 
 Invalid timelines are not skips. They remain planning errors and are observed through `onError` when using `play()` or `playTimeline()`.
@@ -366,6 +406,8 @@ The complete visual builder idea was postponed because it mixed two goals:
 
 The current recommended approach is to keep examples small, focused and useful for debugging.
 
+A useful future example would show a local custom motion created with `SchemaMotionDefinition` and registered in the vanilla app.
+
 ## 12. Documentation map
 
 ```txt
@@ -377,6 +419,9 @@ docs/developer-api-guide.md
 
 docs/developer-api-guide-current-status.md
   This current status addendum.
+
+docs/writing-custom-motion-definition.md
+  Guide for creating custom reusable MotionDefinition classes.
 
 docs/engine-events-api.md
   Detailed reference for global engine events.
@@ -392,6 +437,9 @@ docs/playback-controller-behavior.md
 
 docs/motion-core-web-examples.md
   Practical examples guide for core + Web usage.
+
+docs/development-motion-definition-dx-audit.md
+  Internal audit for MotionDefinition developer experience.
 
 docs/development-architecture-audit.md
   Internal architecture audit and technical analysis.
@@ -422,6 +470,10 @@ docs/development-direct-api-design.md
 17. feat(example): add minimal infinite yoyo visual test
 18. fix(web): skip finish for infinite playback controllers
 19. docs: document playback controller behavior
+20. feat(core): add SchemaMotionDefinition and option schema helpers
+21. refactor(basic): migrate basic motions to schema definitions
+22. feat(core): add numeric option validators
+23. docs: add custom motion definition guide
 ```
 
 ## 14. Recommended next steps
@@ -429,14 +481,15 @@ docs/development-direct-api-design.md
 Recommended next steps now:
 
 ```txt
-1. docs: finish aligning docs around infinite/yoyo/controller behavior
-2. docs: add writing a custom MotionDefinition guide
-3. docs: add writing a custom MotionDriver guide
-4. docs: split the large developer guide into concepts/api/guides pages
-5. feat(core): add dynamic event subscription API later, for example motion.on(...)
+1. audit: document current engine capabilities and missing features
+2. docs: add writing a custom MotionDriver guide
+3. feat(core): design motion composition / orchestration API
+4. feat(core): add conditional option validators later, for example validateWhen()
+5. docs: split the large developer guide into concepts/api/guides pages
+6. feat(core): add dynamic event subscription API later, for example motion.on(...)
 ```
 
-Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as a focused test until the engine documentation is more complete.
+Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as a focused test until the engine documentation and orchestration API are more complete.
 
 ## 15. Rules to preserve
 
@@ -454,6 +507,8 @@ Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as
 - Optional properties must be omitted rather than set to undefined.
 - Use skipped for controlled unsupported operations.
 - Use failed for unexpected runtime failures.
+- Keep timeline building explicit. Do not add animation-specific shortcuts such as timeline.fade().
+- Validate custom motion intent with semantic option validators when possible.
 ```
 
 ## 16. Local validation reminder
@@ -463,9 +518,8 @@ Recommended local commands:
 ```bash
 git pull
 pnpm format
+pnpm test
 pnpm build
-pnpm typecheck
-pnpm -r --workspace-concurrency=1 test
 ```
 
-Last known complete validation passed after the Web infinite finish fix.
+Last known complete validation passed after the numeric option validators and custom motion definition guide updates.
