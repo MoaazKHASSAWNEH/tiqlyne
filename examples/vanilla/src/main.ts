@@ -1,13 +1,17 @@
 import {
+  compileMotionComposition,
+  createMotionComposition,
   createMotionEngine,
   createMotionTimeline,
+  DefaultMotionRegistry,
   type MotionPlaybackController,
   type MotionPlaybackEvent,
   type MotionPlaybackResult,
   type MotionTimelineDefinition
 } from '@structifyx/motion-core';
-import { WebMotionDriver } from '@structifyx/motion-web';
 import './styles.css';
+import { registerBasicMotions } from '@structifyx/motion-pack-basic';
+import { WebMotionDriver } from '@structifyx/motion-web';
 
 const target = getElementByIdOrThrow<HTMLElement>('motionTarget');
 const timelineLog = getElementByIdOrThrow<HTMLElement>('timelineLog');
@@ -19,7 +23,12 @@ let currentPlayback: MotionPlaybackController | null = null;
 let unsubscribePlaybackEvents: Array<() => void> = [];
 const playbackEvents: string[] = [];
 
+const registry = new DefaultMotionRegistry();
+
+registerBasicMotions(registry);
+
 const motion = createMotionEngine<Element>({
+  registry,
   driver: new WebMotionDriver({
     reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
   }),
@@ -42,6 +51,53 @@ bindButton('playInfiniteButton', () => {
     disposeCurrentPlayback();
 
     return await motion.playTimeline(target, createInfiniteYoyoTimeline());
+  });
+});
+
+bindButton('playCompositionButton', () => {
+  void runPlayback('play composition', async () => {
+    disposeCurrentPlayback();
+
+    const composition = createMotionComposition((composition) => {
+      composition.defaults({
+        duration: 450,
+        easing: 'ease-out',
+        fill: 'both'
+      });
+
+      composition.motion('fade-in', {
+        options: {
+          fromOpacity: 0,
+          toOpacity: 1
+        },
+        defaults: {
+          duration: 250
+        }
+      });
+
+      composition.motion('slide-in', {
+        at: 250,
+        options: {
+          direction: 'bottom',
+          distance: 500,
+          fade: false
+        },
+        defaults: {
+          duration: 450
+        }
+      });
+    });
+
+    const timeline = compileMotionComposition(composition, {
+      registry
+    });
+
+    writeJson(timelineLog, {
+      composition,
+      compiledTimeline: timeline
+    });
+
+    return await motion.playTimeline(target, timeline);
   });
 });
 
