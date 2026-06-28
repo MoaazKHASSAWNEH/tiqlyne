@@ -3,7 +3,7 @@
 > Status: current public API guide.
 > Scope: `@structifyx/motion-core` composition API.
 > Audience: users creating composed animations from registered motions and direct timelines.
-> Runtime support: composition is compiled first, then played with the existing timeline pipeline.
+> Runtime support: a composition is compiled to a timeline, then executed through the existing timeline pipeline.
 
 ## 1. Purpose
 
@@ -18,9 +18,9 @@ labels
 placement values
 ```
 
-The composition API does not execute animations directly.
+A composition is an authoring object. It is not a second runtime.
 
-It produces a canonical `MotionCompositionDefinition`, then compiles it into a `MotionTimelineDefinition`.
+The core flow is:
 
 ```txt
 createMotionComposition()
@@ -30,26 +30,50 @@ createMotionComposition()
   -> motion.playTimeline()
 ```
 
-This keeps the engine architecture simple:
+The engine also exposes convenience methods:
 
 ```txt
-composition = authoring layer
-MotionTimelineDefinition = serializable runtime timeline
-MotionEngine = existing playback runtime
-MotionDriver = platform execution
+motion.planComposition()
+motion.playComposition()
+motion.createCompositionPlayback()
 ```
+
+These methods are shortcuts over the same compiler and timeline pipeline.
 
 ## 2. Main APIs
 
 ```ts
 createMotionComposition(callback): MotionCompositionDefinition
-compileMotionComposition(composition, context): MotionTimelineDefinition
 new MotionCompositionBuilder().build(): MotionCompositionDefinition
+compileMotionComposition(composition, context): MotionTimelineDefinition
+motion.planComposition(composition, options?): MotionExecutionPlan
+motion.playComposition(target, composition, options?): Promise<MotionPlaybackResult>
+motion.createCompositionPlayback(target, composition, options?): MotionPlaybackController
 ```
 
 The builder API is optional. The object model remains the canonical representation.
 
-## 3. Canonical object model
+## 3. Architecture rule
+
+The important rule is:
+
+```txt
+composition -> compiler -> timeline -> existing engine runtime
+```
+
+That means:
+
+```txt
+composition = authoring layer
+compileMotionComposition = compiler layer
+MotionTimelineDefinition = runtime format
+MotionEngine = existing execution pipeline
+MotionDriver = platform execution
+```
+
+Composition does not bypass timeline validation, planning, scheduling, conflict handling, reduced-motion runtime behavior, or driver execution.
+
+## 4. Canonical object model
 
 A composition is a serializable object:
 
@@ -98,7 +122,7 @@ migration/versioning
 preview/runtime separation
 ```
 
-## 4. Builder usage
+## 5. Builder usage
 
 ```ts
 const composition = createMotionComposition((composition) => {
@@ -141,9 +165,9 @@ The returned value is still only:
 MotionCompositionDefinition;
 ```
 
-The builder does not compile or play the animation.
+The builder stores data. It does not compile or play the animation.
 
-## 5. Compilation usage
+## 6. Manual compilation usage
 
 Registered motion items require a registry.
 
@@ -159,7 +183,7 @@ const timeline = compileMotionComposition(composition, {
 await motion.playTimeline(element, timeline);
 ```
 
-`compileMotionComposition()` returns a `MotionTimelineDefinition` that can be passed to the existing APIs:
+`compileMotionComposition()` returns a `MotionTimelineDefinition` that can be passed to existing APIs:
 
 ```ts
 motion.playTimeline(target, timeline);
@@ -167,7 +191,86 @@ motion.createTimelinePlayback(target, timeline);
 motion.planTimeline(timeline);
 ```
 
-## 6. Registered motion items
+Use manual compilation when you want to inspect, store, cache, validate, or transform the compiled timeline before playback.
+
+## 7. Runtime convenience usage
+
+The engine can now compile a composition internally using its registry.
+
+```ts
+await motion.playComposition(element, composition);
+```
+
+Equivalent explicit flow:
+
+```ts
+const timeline = compileMotionComposition(composition, {
+  registry
+});
+
+await motion.playTimeline(element, timeline);
+```
+
+The convenience API is useful when the caller does not need to inspect the compiled timeline.
+
+### 7.1 planComposition()
+
+```ts
+const plan = motion.planComposition(composition);
+```
+
+Behavior:
+
+```txt
+1. Compile the composition with the engine registry.
+2. Pass the compiled timeline to planTimeline().
+3. Return the MotionExecutionPlan.
+```
+
+This does not play anything.
+
+### 7.2 playComposition()
+
+```ts
+const result = await motion.playComposition(element, composition);
+```
+
+Behavior:
+
+```txt
+1. Compile the composition with the engine registry.
+2. Pass the compiled timeline to playTimeline().
+3. Return the MotionPlaybackResult.
+```
+
+If compilation fails, the method returns a failed playback result.
+
+Example:
+
+```txt
+status: failed
+reason: composition-item-unknown-motion-type
+```
+
+### 7.3 createCompositionPlayback()
+
+```ts
+const playback = motion.createCompositionPlayback(element, composition);
+```
+
+Behavior:
+
+```txt
+1. Compile the composition with the engine registry.
+2. Pass the compiled timeline to createTimelinePlayback().
+3. Return the MotionPlaybackController.
+```
+
+If the driver supports native playback creation, the native controller path is used.
+
+If the driver does not support native playback creation, the existing fallback controller behavior is used through the timeline pipeline.
+
+## 8. Registered motion items
 
 A registered motion item references a `MotionDefinition` by type.
 
@@ -218,7 +321,7 @@ If options are invalid, compilation throws a `MotionPlanningError` with code:
 composition-item-invalid-options
 ```
 
-## 7. Direct timeline items
+## 9. Direct timeline items
 
 A direct timeline item embeds an existing `MotionTimelineDefinition`.
 
@@ -259,9 +362,9 @@ Compilation behavior:
 
 Direct timeline items do not require registry lookup.
 
-## 8. Defaults behavior
+## 10. Defaults behavior
 
-There are three default layers.
+There are three composition/compiler default layers.
 
 ```txt
 context.defaults
@@ -269,7 +372,9 @@ composition.defaults
 item.defaults
 ```
 
-### 8.1 context.defaults
+There is also a separate engine default layer applied later by `planTimeline()` / `playTimeline()`.
+
+### 10.1 context.defaults
 
 `context.defaults` is passed to `compileMotionComposition()`:
 
@@ -285,7 +390,9 @@ compileMotionComposition(composition, {
 
 It is used as a base layer for the final compiled timeline defaults.
 
-### 8.2 composition.defaults
+Runtime convenience methods do not pass engine defaults into `compileMotionComposition()`, because engine defaults are already applied by the timeline planning pipeline.
+
+### 10.2 composition.defaults
 
 `composition.defaults` is the default timing layer for the composition.
 
@@ -299,7 +406,7 @@ composition.defaults({
 
 It is copied to the final compiled timeline defaults, merged over `context.defaults`.
 
-### 8.3 item.defaults
+### 10.3 item.defaults
 
 `item.defaults` applies to a specific item.
 
@@ -315,7 +422,7 @@ composition.motion('fade-in', {
 
 For direct timeline items, it is applied to the item's steps as fallback timing values.
 
-### 8.4 Merge order
+### 10.4 Merge order
 
 The effective build context for a registered motion item is resolved in this order:
 
@@ -371,7 +478,7 @@ context.defaults + composition.defaults
 
 Item defaults do not become global timeline defaults.
 
-## 9. Explicit values are preserved
+## 11. Explicit values are preserved
 
 Defaults are fallback values.
 
@@ -393,7 +500,7 @@ duration = 150
 
 This matches the existing timeline default behavior: explicit step values win over defaults.
 
-## 10. Target behavior
+## 12. Target behavior
 
 Each item may provide a target override.
 
@@ -413,20 +520,18 @@ If an item does not provide a target, the compiler preserves the track target pr
 If the produced track does not have a target, the compiler falls back to:
 
 ```ts
-{
-  type: 'self';
-}
+{ type: 'self' }
 ```
 
-`self` means the runtime target passed to `motion.playTimeline()`.
+`self` means the runtime target passed to `motion.playTimeline()` or `motion.playComposition()`.
 
 ```ts
-await motion.playTimeline(element, timeline);
+await motion.playComposition(element, composition);
 ```
 
 So a track with `{ type: 'self' }` resolves to `element` in the Web driver.
 
-## 11. Placement behavior with `at`
+## 13. Placement behavior with `at`
 
 Each item may provide `at`.
 
@@ -436,13 +541,11 @@ composition.motion('slide-in', {
 });
 ```
 
-Current phase behavior:
+Current behavior:
 
 ```txt
 item.at is applied to the first step of every compiled track for that item.
 ```
-
-This is intentionally simple.
 
 Example:
 
@@ -464,7 +567,7 @@ item.at shifts the whole compiled item as a block
 
 For now, use simple numeric positions or labels for predictable behavior.
 
-## 12. Labels behavior
+## 14. Labels behavior
 
 Composition-level labels are supported.
 
@@ -498,7 +601,7 @@ Equivalent object form:
 Compilation behavior:
 
 ```txt
-composition.labels are copied to the final timeline.labels.
+composition.labels are copied to the final timeline.labels
 steps may reference those labels through at
 final timeline validation checks label references
 ```
@@ -506,18 +609,18 @@ final timeline validation checks label references
 Current limitation:
 
 ```txt
-item.label is not part of the current implementation.
+item.label is not part of the current implementation
 ```
 
 Use `composition.label(name, position)` or `composition.labels({...})` instead.
 
-## 13. Builder behavior
+## 15. Builder behavior
 
 `MotionCompositionBuilder` is a convenience API.
 
 It stores data and returns a plain `MotionCompositionDefinition`.
 
-### 13.1 defaults()
+### 15.1 defaults()
 
 ```ts
 composition.defaults({ duration: 300 });
@@ -526,21 +629,9 @@ composition.defaults({ easing: 'linear' });
 
 The defaults are merged.
 
-Result:
-
-```ts
-{
-  defaults: {
-    duration: 300,
-    easing: 'linear'
-  },
-  items: []
-}
-```
-
 Later calls override matching keys from earlier calls.
 
-### 13.2 label()
+### 15.2 label()
 
 ```ts
 composition.label('start', 0);
@@ -548,7 +639,7 @@ composition.label('start', 0);
 
 Adds or overrides one label.
 
-### 13.3 labels()
+### 15.3 labels()
 
 ```ts
 composition.labels({
@@ -561,7 +652,7 @@ Merges multiple labels.
 
 Later values override matching label names.
 
-### 13.4 motion()
+### 15.4 motion()
 
 ```ts
 composition.motion('fade-in', {
@@ -576,7 +667,7 @@ Adds a registered motion item.
 
 The method returns the builder, so calls can be chained.
 
-### 13.5 timeline()
+### 15.5 timeline()
 
 ```ts
 composition.timeline(timeline, {
@@ -588,7 +679,7 @@ composition.timeline(timeline, {
 
 Adds a direct timeline item.
 
-### 13.6 build()
+### 15.6 build()
 
 ```ts
 const definition = builder.build();
@@ -598,7 +689,7 @@ Returns a plain `MotionCompositionDefinition`.
 
 The returned object is not automatically compiled.
 
-## 14. Validation behavior
+## 16. Validation behavior
 
 `compileMotionComposition()` validates the final compiled timeline.
 
@@ -614,7 +705,7 @@ composition-invalid-timeline
 composition-item-unsupported-kind
 ```
 
-### 14.1 Empty composition
+### 16.1 Empty composition
 
 ```ts
 compileMotionComposition({ items: [] }, { registry });
@@ -626,7 +717,7 @@ Throws:
 composition-empty
 ```
 
-### 14.2 Unknown motion type
+### 16.2 Unknown motion type
 
 ```ts
 compileMotionComposition(
@@ -648,7 +739,7 @@ Throws:
 composition-item-unknown-motion-type
 ```
 
-### 14.3 Invalid motion options
+### 16.3 Invalid motion options
 
 If the resolved `MotionDefinition` exposes `validateOptions()` and returns validation errors, the compiler throws:
 
@@ -658,7 +749,7 @@ composition-item-invalid-options
 
 The option validation messages are stored on the `MotionPlanningError`.
 
-### 14.4 Invalid compiled timeline
+### 16.4 Invalid compiled timeline
 
 After all items are compiled and merged, the final timeline is validated.
 
@@ -670,15 +761,29 @@ composition-invalid-timeline
 
 Timeline validation diagnostics are stored on the `MotionPlanningError`.
 
-## 15. Reduced motion behavior
+### 16.5 Runtime convenience failure result
 
-The composition compiler does not currently compile reduced motion timelines.
+`playComposition()` catches `MotionPlanningError` and returns a failed result instead of throwing.
+
+Example:
+
+```txt
+status: failed
+reason: composition-item-unknown-motion-type
+```
+
+`planComposition()` is a planning API. Like `planTimeline()`, it can throw planning errors.
+
+## 17. Reduced motion behavior
+
+The composition compiler does not currently compile per-item reduced motion timelines.
 
 Current behavior:
 
 ```txt
 composition compiles normal timeline only
-motion.playTimeline() handles reduced-motion behavior using the existing timeline playback options
+motion.playComposition() delegates to playTimeline()
+motion.playTimeline() handles reduced-motion runtime behavior through the existing timeline playback options
 ```
 
 Because the compiler returns a direct timeline, it does not currently call `buildReducedMotionTimeline()` on each registered motion.
@@ -696,44 +801,36 @@ compileMotionComposition(composition, {
 
 This is not available yet.
 
-## 16. Runtime behavior
+## 18. Runtime behavior
 
-There is no `motion.playComposition()` yet.
-
-Use the explicit flow:
+The runtime convenience methods are intentionally thin.
 
 ```ts
-const composition = createMotionComposition((composition) => {
-  composition.motion('fade-in');
-});
+await motion.playComposition(element, composition);
 
-const timeline = compileMotionComposition(composition, {
-  registry
-});
+const playback = motion.createCompositionPlayback(element, composition);
 
-await motion.playTimeline(element, timeline);
+const plan = motion.planComposition(composition);
 ```
 
-This is intentional.
-
-Benefits:
+They are equivalent to:
 
 ```txt
-composition remains independent from runtime
-compiler remains easy to test
-MotionEngine does not gain new behavior too early
-existing timeline playback remains the single runtime path
+compileMotionComposition()
+  -> playTimeline() / createTimelinePlayback() / planTimeline()
 ```
 
-Future convenience methods may be added later:
+They do not introduce a second runtime, a second driver contract, or a second scheduler.
 
-```ts
-motion.playComposition(target, composition, options);
-motion.createCompositionPlayback(target, composition, options);
-motion.planComposition(composition, options);
+The main benefit is ergonomics:
+
+```txt
+users can play a composition without manually importing compileMotionComposition
+engine registry is reused automatically
+existing timeline behavior remains the single runtime path
 ```
 
-## 17. Serialization behavior
+## 19. Serialization behavior
 
 `MotionCompositionDefinition` is designed to be JSON-safe.
 
@@ -763,11 +860,10 @@ Builder callbacks are not serializable, but their output is.
 
 Serialize the result of `createMotionComposition()`, not the callback itself.
 
-## 18. Example with vanilla Web driver
+## 20. Example with vanilla Web driver
 
 ```ts
 import {
-  compileMotionComposition,
   createMotionComposition,
   createMotionEngine,
   DefaultMotionRegistry
@@ -813,6 +909,12 @@ const composition = createMotionComposition((composition) => {
   });
 });
 
+await motion.playComposition(element, composition);
+```
+
+Manual compilation is still available:
+
+```ts
 const timeline = compileMotionComposition(composition, {
   registry
 });
@@ -820,25 +922,24 @@ const timeline = compileMotionComposition(composition, {
 await motion.playTimeline(element, timeline);
 ```
 
-## 19. Current limitations
+## 21. Current limitations
 
 Current limitations are intentional.
 
 ```txt
-No motion.playComposition() shortcut.
-No createCompositionPlayback() shortcut.
 No item.label support.
 No advanced block offset algorithm.
 No per-item reduced motion compilation.
 No structured composition diagnostics.
 No async motion loading.
 No dependency resolution between composition items.
+No nested composition groups.
 No preset/variant system yet.
 ```
 
 These limitations keep the first public composition API small and predictable.
 
-## 20. Recommended usage today
+## 22. Recommended usage today
 
 Use composition when you need to coordinate multiple motions or timelines.
 
@@ -846,8 +947,9 @@ Recommended:
 
 ```txt
 create MotionCompositionDefinition
-compile to MotionTimelineDefinition
-play through motion.playTimeline()
+use createMotionComposition() for authoring DX
+use motion.playComposition() for direct playback
+use compileMotionComposition() when the compiled timeline must be inspected or cached
 store MotionCompositionDefinition when authoring in a builder
 store MotionTimelineDefinition when caching compiled output
 ```
@@ -855,13 +957,13 @@ store MotionTimelineDefinition when caching compiled output
 Avoid:
 
 ```txt
-using composition as a runtime shortcut
 putting DOM elements in the composition object
 using complex anchor placement before block offsets exist
-expecting reduced motion timelines to be generated per item
+expecting per-item reduced motion timelines to be generated
+using composition as a second runtime model
 ```
 
-## 21. Implementation status
+## 23. Implementation status
 
 Implemented:
 
@@ -873,16 +975,19 @@ CompileMotionCompositionContext
 compileMotionComposition()
 MotionCompositionBuilder
 createMotionComposition()
+motion.planComposition()
+motion.playComposition()
+motion.createCompositionPlayback()
 vanilla composition demo
 ```
 
 Not implemented yet:
 
 ```txt
-motion.playComposition()
-composition playback controller helpers
 advanced block offset
 item.label
 composition-specific reduced motion
 composition diagnostics object model
+nested composition groups
+preset/variant system
 ```
