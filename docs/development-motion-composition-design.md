@@ -138,9 +138,7 @@ A sequence is only one kind of composition.
 A composition item can reference a registered motion or a direct timeline.
 
 ```ts
-export type MotionCompositionItem =
-  | RegisteredMotionCompositionItem
-  | TimelineCompositionItem;
+export type MotionCompositionItem = RegisteredMotionCompositionItem | TimelineCompositionItem;
 ```
 
 ### 6.3 RegisteredMotionCompositionItem
@@ -363,7 +361,7 @@ For each `kind: 'timeline'` item:
 The compiler must return:
 
 ```ts
-MotionTimelineDefinition
+MotionTimelineDefinition;
 ```
 
 The output should be valid input for:
@@ -674,9 +672,7 @@ export type MotionCompositionDefinition = {
   readonly items: ReadonlyArray<MotionCompositionItem>;
 };
 
-export type MotionCompositionItem =
-  | RegisteredMotionCompositionItem
-  | TimelineCompositionItem;
+export type MotionCompositionItem = RegisteredMotionCompositionItem | TimelineCompositionItem;
 
 export type RegisteredMotionCompositionItem = {
   readonly kind: 'motion';
