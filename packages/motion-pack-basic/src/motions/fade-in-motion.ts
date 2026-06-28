@@ -1,78 +1,49 @@
 import {
-  BaseMotionDefinition,
-  normalizeNumber,
+  SchemaMotionDefinition,
   createMotionTimeline,
+  defineMotionOptions,
+  option,
+  validateDifferent,
+  type InferMotionOptions,
   type MotionBuildContext,
   type MotionCategory,
-  type MotionOptionDefinition,
   type MotionTimelineDefinition
 } from '@structifyx/motion-core';
 
-export type FadeInMotionOptions = {
-  readonly fromOpacity: number;
-  readonly toOpacity: number;
-};
+const fadeInMotionOptions = defineMotionOptions({
+  fromOpacity: option.range({
+    label: 'From opacity',
+    description: 'Initial opacity value.',
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+    step: 0.05,
+    unit: 'none'
+  }),
+  toOpacity: option.range({
+    label: 'To opacity',
+    description: 'Final opacity value.',
+    defaultValue: 1,
+    min: 0,
+    max: 1,
+    step: 0.05,
+    unit: 'none'
+  })
+});
 
-export class FadeInMotion extends BaseMotionDefinition<FadeInMotionOptions> {
+export type FadeInMotionOptions = InferMotionOptions<typeof fadeInMotionOptions.schema>;
+
+export class FadeInMotion extends SchemaMotionDefinition<typeof fadeInMotionOptions.schema> {
   readonly type = 'fade-in';
   readonly label = 'Fade in';
   readonly description = 'Makes the target appear progressively using opacity.';
   readonly category: MotionCategory = 'entrance';
 
-  readonly optionDefinitions: ReadonlyArray<MotionOptionDefinition> = [
-    {
-      name: 'fromOpacity',
-      label: 'From opacity',
-      description: 'Initial opacity value.',
-      type: 'range',
-      defaultValue: 0,
-      min: 0,
-      max: 1,
-      step: 0.05,
-      unit: 'none'
-    },
-    {
-      name: 'toOpacity',
-      label: 'To opacity',
-      description: 'Final opacity value.',
-      type: 'range',
-      defaultValue: 1,
-      min: 0,
-      max: 1,
-      step: 0.05,
-      unit: 'none'
-    }
+  protected readonly options = fadeInMotionOptions;
+
+  protected override readonly validators = [
+    validateDifferent('fromOpacity', 'toOpacity', 'fromOpacity and toOpacity must be different')
   ];
-
-  getDefaultOptions(): FadeInMotionOptions {
-    return {
-      fromOpacity: 0,
-      toOpacity: 1
-    };
-  }
-
-  normalizeOptions(options: Record<string, unknown> | undefined): FadeInMotionOptions {
-    return {
-      fromOpacity: normalizeNumber(options?.['fromOpacity'], {
-        defaultValue: 0,
-        min: 0,
-        max: 1
-      }),
-      toOpacity: normalizeNumber(options?.['toOpacity'], {
-        defaultValue: 1,
-        min: 0,
-        max: 1
-      })
-    };
-  }
-
-  override validateOptions(options: FadeInMotionOptions): ReadonlyArray<string> {
-    if (options.fromOpacity === options.toOpacity) {
-      return ['fromOpacity and toOpacity must be different'];
-    }
-
-    return [];
-  }
 
   buildTimeline(context: MotionBuildContext<FadeInMotionOptions>): MotionTimelineDefinition {
     return createMotionTimeline((timeline) => {
