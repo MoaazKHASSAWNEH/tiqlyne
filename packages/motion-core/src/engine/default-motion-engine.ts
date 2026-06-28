@@ -31,6 +31,8 @@ import type {
   MotionPlayEvent,
   MotionSkipEvent
 } from '../models/motion-engine-events';
+import { compileMotionComposition } from '../composition/compile-motion-composition';
+import type { MotionCompositionDefinition } from '../composition/motion-composition-definition';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -262,6 +264,48 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
   }
 
+  async playComposition(
+    target: TTarget,
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): Promise<MotionPlaybackResult> {
+    try {
+      const timeline = this.compileComposition(composition, options);
+
+      return await this.playTimeline(target, timeline, options);
+    } catch (error: unknown) {
+      this.emitError({
+        type: 'error',
+        source: 'direct-timeline',
+        target,
+        error
+      });
+
+      if (error instanceof MotionPlanningError) {
+        return {
+          status: 'failed',
+          reason: error.code,
+          ...(error.diagnostics.length > 0
+            ? {
+                diagnostics: error.diagnostics
+              }
+            : {}),
+          ...(error.validationErrors.length > 0
+            ? {
+                error: error.validationErrors
+              }
+            : {})
+        };
+      }
+
+      return {
+        status: 'failed',
+        reason: 'motion-engine-error',
+        error
+      };
+    }
+  }
+
   plan(config: MotionConfig): MotionExecutionPlan {
     const normalizedConfig = this.dependencies.normalizer.normalize(config);
 
@@ -422,6 +466,15 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     });
 
     return executionPlan;
+  }
+
+  planComposition(
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionExecutionPlan {
+    const timeline = this.compileComposition(composition, options);
+
+    return this.planTimeline(timeline, options);
   }
 
   async cancel(target: TTarget): Promise<MotionPlaybackResult> {
@@ -593,6 +646,31 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     }
   }
 
+  createCompositionPlayback(
+    target: TTarget,
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionPlaybackController {
+    const fallback = (): MotionPlaybackController => {
+      const finished = this.playComposition(target, composition, options);
+
+      return new PromiseMotionPlaybackController(
+        'composition',
+        finished,
+        () => this.cancel(target),
+        () => this.finish(target)
+      );
+    };
+
+    try {
+      const timeline = this.compileComposition(composition, options);
+
+      return this.createTimelinePlayback(target, timeline, options);
+    } catch {
+      return fallback();
+    }
+  }
+
   private emitBeforePlan(event: Omit<MotionBeforePlanEvent<TTarget>, 'timestamp'>): void {
     this.dependencies.events?.onBeforePlan?.({
       type: event.type,
@@ -747,6 +825,20 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       ...(event.motionType !== undefined
         ? {
             motionType: event.motionType
+          }
+        : {})
+    });
+  }
+
+  private compileComposition(
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionTimelineDefinition {
+    return compileMotionComposition(composition, {
+      registry: this.dependencies.registry,
+      ...(options?.validation !== undefined
+        ? {
+            validation: options.validation
           }
         : {})
     });

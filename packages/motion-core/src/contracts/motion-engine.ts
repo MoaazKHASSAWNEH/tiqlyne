@@ -6,6 +6,7 @@ import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
 import type { MotionDefinition } from './motion-definition';
 import type { MotionCategory } from '../models/motion-category';
+import type { MotionCompositionDefinition } from '../composition/motion-composition-definition';
 
 export interface MotionEngine<TTarget = unknown> {
   register<TOptions extends object>(definition: MotionDefinition<TOptions>): MotionEngine<TTarget>;
@@ -46,6 +47,23 @@ export interface MotionEngine<TTarget = unknown> {
 
   planTimeline(
     timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionExecutionPlan;
+
+  playComposition(
+    target: TTarget,
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): Promise<MotionPlaybackResult>;
+
+  createCompositionPlayback(
+    target: TTarget,
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionPlaybackController;
+
+  planComposition(
+    composition: MotionCompositionDefinition,
     options?: MotionTimelinePlayOptions
   ): MotionExecutionPlan;
 }

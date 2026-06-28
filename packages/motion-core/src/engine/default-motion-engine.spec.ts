@@ -11,6 +11,7 @@ import type { MotionDriver, MotionPlayOptions } from '../contracts/motion-driver
 import type { MotionPlaybackController } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import { createMotionTimeline } from '../builders/create-motion-timeline';
+import { createMotionComposition } from '../composition/create-motion-composition';
 
 type TestOptions = {
   readonly intensity: number;
@@ -1103,5 +1104,134 @@ describe('DefaultMotionEngine', () => {
         }
       })
     ).toThrow();
+  });
+
+  it('creates an execution plan from a motion composition', () => {
+    const { engine, registry } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const composition = createMotionComposition((composition) => {
+      composition.motion('test-motion', {
+        options: {
+          intensity: 0.8
+        },
+        defaults: {
+          duration: 400,
+          delay: 50,
+          easing: 'ease-out'
+        }
+      });
+    });
+
+    const plan = engine.planComposition(composition);
+
+    expect(plan.summary).toEqual({
+      trackCount: 1,
+      taskCount: 1,
+      totalDuration: 450,
+      hasInfiniteDuration: false,
+      infiniteTaskCount: 0,
+      hasReducedMotionTimeline: false
+    });
+  });
+
+  it('plays a motion composition through the timeline pipeline', async () => {
+    const { engine, registry, driver } = createEngine();
+
+    registry.register(new TestMotionDefinition());
+
+    const composition = createMotionComposition((composition) => {
+      composition.motion('test-motion', {
+        options: {
+          intensity: 0.8
+        },
+        defaults: {
+          duration: 400,
+          delay: 50,
+          easing: 'ease-out'
+        }
+      });
+    });
+
+    const result = await engine.playComposition('target-1', composition);
+
+    expect(result).toEqual({
+      status: 'finished'
+    });
+
+    expect(driver.getCalls()).toHaveLength(1);
+    expect(driver.getCalls()[0]?.target).toBe('target-1');
+    expect(driver.getCalls()[0]?.options.timelineValidated).toBe(true);
+    expect(driver.getCalls()[0]?.timeline).toEqual({
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 400,
+              delay: 50,
+              easing: 'ease-out',
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 0.8
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+  });
+
+  it('returns failed result when a motion composition cannot be compiled', async () => {
+    const { engine, driver } = createEngine();
+
+    const composition = createMotionComposition((composition) => {
+      composition.motion('unknown-motion');
+    });
+
+    const result = await engine.playComposition('target-1', composition);
+
+    expect(result).toEqual({
+      status: 'failed',
+      reason: 'composition-item-unknown-motion-type'
+    });
+
+    expect(driver.getCalls()).toHaveLength(0);
+  });
+
+  it('creates native playback from a motion composition when supported by the driver', () => {
+    const registry = new DefaultMotionRegistry();
+    const driver = new NativePlaybackTestDriver();
+    const normalizer = new DefaultMotionConfigNormalizer();
+
+    const engine = new DefaultMotionEngine<string>({
+      registry,
+      driver,
+      normalizer
+    });
+
+    registry.register(new TestMotionDefinition());
+
+    const composition = createMotionComposition((composition) => {
+      composition.motion('test-motion', {
+        defaults: {
+          duration: 400
+        }
+      });
+    });
+
+    const playback = engine.createCompositionPlayback('target-1', composition);
+
+    expect(playback).toBe(driver.controller);
+    expect(driver.createPlaybackCalls).toHaveLength(1);
+    expect(driver.createPlaybackCalls[0]?.target).toBe('target-1');
+    expect(driver.createPlaybackCalls[0]?.options.timelineValidated).toBe(true);
   });
 });
