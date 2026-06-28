@@ -242,4 +242,14 @@ export {
   type MotionOptionValidator
 } from './options/motion-option-validator';
 
+export type {
+  CompileMotionCompositionContext,
+  MotionCompositionDefinition,
+  MotionCompositionItem,
+  RegisteredMotionCompositionItem,
+  TimelineCompositionItem
+} from './composition/motion-composition-definition';
+
+export { compileMotionComposition } from './composition/compile-motion-composition';
+
 export const motionCoreVersion = '0.1.0';

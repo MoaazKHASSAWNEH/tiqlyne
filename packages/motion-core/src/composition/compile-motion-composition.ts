@@ -1,0 +1,245 @@
+import type { MotionBuildContext } from '../contracts/motion-definition';
+import { applyMotionStepDefaults } from '../compiler/apply-motion-timeline-defaults';
+import { MotionPlanningError } from '../engine/motion-planning-error';
+import type { MotionEasing } from '../models/motion-easing';
+import type { MotionTargetReference } from '../models/motion-target';
+import type {
+  MotionStepDefinition,
+  MotionTimelineDefaults,
+  MotionTimelineDefinition,
+  MotionTrackDefinition
+} from '../models/motion-timeline';
+import type { MotionTriggerType } from '../models/motion-trigger';
+import { validateMotionTimeline } from '../validators/validate-motion-timeline';
+import type {
+  CompileMotionCompositionContext,
+  MotionCompositionDefinition,
+  MotionCompositionItem,
+  RegisteredMotionCompositionItem,
+  TimelineCompositionItem
+} from './motion-composition-definition';
+
+const DEFAULT_TARGET: MotionTargetReference = {
+  type: 'self'
+};
+
+const DEFAULT_DURATION = 300;
+const DEFAULT_DELAY = 0;
+const DEFAULT_EASING: MotionEasing = 'ease-out';
+const DEFAULT_TRIGGER: MotionTriggerType = 'onEnter';
+
+export function compileMotionComposition(
+  composition: MotionCompositionDefinition,
+  context: CompileMotionCompositionContext
+): MotionTimelineDefinition {
+  if (composition.items.length === 0) {
+    throw new MotionPlanningError(
+      'Motion composition must contain at least one item.',
+      'composition-empty'
+    );
+  }
+
+  const tracks = composition.items.flatMap((item) =>
+    compileMotionCompositionItem(item, composition, context)
+  );
+
+  const timeline: MotionTimelineDefinition = {
+    tracks,
+    ...(composition.defaults !== undefined || context.defaults !== undefined
+      ? {
+          defaults: {
+            ...(context.defaults ?? {}),
+            ...(composition.defaults ?? {})
+          }
+        }
+      : {}),
+    ...(composition.labels !== undefined
+      ? {
+          labels: composition.labels
+        }
+      : {})
+  };
+
+  const validationResult = validateMotionTimeline(timeline, context.validation);
+
+  if (!validationResult.valid) {
+    throw new MotionPlanningError(
+      'Compiled motion composition timeline is invalid.',
+      'composition-invalid-timeline',
+      validationResult.diagnostics
+    );
+  }
+
+  return timeline;
+}
+
+function compileMotionCompositionItem(
+  item: MotionCompositionItem,
+  composition: MotionCompositionDefinition,
+  context: CompileMotionCompositionContext
+): ReadonlyArray<MotionTrackDefinition> {
+  switch (item.kind) {
+    case 'motion':
+      return compileRegisteredMotionItem(item, composition, context);
+
+    case 'timeline':
+      return compileTimelineItem(item);
+
+    default:
+      return assertNever(item);
+  }
+}
+
+function compileRegisteredMotionItem(
+  item: RegisteredMotionCompositionItem,
+  composition: MotionCompositionDefinition,
+  context: CompileMotionCompositionContext
+): ReadonlyArray<MotionTrackDefinition> {
+  const definition = context.registry.get(item.type);
+
+  if (!definition) {
+    throw new MotionPlanningError(
+      `Unknown motion type in composition: ${item.type}.`,
+      'composition-item-unknown-motion-type'
+    );
+  }
+
+  const options = definition.normalizeOptions(item.options);
+  const validationErrors = definition.validateOptions?.(options) ?? [];
+
+  if (validationErrors.length > 0) {
+    throw new MotionPlanningError(
+      `Motion composition item options are invalid for motion type: ${item.type}.`,
+      'composition-item-invalid-options',
+      [],
+      validationErrors
+    );
+  }
+
+  const buildContext: MotionBuildContext<object> = {
+    options,
+    duration:
+      item.defaults?.duration ??
+      composition.defaults?.duration ??
+      context.defaults?.duration ??
+      DEFAULT_DURATION,
+    delay:
+      item.defaults?.delay ??
+      composition.defaults?.delay ??
+      context.defaults?.delay ??
+      DEFAULT_DELAY,
+    easing:
+      item.defaults?.easing ??
+      composition.defaults?.easing ??
+      context.defaults?.easing ??
+      DEFAULT_EASING,
+    trigger: DEFAULT_TRIGGER
+  };
+
+  const timeline = definition.buildTimeline(buildContext);
+
+  return timeline.tracks.map((track) =>
+    transformCompositionTrack(track, {
+      ...(item.target !== undefined
+        ? {
+            target: item.target
+          }
+        : {}),
+      ...(item.at !== undefined
+        ? {
+            at: item.at
+          }
+        : {}),
+      ...(item.defaults !== undefined
+        ? {
+            defaults: item.defaults
+          }
+        : {})
+    })
+  );
+}
+
+function compileTimelineItem(item: TimelineCompositionItem): ReadonlyArray<MotionTrackDefinition> {
+  return item.timeline.tracks.map((track) =>
+    transformCompositionTrack(track, {
+      ...(item.target !== undefined
+        ? {
+            target: item.target
+          }
+        : {}),
+      ...(item.at !== undefined
+        ? {
+            at: item.at
+          }
+        : {}),
+      ...(item.defaults !== undefined
+        ? {
+            defaults: item.defaults
+          }
+        : {})
+    })
+  );
+}
+
+type TransformCompositionTrackOptions = {
+  readonly target?: MotionTargetReference;
+  readonly at?: RegisteredMotionCompositionItem['at'];
+  readonly defaults?: MotionTimelineDefaults;
+};
+
+function transformCompositionTrack(
+  track: MotionTrackDefinition,
+  options: TransformCompositionTrackOptions
+): MotionTrackDefinition {
+  const target = options.target ?? track.target ?? DEFAULT_TARGET;
+
+  const steps = track.steps.map((step, stepIndex) =>
+    transformCompositionStep(step, {
+      ...(stepIndex === 0 && options.at !== undefined
+        ? {
+            at: options.at
+          }
+        : {}),
+      ...(options.defaults !== undefined
+        ? {
+            defaults: options.defaults
+          }
+        : {})
+    })
+  );
+
+  return {
+    ...track,
+    target,
+    steps
+  };
+}
+
+type TransformCompositionStepOptions = {
+  readonly at?: RegisteredMotionCompositionItem['at'];
+  readonly defaults?: MotionTimelineDefaults;
+};
+
+function transformCompositionStep(
+  step: MotionStepDefinition,
+  options: TransformCompositionStepOptions
+): MotionStepDefinition {
+  const stepWithDefaults =
+    options.defaults !== undefined ? applyMotionStepDefaults(step, options.defaults) : step;
+
+  if (options.at === undefined) {
+    return stepWithDefaults;
+  }
+
+  return {
+    ...stepWithDefaults,
+    at: options.at
+  };
+}
+
+function assertNever(value: never): never {
+  throw new MotionPlanningError(
+    `Unsupported motion composition item kind: ${String(value)}.`,
+    'composition-item-unsupported-kind'
+  );
+}
