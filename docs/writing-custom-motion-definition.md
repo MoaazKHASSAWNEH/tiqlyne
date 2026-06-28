@@ -332,7 +332,7 @@ retries: option.number({
   defaultValue: 1,
   min: 0,
   max: 10
-})
+});
 ```
 
 ### 5.2 range
@@ -347,7 +347,7 @@ distance: option.range({
   max: 300,
   step: 1,
   unit: 'px'
-})
+});
 ```
 
 ### 5.3 string
@@ -358,7 +358,7 @@ Use `string` for text values.
 label: option.string({
   label: 'Label',
   defaultValue: 'Default label'
-})
+});
 ```
 
 ### 5.4 boolean
@@ -369,7 +369,7 @@ Use `boolean` for flags.
 fade: option.boolean({
   label: 'Fade',
   defaultValue: true
-})
+});
 ```
 
 ### 5.5 select
@@ -386,7 +386,7 @@ direction: option.select({
     { label: 'Top', value: 'top' },
     { label: 'Bottom', value: 'bottom' }
   ] as const
-})
+});
 ```
 
 Use `as const` on `choices` when you want TypeScript to infer a precise union type.
@@ -401,7 +401,7 @@ Use `color` for color-like string values.
 backgroundColor: option.color({
   label: 'Background color',
   defaultValue: '#000000'
-})
+});
 ```
 
 The current color option normalizes to a string fallback. It does not yet parse or validate color formats strictly.
@@ -425,7 +425,7 @@ validateDecreasing()
 Use it when two values must not be the same.
 
 ```ts
-validateDifferent('fromOpacity', 'toOpacity', 'Opacity values must be different')
+validateDifferent('fromOpacity', 'toOpacity', 'Opacity values must be different');
 ```
 
 ### 6.2 validateGreaterThan
@@ -433,7 +433,7 @@ validateDifferent('fromOpacity', 'toOpacity', 'Opacity values must be different'
 Use it when one numeric option must be strictly greater than another.
 
 ```ts
-validateGreaterThan('toScale', 'fromScale', 'toScale must be greater than fromScale')
+validateGreaterThan('toScale', 'fromScale', 'toScale must be greater than fromScale');
 ```
 
 ### 6.3 validateGreaterThanOrEqual
@@ -441,7 +441,11 @@ validateGreaterThan('toScale', 'fromScale', 'toScale must be greater than fromSc
 Use it when equality is allowed.
 
 ```ts
-validateGreaterThanOrEqual('maxDelay', 'minDelay', 'maxDelay must be greater than or equal to minDelay')
+validateGreaterThanOrEqual(
+  'maxDelay',
+  'minDelay',
+  'maxDelay must be greater than or equal to minDelay'
+);
 ```
 
 ### 6.4 validateLessThan
@@ -449,7 +453,7 @@ validateGreaterThanOrEqual('maxDelay', 'minDelay', 'maxDelay must be greater tha
 Use it when one numeric option must be strictly less than another.
 
 ```ts
-validateLessThan('fromOpacity', 'toOpacity', 'fromOpacity must be less than toOpacity')
+validateLessThan('fromOpacity', 'toOpacity', 'fromOpacity must be less than toOpacity');
 ```
 
 ### 6.5 validateLessThanOrEqual
@@ -457,7 +461,7 @@ validateLessThan('fromOpacity', 'toOpacity', 'fromOpacity must be less than toOp
 Use it when equality is allowed.
 
 ```ts
-validateLessThanOrEqual('minDelay', 'maxDelay', 'minDelay must be less than or equal to maxDelay')
+validateLessThanOrEqual('minDelay', 'maxDelay', 'minDelay must be less than or equal to maxDelay');
 ```
 
 ### 6.6 validateIncreasing
@@ -465,7 +469,7 @@ validateLessThanOrEqual('minDelay', 'maxDelay', 'minDelay must be less than or e
 Use it for semantic “from -> to” values that must increase.
 
 ```ts
-validateIncreasing('fromOpacity', 'toOpacity', 'Fade in opacity must increase')
+validateIncreasing('fromOpacity', 'toOpacity', 'Fade in opacity must increase');
 ```
 
 This is preferred for entrance-style options where the intent matters more than the raw comparison wording.
@@ -475,7 +479,7 @@ This is preferred for entrance-style options where the intent matters more than 
 Use it for semantic “from -> to” values that must decrease.
 
 ```ts
-validateDecreasing('fromOpacity', 'toOpacity', 'Fade out opacity must decrease')
+validateDecreasing('fromOpacity', 'toOpacity', 'Fade out opacity must decrease');
 ```
 
 This is preferred for exit-style options where the intent matters more than the raw comparison wording.
@@ -809,14 +813,14 @@ For directional values, prefer semantic validators.
 Good:
 
 ```ts
-validateIncreasing('fromOpacity', 'toOpacity', 'Fade in opacity must increase')
-validateDecreasing('fromOpacity', 'toOpacity', 'Fade out opacity must decrease')
+validateIncreasing('fromOpacity', 'toOpacity', 'Fade in opacity must increase');
+validateDecreasing('fromOpacity', 'toOpacity', 'Fade out opacity must decrease');
 ```
 
 Avoid:
 
 ```ts
-validateDifferent('fromOpacity', 'toOpacity', 'Opacity values must be different')
+validateDifferent('fromOpacity', 'toOpacity', 'Opacity values must be different');
 ```
 
 `validateDifferent()` only checks inequality. It does not check the intended direction.
