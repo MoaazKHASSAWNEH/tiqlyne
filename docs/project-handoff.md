@@ -2,7 +2,7 @@
 
 > Status: document de reprise principal.
 > Objectif: permettre a Moaaz, a un autre agent LLM ou a un developpeur de reprendre le projet exactement au bon point.
-> Dernier etat verifie: apres `5880634 fix(web): skip finish for infinite playback controllers` et apres la mise a jour documentaire du comportement des playback controllers.
+> Dernier etat verifie: apres `7f9e6df feat(core): add numeric option validators`, apres la migration du pack basic vers `SchemaMotionDefinition`, et apres l'ajout du guide `docs/writing-custom-motion-definition.md`.
 
 Ce document doit etre lu avant de modifier le code.
 
@@ -110,9 +110,32 @@ Role:
 - execution plan
 - controllers generiques
 - drivers neutres de test
+- helpers DX pour custom MotionDefinition
 ```
 
 Regle absolue: `motion-core` ne doit pas importer DOM, WAAPI, Angular, React, GSAP ou une API navigateur.
+
+API DX custom motions actuellement disponible:
+
+```txt
+SchemaMotionDefinition
+defineMotionOptions()
+option.number()
+option.range()
+option.string()
+option.boolean()
+option.select()
+option.color()
+InferMotionOptions
+optionValidators
+validateDifferent()
+validateGreaterThan()
+validateGreaterThanOrEqual()
+validateLessThan()
+validateLessThanOrEqual()
+validateIncreasing()
+validateDecreasing()
+```
 
 ### 4.2 `@structifyx/motion-web`
 
@@ -141,6 +164,17 @@ fade-out
 slide-in
 ```
 
+Etat DX actuel:
+
+```txt
+- les trois motions utilisent SchemaMotionDefinition
+- les options utilisent defineMotionOptions()
+- les types publics utilisent InferMotionOptions
+- fade-in utilise validateIncreasing pour garantir une opacite montante
+- fade-out utilise validateDecreasing pour garantir une opacite descendante
+- slide-in utilise option.select/range/boolean et conserve buildReducedMotionTimeline()
+```
+
 ### 4.4 `examples/vanilla`
 
 Role: exemple navigateur Vite.
@@ -160,31 +194,31 @@ Il sert a verifier rapidement:
 - events controller
 ```
 
+Prochaine amelioration utile: ajouter un petit exemple de custom motion locale, sans transformer l'exemple en visual builder complet.
+
 ## 5. Commandes de validation
 
-Commande globale recommandee avant chaque commit:
+Commandes globales recommandees avant chaque commit:
 
 ```bash
-pnpm format && pnpm build && pnpm typecheck && pnpm -r --workspace-concurrency=1 test && git --no-pager diff --name-only
+pnpm format
+pnpm test
+pnpm build
 ```
 
 Commandes ciblees:
 
 ```bash
 pnpm --filter @structifyx/motion-core build
-pnpm --filter @structifyx/motion-core typecheck
 pnpm --filter @structifyx/motion-core test
 
 pnpm --filter @structifyx/motion-web build
-pnpm --filter @structifyx/motion-web typecheck
 pnpm --filter @structifyx/motion-web test
 
 pnpm --filter @structifyx/motion-pack-basic build
-pnpm --filter @structifyx/motion-pack-basic typecheck
 pnpm --filter @structifyx/motion-pack-basic test
 
 pnpm --filter @structifyx/motion-example-vanilla build
-pnpm --filter @structifyx/motion-example-vanilla typecheck
 pnpm --filter @structifyx/motion-example-vanilla dev
 ```
 
@@ -192,12 +226,12 @@ Dernier resultat global connu:
 
 ```txt
 format OK
+test OK
 build OK
-typecheck OK
-motion-core: 234 tests passed
-motion-pack-basic: 21 tests passed
-motion-web: 159 tests passed
-examples/vanilla: build + typecheck OK
+motion-core: 19 test files, 254 tests passed
+motion-pack-basic: 4 test files, 25 tests passed
+motion-web: 12 test files, 159 tests passed
+examples/vanilla: build OK
 ```
 
 ## 6. Architecture actuelle du pipeline
@@ -274,7 +308,40 @@ await motion.play(element, {
 });
 ```
 
-### 7.4 Playback controller
+### 7.4 Custom MotionDefinition
+
+Le guide principal est:
+
+```txt
+docs/writing-custom-motion-definition.md
+```
+
+API recommandee pour la plupart des custom motions:
+
+```txt
+SchemaMotionDefinition
+  garde une classe explicite tout en supprimant le boilerplate options/defaults/normalize.
+
+defineMotionOptions()
+  source unique pour optionDefinitions, defaults, normalization et typing.
+
+optionValidators
+  validation semantique des relations entre options normalisees.
+
+createMotionTimeline()
+  construction explicite de la timeline serialisable.
+```
+
+Regles importantes:
+
+```txt
+- ne pas dupliquer optionDefinitions/getDefaultOptions/normalizeOptions si defineMotionOptions suffit
+- preferer InferMotionOptions au type manuel duplique
+- valider l'intention avec validateIncreasing/validateDecreasing quand le sens compte
+- ne pas ajouter de shortcuts animation-specific dans le timeline builder
+```
+
+### 7.5 Playback controller
 
 ```ts
 const playback = motion.createTimelinePlayback(element, timeline);
@@ -411,6 +478,8 @@ new WebMotionDriver({
 });
 ```
 
+Pour les custom motions avec mouvement, scale ou rotation, ajouter si possible `buildReducedMotionTimeline()`.
+
 ## 11. Conflict strategy
 
 Strategies:
@@ -465,6 +534,9 @@ docs/developer-api-guide.md
 docs/developer-api-guide-current-status.md
   Addendum de statut courant.
 
+docs/writing-custom-motion-definition.md
+  Guide pour creer des MotionDefinition reutilisables avec SchemaMotionDefinition.
+
 docs/engine-events-api.md
   Reference des events globaux moteur.
 
@@ -479,6 +551,9 @@ docs/playback-controller-behavior.md
 
 docs/motion-core-web-examples.md
   Exemples core + Web.
+
+docs/development-motion-definition-dx-audit.md
+  Audit interne de la DX MotionDefinition.
 
 docs/development-architecture-audit.md
   Audit technique interne.
@@ -516,206 +591,67 @@ Etapes deja implementees:
 22. exemple vanilla minimal infinite/yoyo
 23. Web playback controller: finish infinite retourne skipped au lieu de failed
 24. playback controller behavior docs
+25. SchemaMotionDefinition
+26. defineMotionOptions + option builders
+27. InferMotionOptions
+28. migration fade-in vers SchemaMotionDefinition
+29. migration fade-out et slide-in vers SchemaMotionDefinition
+30. numeric option validators
+31. validateIncreasing applique a fade-in
+32. validateDecreasing applique a fade-out
+33. guide docs/writing-custom-motion-definition.md
 ```
 
-## 15. Etat exact du dernier point de travail
+## 15. Limites connues / features manquantes a auditer ensuite
 
-Dernier commit code pousse par Moaaz:
+Features non implementees ou non stabilisees:
 
 ```txt
-5880634 fix(web): skip finish for infinite playback controllers
+- composition/orchestration de plusieurs motions
+- sequences ou groups de motions haut niveau
+- variants/presets reutilisables
+- custom MotionDriver guide
+- validateWhen() pour validations conditionnelles
+- warning-level option validation
+- structured option validation issues avec code/path/level
+- metadata UI pour options: group/order/advanced/visibleWhen/disabledWhen
+- dynamic event subscription API motion.on(...)
+- events plus fins: step start/finish, track start/finish, repeat, reverse, progress
+- color format validation stricte
+- versioning / compatibility policy
+- exemple vanilla avec custom motion locale
+- plus de motions pack-basic: scale, rotate, blur, expand/collapse, attention
 ```
 
-Derniere validation locale apres ce commit:
+Priorite probable pour le prochain audit fonctionnel:
 
 ```txt
-format OK
-build OK
-typecheck OK
-motion-core: 234 tests passed
-motion-pack-basic: 21 tests passed
-motion-web: 159 tests passed
+1. composition/orchestration de motions
+2. structured validation issues pour builder UI
+3. metadata UI pour options
+4. custom MotionDriver guide
+5. exemple vanilla custom motion
 ```
 
-Derniers fichiers code modifies dans ce commit:
+## 16. Regles a preserver
 
 ```txt
-examples/vanilla/index.html
-examples/vanilla/src/main.ts
-examples/vanilla/src/styles.css
-packages/motion-web/src/controllers/web-motion-playback-controller.ts
-packages/motion-web/src/drivers/web-motion-driver.spec.ts
-```
-
-Derniers fichiers docs mis a jour ensuite:
-
-```txt
-docs/playback-controller-behavior.md
-docs/project-handoff.md
-docs/developer-api-guide-current-status.md
-docs/web-driver-quickstart.md
-```
-
-## 16. Prochaines etapes recommandees
-
-### 16.1 Court terme: stabilisation docs
-
-Objectif:
-
-```txt
-S'assurer que toutes les docs disent la meme chose sur infinite/yoyo/controller.
-```
-
-A verifier:
-
-```txt
-docs/web-driver-quickstart.md
-docs/developer-api-guide-current-status.md
-docs/motion-core-web-examples.md
-docs/skip-event-api.md
-```
-
-### 16.2 Court terme: guide custom MotionDefinition
-
-Prochaine vraie documentation utile:
-
-```txt
-docs/writing-custom-motion-definition.md
-```
-
-Objectif:
-
-```txt
-expliquer comment creer une motion reusable type fade/slide/custom
-```
-
-Plan conseille:
-
-```txt
-1. structure d'une MotionDefinition
-2. options typees
-3. validateOptions
-4. buildTimeline avec createMotionTimeline
-5. reduced motion timeline optionnel
-6. tests Vitest
-7. registration dans une registry
-```
-
-### 16.3 Court terme: guide custom MotionDriver
-
-Ensuite:
-
-```txt
-docs/writing-custom-motion-driver.md
-```
-
-Objectif:
-
-```txt
-expliquer comment porter le moteur vers une autre plateforme que le Web
-```
-
-### 16.4 Feature technique possible apres docs
-
-Feature recommandee apres les guides:
-
-```txt
-feat(core): add dynamic event subscription API
-```
-
-Idee:
-
-```ts
-const unsubscribe = motion.on('finish', listener);
-```
-
-Mais cette feature n'est pas encore implementee. Ne pas la documenter comme disponible.
-
-### 16.5 Future visual lab
-
-Le builder visuel complet a ete juge trop ambitieux pour maintenant.
-
-Decision actuelle:
-
-```txt
-Garder examples/vanilla simple et cible.
-Ne pas construire un editeur complet tant que le moteur n'est pas stabilise et documente.
-```
-
-Un futur visual lab pourrait revenir plus tard avec:
-
-```txt
-- panel preview fixe
-- panel controls scrollable
-- creation de tracks/steps
-- edition des keyframes
-- generation JSON timeline
-```
-
-Mais ce n'est pas la prochaine etape.
-
-## 17. Regles pour le prochain agent
-
-```txt
-1. Lire ce fichier avant toute proposition.
-2. Ne pas faire de gros refactor en une fois.
-3. Ne pas changer les comportements pendant une phase docs.
-4. Ne pas renommer les diagnostics sans raison.
-5. Ne pas introduire de dependance DOM dans motion-core.
-6. Ne pas ajouter any.
-7. Respecter exactOptionalPropertyTypes.
-8. Garder MotionTimelineDefinition serializable.
-9. Garder createMotionTimeline comme helper, pas comme source de verite unique.
-10. Pour les limitations controlees, preferer skipped + diagnostic warning.
-11. Pour les erreurs inattendues, utiliser failed + diagnostic error.
-12. Valider localement apres chaque modification.
-```
-
-## 18. Resume tres court pour reprise rapide
-
-Le moteur est dans un bon etat.
-
-Etat actuel:
-
-```txt
-core pur TypeScript
-web driver WAAPI
-pack basic
-registry
-createMotionEngine facade
-direct timelines
-registered motions
-timeline builder
-defaults
-validation stricte
-prepared timeline
-scheduled timeline
-execution plan
-labels
-anchors
-stagger
-reduced motion
-conflict strategy
-playback controller
-engine events
-controller events
-skip event
-iterations infinite
-yoyo
-playbackRate
-example vanilla infinite/yoyo
-```
-
-Point exact de reprise:
-
-```txt
-Apres correction du comportement finish() sur animation infinite.
-La prochaine etape recommandee est documentation/custom guides, pas gros refactor.
-```
-
-Commande de securite avant de continuer:
-
-```bash
-git pull
-pnpm format && pnpm build && pnpm typecheck && pnpm -r --workspace-concurrency=1 test
+- motion-core doit rester framework-agnostic.
+- motion-core ne doit pas importer DOM, WAAPI, Angular, React ou GSAP.
+- MotionTimelineDefinition reste la source de verite serialisable.
+- createMotionTimeline() est une convenience de builder, pas un remplacement du modele.
+- createMotionEngine() est la factory publique.
+- DefaultMotionEngine est un detail d'implementation pour la plupart des utilisateurs.
+- Engine defaults ne doivent pas override les valeurs timeline, track ou step.
+- Per-play validation doit override engine validation.
+- Engine events sont observationnels.
+- Controller events sont separes des engine events.
+- Les proprietes optionnelles doivent etre omises plutot que mises a undefined.
+- Utiliser skipped pour les operations non supportees mais controlees.
+- Utiliser failed pour les erreurs runtime inattendues.
+- Garder createMotionTimeline() explicite.
+- Ne pas ajouter de shortcuts animation-specific comme timeline.fade() ou fadeTimeline().
+- Pour les custom motions, preferer SchemaMotionDefinition par defaut.
+- Pour les options, garder defineMotionOptions() comme source unique.
+- Pour les validations d'intention, preferer validateIncreasing/validateDecreasing a validateDifferent.
 ```
