@@ -312,4 +312,58 @@ describe('createMotionComposition', () => {
       ]
     });
   });
+
+  it('adds labels to registered motion items', () => {
+    const composition = createMotionComposition((composition) => {
+      composition.motion('fade-in', {
+        label: 'card-enter',
+        at: 100
+      });
+    });
+
+    expect(composition.items[0]).toMatchObject({
+      kind: 'motion',
+      type: 'fade-in',
+      label: 'card-enter',
+      at: 100
+    });
+  });
+
+  it('adds labels to direct timeline items', () => {
+    const timeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const composition = createMotionComposition((composition) => {
+      composition.timeline(timeline, {
+        label: 'timeline-enter',
+        at: 100
+      });
+    });
+
+    expect(composition.items[0]).toMatchObject({
+      kind: 'timeline',
+      label: 'timeline-enter',
+      at: 100
+    });
+  });
 });

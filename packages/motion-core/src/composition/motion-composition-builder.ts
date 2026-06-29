@@ -13,6 +13,7 @@ import type {
 } from '../models/motion-timeline';
 
 export type MotionCompositionMotionInput = {
+  readonly label?: string;
   readonly target?: MotionTargetReference;
   readonly options?: Record<string, unknown>;
   readonly at?: MotionStepPosition;
@@ -20,6 +21,7 @@ export type MotionCompositionMotionInput = {
 };
 
 export type MotionCompositionTimelineInput = {
+  readonly label?: string;
   readonly target?: MotionTargetReference;
   readonly at?: MotionStepPosition;
   readonly defaults?: MotionTimelineDefaults;
@@ -61,6 +63,11 @@ export class MotionCompositionBuilder {
     const item: RegisteredMotionCompositionItem = {
       kind: 'motion',
       type,
+      ...(input.label !== undefined
+        ? {
+            label: input.label
+          }
+        : {}),
       ...(input.target !== undefined
         ? {
             target: input.target
@@ -92,6 +99,11 @@ export class MotionCompositionBuilder {
     const item: TimelineCompositionItem = {
       kind: 'timeline',
       timeline,
+      ...(input.label !== undefined
+        ? {
+            label: input.label
+          }
+        : {}),
       ...(input.target !== undefined
         ? {
             target: input.target

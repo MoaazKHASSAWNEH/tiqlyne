@@ -19,6 +19,7 @@ export type MotionCompositionItem = RegisteredMotionCompositionItem | TimelineCo
 export type RegisteredMotionCompositionItem = {
   readonly kind: 'motion';
   readonly type: string;
+  readonly label?: string;
   readonly target?: MotionTargetReference;
   readonly options?: Record<string, unknown>;
   readonly at?: MotionStepPosition;
@@ -28,6 +29,7 @@ export type RegisteredMotionCompositionItem = {
 export type TimelineCompositionItem = {
   readonly kind: 'timeline';
   readonly timeline: MotionTimelineDefinition;
+  readonly label?: string;
   readonly target?: MotionTargetReference;
   readonly at?: MotionStepPosition;
   readonly defaults?: MotionTimelineDefaults;

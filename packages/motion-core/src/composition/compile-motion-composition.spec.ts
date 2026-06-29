@@ -662,4 +662,200 @@ describe('compileMotionComposition', () => {
 
     expect(timeline.tracks[0]?.steps[0]?.at).toBe('start');
   });
+
+  it('adds a label for a registered motion composition item', () => {
+    const timeline = compileMotionComposition(
+      {
+        items: [
+          {
+            kind: 'motion',
+            type: 'test-fade',
+            label: 'card-enter',
+            at: 300
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.labels).toEqual({
+      'card-enter': 300
+    });
+  });
+
+  it('adds a label for a direct timeline composition item', () => {
+    const directTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const timeline = compileMotionComposition(
+      {
+        items: [
+          {
+            kind: 'timeline',
+            timeline: directTimeline,
+            label: 'direct-enter',
+            at: 250
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.labels).toEqual({
+      'direct-enter': 250
+    });
+  });
+
+  it('resolves item labels from existing composition labels', () => {
+    const timeline = compileMotionComposition(
+      {
+        labels: {
+          intro: 500
+        },
+        items: [
+          {
+            kind: 'motion',
+            type: 'test-fade',
+            label: 'card-enter',
+            at: {
+              label: 'intro',
+              offset: 150
+            }
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.labels).toEqual({
+      intro: 500,
+      'card-enter': 650
+    });
+  });
+
+  it('allows later items to use previous item labels', () => {
+    const timeline = compileMotionComposition(
+      {
+        items: [
+          {
+            kind: 'motion',
+            type: 'test-fade',
+            label: 'card-enter',
+            at: 300
+          },
+          {
+            kind: 'motion',
+            type: 'test-fade',
+            at: {
+              label: 'card-enter',
+              offset: 150
+            }
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.labels).toEqual({
+      'card-enter': 300
+    });
+
+    expect(timeline.tracks[1]?.steps[0]?.at).toEqual({
+      label: 'card-enter',
+      offset: 150
+    });
+  });
+
+  it('throws when an item label duplicates a composition label', () => {
+    expect(() =>
+      compileMotionComposition(
+        {
+          labels: {
+            intro: 100
+          },
+          items: [
+            {
+              kind: 'motion',
+              type: 'test-fade',
+              label: 'intro',
+              at: 300
+            }
+          ]
+        },
+        {
+          registry: createRegistry()
+        }
+      )
+    ).toThrow(MotionPlanningError);
+  });
+
+  it('throws when an item label references a missing label', () => {
+    expect(() =>
+      compileMotionComposition(
+        {
+          items: [
+            {
+              kind: 'motion',
+              type: 'test-fade',
+              label: 'card-enter',
+              at: 'missing-label'
+            }
+          ]
+        },
+        {
+          registry: createRegistry()
+        }
+      )
+    ).toThrow(MotionPlanningError);
+  });
+
+  it('throws when an item label uses an anchor placement', () => {
+    expect(() =>
+      compileMotionComposition(
+        {
+          items: [
+            {
+              kind: 'motion',
+              type: 'test-fade',
+              label: 'card-enter',
+              at: {
+                anchor: 'track-start'
+              }
+            }
+          ]
+        },
+        {
+          registry: createRegistry()
+        }
+      )
+    ).toThrow(MotionPlanningError);
+  });
 });
