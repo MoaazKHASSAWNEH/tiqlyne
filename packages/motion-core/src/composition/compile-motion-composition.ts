@@ -4,7 +4,10 @@ import { MotionPlanningError } from '../engine/motion-planning-error';
 import type { MotionEasing } from '../models/motion-easing';
 import type { MotionTargetReference } from '../models/motion-target';
 import type {
+  MotionAnchorStepPosition,
+  MotionLabelStepPosition,
   MotionStepDefinition,
+  MotionStepPosition,
   MotionTimelineDefaults,
   MotionTimelineDefinition,
   MotionTrackDefinition
@@ -193,9 +196,9 @@ function transformCompositionTrack(
 ): MotionTrackDefinition {
   const target = options.target ?? track.target ?? DEFAULT_TARGET;
 
-  const steps = track.steps.map((step, stepIndex) =>
+  const steps = track.steps.map((step) =>
     transformCompositionStep(step, {
-      ...(stepIndex === 0 && options.at !== undefined
+      ...(options.at !== undefined
         ? {
             at: options.at
           }
@@ -233,7 +236,152 @@ function transformCompositionStep(
 
   return {
     ...stepWithDefaults,
-    at: options.at
+    at: shiftCompositionStepPosition(stepWithDefaults.at, options.at)
+  };
+}
+
+function shiftCompositionStepPosition(
+  stepPosition: MotionStepPosition | undefined,
+  itemPosition: MotionStepPosition
+): MotionStepPosition {
+  if (stepPosition === undefined) {
+    return itemPosition;
+  }
+
+  if (typeof itemPosition === 'number') {
+    return shiftPositionByNumber(stepPosition, itemPosition);
+  }
+
+  if (typeof itemPosition === 'string') {
+    return shiftPositionByLabel(stepPosition, itemPosition, 0);
+  }
+
+  if ('label' in itemPosition) {
+    return shiftPositionByLabel(stepPosition, itemPosition.label, itemPosition.offset ?? 0);
+  }
+
+  return shiftPositionByAnchor(stepPosition, itemPosition.anchor, itemPosition.offset ?? 0);
+}
+
+function shiftPositionByNumber(
+  stepPosition: MotionStepPosition,
+  offset: number
+): MotionStepPosition {
+  if (typeof stepPosition === 'number') {
+    return stepPosition + offset;
+  }
+
+  if (typeof stepPosition === 'string') {
+    return {
+      label: stepPosition,
+      offset
+    };
+  }
+
+  if ('label' in stepPosition) {
+    return {
+      label: stepPosition.label,
+      offset: (stepPosition.offset ?? 0) + offset
+    };
+  }
+
+  return {
+    anchor: stepPosition.anchor,
+    offset: (stepPosition.offset ?? 0) + offset
+  };
+}
+
+function shiftPositionByLabel(
+  stepPosition: MotionStepPosition,
+  label: string,
+  offset: number
+): MotionStepPosition {
+  if (typeof stepPosition === 'number') {
+    return {
+      label,
+      offset: stepPosition + offset
+    };
+  }
+
+  if (typeof stepPosition === 'string') {
+    return {
+      label: stepPosition,
+      offset
+    };
+  }
+
+  if ('label' in stepPosition) {
+    return {
+      label: stepPosition.label,
+      offset: (stepPosition.offset ?? 0) + offset
+    };
+  }
+
+  return shiftAnchorPositionWithBaseLabel(stepPosition, label, offset);
+}
+
+function shiftAnchorPositionWithBaseLabel(
+  stepPosition: MotionAnchorStepPosition,
+  label: string,
+  offset: number
+): MotionStepPosition {
+  if (stepPosition.anchor === 'track-start') {
+    return {
+      label,
+      offset: offset + (stepPosition.offset ?? 0)
+    };
+  }
+
+  return {
+    anchor: stepPosition.anchor,
+    offset: (stepPosition.offset ?? 0) + offset
+  };
+}
+
+function shiftPositionByAnchor(
+  stepPosition: MotionStepPosition,
+  anchor: MotionAnchorStepPosition['anchor'],
+  offset: number
+): MotionStepPosition {
+  if (typeof stepPosition === 'number') {
+    return {
+      anchor,
+      offset: stepPosition + offset
+    };
+  }
+
+  if (typeof stepPosition === 'string') {
+    return {
+      label: stepPosition,
+      offset
+    };
+  }
+
+  if ('label' in stepPosition) {
+    return shiftLabelPositionByAnchor(stepPosition, anchor, offset);
+  }
+
+  return {
+    anchor: stepPosition.anchor,
+    offset: (stepPosition.offset ?? 0) + offset
+  };
+}
+
+function shiftLabelPositionByAnchor(
+  stepPosition: MotionLabelStepPosition,
+  anchor: MotionAnchorStepPosition['anchor'],
+  offset: number
+): MotionStepPosition {
+  if (anchor === 'track-start') {
+    return {
+      label: stepPosition.label,
+      offset: (stepPosition.offset ?? 0) + offset
+    };
+  }
+
+  return {
+    anchor,
+    offset: (stepPosition.offset ?? 0) + offset
   };
 }
 

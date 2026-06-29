@@ -233,7 +233,7 @@ describe('compileMotionComposition', () => {
     });
   });
 
-  it('applies at placement to the first step of every compiled track', () => {
+  it('applies at placement as a block offset for compiled tracks', () => {
     const timeline = compileMotionComposition(
       {
         items: [
@@ -250,6 +250,258 @@ describe('compileMotionComposition', () => {
     );
 
     expect(timeline.tracks[0]?.steps[0]?.at).toBe(100);
+  });
+
+  it('shifts direct timeline step positions as a block with numeric placement', () => {
+    const directTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 0,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: 300,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0.5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const timeline = compileMotionComposition(
+      {
+        items: [
+          {
+            kind: 'timeline',
+            timeline: directTimeline,
+            at: 1000
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.tracks[0]?.steps[0]?.at).toBe(1000);
+    expect(timeline.tracks[0]?.steps[1]?.at).toBe(1300);
+  });
+
+  it('shifts numeric step positions from a label placement', () => {
+    const directTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 0,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: 300,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0.5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const timeline = compileMotionComposition(
+      {
+        labels: {
+          intro: 500
+        },
+        items: [
+          {
+            kind: 'timeline',
+            timeline: directTimeline,
+            at: 'intro'
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.tracks[0]?.steps[0]?.at).toEqual({
+      label: 'intro',
+      offset: 0
+    });
+    expect(timeline.tracks[0]?.steps[1]?.at).toEqual({
+      label: 'intro',
+      offset: 300
+    });
+  });
+
+  it('shifts numeric step positions from a label placement with offset', () => {
+    const directTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 0,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            },
+            {
+              at: 300,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0.5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const timeline = compileMotionComposition(
+      {
+        labels: {
+          intro: 500
+        },
+        items: [
+          {
+            kind: 'timeline',
+            timeline: directTimeline,
+            at: {
+              label: 'intro',
+              offset: 100
+            }
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.tracks[0]?.steps[0]?.at).toEqual({
+      label: 'intro',
+      offset: 100
+    });
+    expect(timeline.tracks[0]?.steps[1]?.at).toEqual({
+      label: 'intro',
+      offset: 400
+    });
+  });
+
+  it('shifts every track in a direct timeline item as a block', () => {
+    const directTimeline: MotionTimelineDefinition = {
+      tracks: [
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 0,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 0
+                },
+                {
+                  opacity: 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          target: {
+            type: 'self'
+          },
+          steps: [
+            {
+              at: 200,
+              duration: 100,
+              keyframes: [
+                {
+                  opacity: 1
+                },
+                {
+                  opacity: 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    const timeline = compileMotionComposition(
+      {
+        items: [
+          {
+            kind: 'timeline',
+            timeline: directTimeline,
+            at: 1000
+          }
+        ]
+      },
+      {
+        registry: createRegistry()
+      }
+    );
+
+    expect(timeline.tracks[0]?.steps[0]?.at).toBe(1000);
+    expect(timeline.tracks[1]?.steps[0]?.at).toBe(1200);
   });
 
   it('throws for an unknown registered motion type', () => {

@@ -520,7 +520,9 @@ If an item does not provide a target, the compiler preserves the track target pr
 If the produced track does not have a target, the compiler falls back to:
 
 ```ts
-{ type: 'self' }
+{
+  type: 'self';
+}
 ```
 
 `self` means the runtime target passed to `motion.playTimeline()` or `motion.playComposition()`.
