@@ -215,6 +215,10 @@ class NativePlaybackTestDriver implements MotionDriver<string> {
       status: 'running',
       reason: 'native-controller-seek-progress'
     }),
+    jumpToLabel: async (): Promise<MotionPlaybackResult> => ({
+      status: 'running',
+      reason: 'native-controller-jump-to-label'
+    }),
     on: () => {
       return (): void => {};
     },

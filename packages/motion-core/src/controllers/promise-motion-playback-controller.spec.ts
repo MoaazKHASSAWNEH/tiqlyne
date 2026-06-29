@@ -142,4 +142,44 @@ describe('PromiseMotionPlaybackController', () => {
       reason: 'playback-seek-progress-invalid-progress'
     });
   });
+
+  it('skips jumpToLabel because generic promise playback does not support labels', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.jumpToLabel('intro');
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-jump-to-label-not-supported'
+    });
+  });
+
+  it('skips jumpToLabel when label is empty', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.jumpToLabel('   ');
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-jump-to-label-invalid-label'
+    });
+  });
 });

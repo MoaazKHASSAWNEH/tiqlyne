@@ -5,6 +5,7 @@ import {
   type MotionPlaybackControllerStatus,
   type MotionPlaybackDirectionState,
   type MotionPlaybackState,
+  type MotionTimelineLabels,
   type MotionPlaybackResult
 } from '@structifyx/motion-core';
 
@@ -17,7 +18,8 @@ export class WebMotionPlaybackController
   constructor(
     readonly id: string,
     private readonly animations: ReadonlyArray<Animation>,
-    readonly finished: Promise<MotionPlaybackResult>
+    readonly finished: Promise<MotionPlaybackResult>,
+    private readonly labels: MotionTimelineLabels = {}
   ) {
     super();
 
@@ -84,6 +86,24 @@ export class WebMotionPlaybackController
     }
 
     const time = clampProgress(progress) * duration;
+
+    return this.seekAnimations(time);
+  }
+
+  async jumpToLabel(label: string): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('jumpToLabel');
+    }
+
+    if (label.trim().length === 0) {
+      return this.createInvalidJumpToLabelResult(label);
+    }
+
+    const time = this.labels[label];
+
+    if (time === undefined) {
+      return this.createUnknownJumpToLabelResult(label);
+    }
 
     return this.seekAnimations(time);
   }
@@ -304,6 +324,42 @@ export class WebMotionPlaybackController
           source: 'web-motion-playback-controller',
           metadata: {
             progress
+          }
+        }
+      ]
+    };
+  }
+
+  private createInvalidJumpToLabelResult(label: string): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-jump-to-label-invalid-label',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-jump-to-label-invalid-label',
+          message: 'Web playback label must not be empty.',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            label
+          }
+        }
+      ]
+    };
+  }
+
+  private createUnknownJumpToLabelResult(label: string): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-jump-to-label-unknown-label',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-jump-to-label-unknown-label',
+          message: `Web playback label "${label}" does not exist.`,
+          source: 'web-motion-playback-controller',
+          metadata: {
+            label
           }
         }
       ]

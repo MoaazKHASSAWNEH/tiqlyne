@@ -125,6 +125,42 @@ export class PromiseMotionPlaybackController
     };
   }
 
+  async jumpToLabel(label: string): Promise<MotionPlaybackResult> {
+    if (label.trim().length === 0) {
+      return {
+        status: 'skipped',
+        reason: 'playback-jump-to-label-invalid-label',
+        diagnostics: [
+          {
+            level: 'warning',
+            code: 'playback-jump-to-label-invalid-label',
+            message: 'Playback label must not be empty.',
+            source: 'promise-motion-playback-controller',
+            metadata: {
+              label
+            }
+          }
+        ]
+      };
+    }
+
+    return {
+      status: 'skipped',
+      reason: 'playback-jump-to-label-not-supported',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-jump-to-label-not-supported',
+          message: 'This playback controller does not support jumpToLabel(label).',
+          source: 'promise-motion-playback-controller',
+          metadata: {
+            label
+          }
+        }
+      ]
+    };
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');
