@@ -2,7 +2,7 @@
 
 > Status: document de reprise principal.
 > Objectif: permettre a Moaaz, a un autre agent LLM ou a un developpeur de reprendre le projet exactement au bon point.
-> Dernier etat verifie: apres `81327e4 docs: add V1 V2 V3 version roadmap`.
+> Dernier etat verifie: apres `e263246 feat(core): add timeline sampler`.
 
 Ce document doit etre lu avant de modifier le code.
 
@@ -23,19 +23,6 @@ main
 ```
 
 Objectif du projet: construire un moteur d'animation TypeScript, framework-agnostic, fortement type, extensible, utilisable dans plusieurs produits ou frameworks.
-
-Le moteur doit pouvoir servir a:
-
-```txt
-- Structifyx
-- Sondatio
-- builders visuels
-- runtimes dynamiques
-- applications Angular
-- applications React
-- applications vanilla Web
-- plateformes plugin-based
-```
 
 Le moteur n'est pas une simple collection d'effets. Il fournit une architecture complete:
 
@@ -70,20 +57,23 @@ Il execute une MotionTimelineDefinition sur un type de target concret.
 Il ne definit pas les effets reutilisables.
 ```
 
-Regle importante pour la roadmap versions:
+Regle importante pour le sampler:
 
 ```txt
-V1 = premiere version stable du moteur core.
-V1.x = ameliorations ou petites fonctionnalites directement liees a V1.
-V1.x.y = corrections de bugs et maintenance.
-V2 = nouvelle famille majeure de fonctionnalites.
-V3 = ecosysteme, devtools, plugins et expansion multi-plateforme.
+Timeline Sampler = lecture pure de l'etat temporel d'une timeline.
+Il ne joue pas l'animation.
+Il ne depend pas du DOM, WAAPI ou d'un driver.
+Il sert de base pour seek, progress, state, inspector et builder preview.
 ```
 
-Document roadmap a lire:
+Documents a lire:
 
 ```txt
 docs/version-roadmap-v1-v2-v3.md
+docs/timeline-sampler-api.md
+docs/motion-composition-api.md
+docs/writing-custom-motion-definition.md
+docs/writing-custom-motion-driver.md
 ```
 
 ## 2. Regle de travail importante
@@ -124,9 +114,7 @@ return {
 
 Ne pas retourner une propriete optionnelle avec `undefined`.
 
-## 4. Packages du monorepo
-
-### 4.1 `@structifyx/motion-core`
+## 4. Etat actuel de `@structifyx/motion-core`
 
 Role:
 
@@ -142,6 +130,7 @@ Role:
 - preparation de timeline
 - scheduling
 - execution plan
+- timeline sampler
 - controllers generiques
 - drivers neutres de test
 - helpers DX pour custom MotionDefinition
@@ -172,6 +161,34 @@ validateIncreasing()
 validateDecreasing()
 ```
 
+API sampler actuellement disponible:
+
+```txt
+sampleMotionTimeline()
+sampleMotionTimelineAtTime()
+sampleMotionTimelineAtProgress()
+MotionTimelineSample
+MotionTimelineTrackSample
+MotionTimelineStepSample
+MotionSampleStepStatus
+MotionTimelineSampleInput
+```
+
+Comportement sampler actuel:
+
+```txt
+- sampling par time
+- sampling par progress sur timelines finies
+- progress sampling refuse sur timelines infinies
+- classification pending / active / completed
+- opacity interpolation
+- custom numeric interpolation
+- fallback discret pour transform/filter/couleurs/string
+- support direction reverse/alternate/alternate-reverse
+- support yoyo
+- support iterations finies et infinies
+```
+
 API driver actuellement disponible:
 
 ```txt
@@ -186,33 +203,6 @@ PromiseMotionPlaybackController
 MotionExecutionPlan
 ScheduledMotionTimeline
 PreparedMotionTimeline
-```
-
-Document driver a lire:
-
-```txt
-docs/writing-custom-motion-driver.md
-```
-
-Conclusion audit driver actuelle:
-
-```txt
-- contrat petit et sain
-- target generique
-- play() obligatoire
-- cancel/finish/reset/createPlayback optionnels
-- executionPlan disponible pour les drivers avances
-- reduced motion et conflict strategy passes explicitement
-```
-
-Limitations driver connues:
-
-```txt
-- pas encore declaration formelle de capacites driver
-- pas encore hook de validation specifique driver
-- pas encore matrice standard de support des proprietes keyframes
-- pas encore helper generique d'interpolation/easing runtime
-- pas encore active playback registry generique
 ```
 
 API composition actuellement disponible:
@@ -232,40 +222,6 @@ composition block offset placement
 composition item labels
 ```
 
-Comportement de placement composition actuel:
-
-```txt
-item.at decale l'item compile comme un bloc.
-
-Exemple:
-step interne 1 at = 0
-step interne 2 at = 300
-item.at = 1000
-=> step 1 at = 1000
-=> step 2 at = 1300
-```
-
-Comportement de labels composition actuel:
-
-```txt
-composition.labels declare des labels manuels.
-item.label ajoute un label calcule depuis item.at.
-les items suivants peuvent referencer un item.label precedent.
-
-Exemple:
-item A label = card-enter, at = 300
-item B at = { label: 'card-enter', offset: 150 }
-=> item B commence a 450
-```
-
-Erreurs controlees liees a item.label:
-
-```txt
-composition-duplicate-label
-composition-item-label-reference-missing
-composition-item-label-anchor-position-unsupported
-```
-
 Limitations composition restantes:
 
 ```txt
@@ -276,9 +232,9 @@ Limitations composition restantes:
 - pas encore materialisation de label depuis anchor position
 ```
 
-### 4.2 `@structifyx/motion-web`
+## 5. Autres packages
 
-Role:
+### `@structifyx/motion-web`
 
 ```txt
 - WebMotionDriver
@@ -291,9 +247,7 @@ Role:
 - WebMotionPlaybackController
 ```
 
-### 4.3 `@structifyx/motion-pack-basic`
-
-Role: pack de motions reutilisables.
+### `@structifyx/motion-pack-basic`
 
 Motions actuelles:
 
@@ -314,60 +268,29 @@ Etat DX actuel:
 - slide-in utilise option.select/range/boolean et conserve buildReducedMotionTimeline()
 ```
 
-### 4.4 `examples/vanilla`
-
-Role: exemple navigateur Vite.
+### `examples/vanilla`
 
 Etat actuel: exemple minimal centre sur le test visuel de `iterations: 'infinite'`, `yoyo: true`, du playback controller, et de la composition runtime.
 
-Il sert a verifier rapidement:
+## 6. Roadmap V1 actuelle
 
-```txt
-- infinite playback
-- yoyo
-- pause
-- resume
-- finish sur infinite -> skipped controle
-- cancel
-- reset
-- events controller
-- createMotionComposition()
-- compileMotionComposition()
-- motion.playComposition()
-```
-
-Prochaine amelioration utile: ajouter un petit exemple de custom motion locale, sans transformer l'exemple en visual builder complet.
-
-## 5. Roadmap versionnee
-
-Le document de reference est:
-
-```txt
-docs/version-roadmap-v1-v2-v3.md
-```
-
-Priorite actuelle:
-
-```txt
-Terminer les fonctionnalites moteur de motion-core avant de partir vers les drivers supplementaires ou les packages externes.
-```
+Timeline Sampler est termine pour sa premiere version.
 
 Prochaines etapes V1 recommandees:
 
 ```txt
-1. Timeline Sampler
-2. Playback state model
-3. seek(time)
-4. seekProgress(progress)
-5. jumpToLabel(label)
-6. reverse/playBackward minimal
-7. setPlaybackRate(rate)
-8. advanced playback events minimum
-9. inspectMotionTimeline()
-10. V1 docs/publication cleanup
+1. Playback state model
+2. seek(time)
+3. seekProgress(progress)
+4. jumpToLabel(label)
+5. reverse/playBackward minimal
+6. setPlaybackRate(rate)
+7. advanced playback events minimum
+8. inspectMotionTimeline()
+9. V1 docs/publication cleanup
 ```
 
-## 6. Commandes de validation
+## 7. Commandes de validation
 
 Commandes globales recommandees avant chaque commit:
 
@@ -393,8 +316,12 @@ pnpm --filter @structifyx/motion-pack-basic test
 Derniere validation complete connue:
 
 ```txt
-21 test files passed
-293 tests passed
+motion-core: 22 test files passed
+motion-core: 302 tests passed
+motion-pack-basic: 4 test files passed
+motion-pack-basic: 25 tests passed
+motion-web: 12 test files passed
+motion-web: 159 tests passed
 motion-core build OK
 motion-web build OK
 motion-pack-basic build OK
@@ -404,11 +331,12 @@ examples/vanilla build OK
 Validation observee apres:
 
 ```txt
-9866774 feat(core): add composition item labels
+e263246 feat(core): add timeline sampler
 ```
 
 Derniere mise a jour documentation:
 
 ```txt
-81327e4 docs: add V1 V2 V3 version roadmap
+e02f7a1 docs: add timeline sampler API guide
+1aa31af docs: update roadmap after timeline sampler
 ```
