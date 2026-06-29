@@ -277,4 +277,9 @@ export {
   sampleMotionTimelineAtTime
 } from './sampler/sample-motion-timeline';
 
+export type {
+  MotionPlaybackDirectionState,
+  MotionPlaybackState
+} from './models/motion-playback-state';
+
 export const motionCoreVersion = '0.1.0';

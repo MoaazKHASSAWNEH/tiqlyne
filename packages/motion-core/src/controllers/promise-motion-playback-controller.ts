@@ -5,11 +5,11 @@ import type {
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import { isTerminalPlaybackStatus } from '../utils/is-terminal-playback-status';
 import { BaseMotionPlaybackController } from './base-motion-playback-controller';
+import type { MotionPlaybackState } from '../models/motion-playback-state';
 
 export class PromiseMotionPlaybackController
   extends BaseMotionPlaybackController
-  implements MotionPlaybackController
-{
+  implements MotionPlaybackController {
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -39,6 +39,18 @@ export class PromiseMotionPlaybackController
     return this.currentStatus;
   }
 
+  getState(): MotionPlaybackState {
+    return {
+      status: this.currentStatus,
+      currentTime: null,
+      duration: null,
+      progress: null,
+      playbackRate: 1,
+      direction: 'forward',
+      activeTrackIndexes: [],
+      activeStepIndexes: []
+    };
+  }
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');

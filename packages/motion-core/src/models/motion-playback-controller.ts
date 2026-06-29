@@ -1,5 +1,6 @@
 import type { MotionPlaybackResult } from './motion-playback-result';
 import type { MotionPlaybackEventListener, MotionPlaybackEventType } from './motion-playback-event';
+import type { MotionPlaybackState } from './motion-playback-state';
 
 export type MotionPlaybackControllerStatus =
   | 'idle'
@@ -15,7 +16,8 @@ export interface MotionPlaybackController {
   readonly status: MotionPlaybackControllerStatus;
   readonly disposed: boolean;
   readonly finished: Promise<MotionPlaybackResult>;
-
+  
+  getState(): MotionPlaybackState;
   pause(): Promise<MotionPlaybackResult>;
   resume(): Promise<MotionPlaybackResult>;
   cancel(): Promise<MotionPlaybackResult>;

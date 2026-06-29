@@ -3,13 +3,14 @@ import {
   isTerminalPlaybackStatus,
   type MotionPlaybackController,
   type MotionPlaybackControllerStatus,
+  type MotionPlaybackDirectionState,
+  type MotionPlaybackState,
   type MotionPlaybackResult
 } from '@structifyx/motion-core';
 
 export class WebMotionPlaybackController
   extends BaseMotionPlaybackController
-  implements MotionPlaybackController
-{
+  implements MotionPlaybackController {
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -36,6 +37,22 @@ export class WebMotionPlaybackController
 
   get status(): MotionPlaybackControllerStatus {
     return this.currentStatus;
+  }
+
+    getState(): MotionPlaybackState {
+    const currentTime = this.resolveCurrentTime();
+    const duration = this.resolveDuration();
+
+    return {
+      status: this.currentStatus,
+      currentTime,
+      duration,
+      progress: resolveProgress(currentTime, duration),
+      playbackRate: this.resolvePlaybackRate(),
+      direction: this.resolvePlaybackDirection(),
+      activeTrackIndexes: [],
+      activeStepIndexes: []
+    };
   }
 
   async pause(): Promise<MotionPlaybackResult> {
@@ -113,6 +130,46 @@ export class WebMotionPlaybackController
     this.emitResult(result, previousStatus);
 
     return result;
+  }
+
+    private resolveCurrentTime(): number | null {
+    const times = this.animations
+      .map((animation) => normalizeNumberish(animation.currentTime))
+      .filter(isFiniteNumber);
+
+    if (times.length === 0) {
+      return null;
+    }
+
+    return Math.max(...times);
+  }
+
+  private resolveDuration(): number | null {
+    const durations = this.animations
+      .map((animation) => {
+        const effect = animation.effect;
+
+        if (effect === null || effect === undefined) {
+          return null;
+        }
+
+        return normalizeNumberish(effect.getComputedTiming().endTime);
+      })
+      .filter(isFiniteNumber);
+
+    if (durations.length === 0) {
+      return null;
+    }
+
+    return Math.max(...durations);
+  }
+
+  private resolvePlaybackRate(): number {
+    return this.animations[0]?.playbackRate ?? 1;
+  }
+
+  private resolvePlaybackDirection(): MotionPlaybackDirectionState {
+    return this.resolvePlaybackRate() < 0 ? 'backward' : 'forward';
   }
 
   private applyFinishedResult(result: MotionPlaybackResult): void {
@@ -317,4 +374,24 @@ export class WebMotionPlaybackController
       };
     }
   }
+}
+
+function normalizeNumberish(value: CSSNumberish | null | undefined): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function isFiniteNumber(value: number | null): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function resolveProgress(currentTime: number | null, duration: number | null): number | null {
+  if (currentTime === null || duration === null) {
+    return null;
+  }
+
+  if (duration === 0) {
+    return 1;
+  }
+
+  return Math.min(Math.max(currentTime / duration, 0), 1);
 }
