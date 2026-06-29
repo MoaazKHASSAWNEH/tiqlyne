@@ -89,6 +89,42 @@ export class PromiseMotionPlaybackController
     };
   }
 
+  async seekProgress(progress: number): Promise<MotionPlaybackResult> {
+    if (!Number.isFinite(progress)) {
+      return {
+        status: 'skipped',
+        reason: 'playback-seek-progress-invalid-progress',
+        diagnostics: [
+          {
+            level: 'warning',
+            code: 'playback-seek-progress-invalid-progress',
+            message: 'Playback seek progress must be a finite number.',
+            source: 'promise-motion-playback-controller',
+            metadata: {
+              progress
+            }
+          }
+        ]
+      };
+    }
+
+    return {
+      status: 'skipped',
+      reason: 'playback-seek-progress-not-supported',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-seek-progress-not-supported',
+          message: 'This playback controller does not support seekProgress(progress).',
+          source: 'promise-motion-playback-controller',
+          metadata: {
+            progress
+          }
+        }
+      ]
+    };
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');

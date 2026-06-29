@@ -68,6 +68,26 @@ export class WebMotionPlaybackController
     return this.seekAnimations(time);
   }
 
+  async seekProgress(progress: number): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('seekProgress');
+    }
+
+    if (!Number.isFinite(progress)) {
+      return this.createInvalidSeekProgressResult(progress);
+    }
+
+    const duration = this.resolveDuration();
+
+    if (duration === null || duration === Infinity) {
+      return this.createSeekProgressDurationUnavailableResult(progress);
+    }
+
+    const time = clampProgress(progress) * duration;
+
+    return this.seekAnimations(time);
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');
@@ -248,6 +268,42 @@ export class WebMotionPlaybackController
           metadata: {
             action,
             currentStatus: this.currentStatus
+          }
+        }
+      ]
+    };
+  }
+
+  private createInvalidSeekProgressResult(progress: number): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-seek-progress-invalid-progress',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-seek-progress-invalid-progress',
+          message: 'Web playback seek progress must be a finite number.',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            progress
+          }
+        }
+      ]
+    };
+  }
+
+  private createSeekProgressDurationUnavailableResult(progress: number): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-seek-progress-duration-unavailable',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-seek-progress-duration-unavailable',
+          message: 'Web playback cannot seek by progress without a finite duration.',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            progress
           }
         }
       ]
@@ -459,4 +515,8 @@ function resolveProgress(currentTime: number | null, duration: number | null): n
   }
 
   return Math.min(Math.max(currentTime / duration, 0), 1);
+}
+
+function clampProgress(progress: number): number {
+  return Math.min(Math.max(progress, 0), 1);
 }

@@ -102,4 +102,44 @@ describe('PromiseMotionPlaybackController', () => {
       reason: 'playback-seek-invalid-time'
     });
   });
+
+  it('skips seekProgress because generic promise playback does not support progress control', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.seekProgress(0.5);
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-seek-progress-not-supported'
+    });
+  });
+
+  it('skips seekProgress when progress is invalid', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.seekProgress(Number.NaN);
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-seek-progress-invalid-progress'
+    });
+  });
 });
