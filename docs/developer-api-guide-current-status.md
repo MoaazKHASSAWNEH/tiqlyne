@@ -3,7 +3,7 @@
 > Status: documentation addendum.
 > Purpose: keep the developer documentation aligned with the current implementation.
 > Scope: documentation only.
-> Last verified state: after `df71ec1 feat(core): add composition block offset placement`.
+> Last verified state: after `9866774 feat(core): add composition item labels`.
 
 ## 1. Why this addendum exists
 
@@ -33,6 +33,7 @@ Composition compiler: implemented
 Composition builder: implemented
 Composition runtime shortcuts: implemented
 Composition block offset placement: implemented
+Composition item labels: implemented
 Custom MotionDriver guide: not yet written
 Versioning policy: not yet implemented
 ```
@@ -118,9 +119,16 @@ Use direct timelines for custom runtime animations, examples, builders and low-l
 
 ```ts
 const composition = createMotionComposition((composition) => {
-  composition.motion('fade-in');
+  composition.motion('fade-in', {
+    label: 'card-enter',
+    at: 300
+  });
+
   composition.motion('slide-in', {
-    at: 250,
+    at: {
+      label: 'card-enter',
+      offset: 150
+    },
     options: {
       direction: 'bottom',
       distance: 32,
@@ -169,6 +177,29 @@ internal step 2 at = 300
 item.at = 1000
 compiled step 1 at = 1000
 compiled step 2 at = 1300
+```
+
+Current item label behavior:
+
+```txt
+item.label creates a numeric timeline label from item.at.
+later items may reference earlier item labels.
+```
+
+Example:
+
+```txt
+item A label = card-enter, at = 300
+item B at = { label: 'card-enter', offset: 150 }
+=> item B starts at 450
+```
+
+Composition label errors currently include:
+
+```txt
+composition-duplicate-label
+composition-item-label-reference-missing
+composition-item-label-anchor-position-unsupported
 ```
 
 ### 4.4 Custom motion definitions
@@ -497,7 +528,7 @@ docs/developer-api-guide-current-status.md
   This current status addendum.
 
 docs/motion-composition-api.md
-  Current composition API reference, including runtime shortcuts and block offset placement.
+  Current composition API reference, including runtime shortcuts, block offset placement and item labels.
 
 docs/writing-custom-motion-definition.md
   Guide for creating custom reusable MotionDefinition classes.
@@ -563,6 +594,7 @@ docs/development-direct-api-design.md
 28. feat(core): add composition runtime shortcuts
 29. docs: add motion composition API guide
 30. feat(core): add composition block offset placement
+31. feat(core): add composition item labels
 ```
 
 ## 14. Recommended next steps
@@ -571,12 +603,11 @@ Recommended next steps now:
 
 ```txt
 1. docs: add writing a custom MotionDriver guide
-2. feat(core): add item.label support for composition items
-3. feat(core): design nested composition groups
-4. feat(core): add structured composition diagnostics later
-5. feat(core): add per-item reduced motion compilation later
-6. docs: split the large developer guide into concepts/api/guides pages
-7. feat(core): add dynamic event subscription API later, for example motion.on(...)
+2. feat(core): design nested composition groups
+3. feat(core): add structured composition diagnostics later
+4. feat(core): add per-item reduced motion compilation later
+5. docs: split the large developer guide into concepts/api/guides pages
+6. feat(core): add dynamic event subscription API later, for example motion.on(...)
 ```
 
 Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as a focused test until the engine documentation and orchestration API are more complete.
@@ -618,14 +649,14 @@ pnpm build
 Last known complete validation passed after:
 
 ```txt
-df71ec1 feat(core): add composition block offset placement
+9866774 feat(core): add composition item labels
 ```
 
 Known validation result:
 
 ```txt
 21 test files passed
-284 tests passed
+293 tests passed
 motion-core build OK
 motion-web build OK
 motion-pack-basic build OK
