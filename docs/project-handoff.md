@@ -2,7 +2,7 @@
 
 > Status: document de reprise principal.
 > Objectif: permettre a Moaaz, a un autre agent LLM ou a un developpeur de reprendre le projet exactement au bon point.
-> Dernier etat verifie: apres `df71ec1 feat(core): add composition block offset placement`.
+> Dernier etat verifie: apres `9866774 feat(core): add composition item labels`.
 
 Ce document doit etre lu avant de modifier le code.
 
@@ -162,12 +162,13 @@ motion.planComposition()
 motion.playComposition()
 motion.createCompositionPlayback()
 composition block offset placement
+composition item labels
 ```
 
 Comportement de placement composition actuel:
 
 ```txt
-item.at decale maintenant l'item compile comme un bloc.
+item.at decale l'item compile comme un bloc.
 
 Exemple:
 step interne 1 at = 0
@@ -177,14 +178,35 @@ item.at = 1000
 => step 2 at = 1300
 ```
 
+Comportement de labels composition actuel:
+
+```txt
+composition.labels declare des labels manuels.
+item.label ajoute un label calcule depuis item.at.
+les items suivants peuvent referencer un item.label precedent.
+
+Exemple:
+item A label = card-enter, at = 300
+item B at = { label: 'card-enter', offset: 150 }
+=> item B commence a 450
+```
+
+Erreurs controlees liees a item.label:
+
+```txt
+composition-duplicate-label
+composition-item-label-reference-missing
+composition-item-label-anchor-position-unsupported
+```
+
 Limitations composition restantes:
 
 ```txt
-- pas encore item.label
 - pas encore groupes imbriques
 - pas encore reduced motion specifique par item
 - pas encore diagnostics structures specialises composition
 - pas encore presets/variants
+- pas encore materialisation de label depuis anchor position
 ```
 
 ### 4.2 `@structifyx/motion-web`
@@ -276,7 +298,7 @@ Derniere validation complete connue:
 
 ```txt
 21 test files passed
-284 tests passed
+293 tests passed
 motion-core build OK
 motion-web build OK
 motion-pack-basic build OK
@@ -286,5 +308,5 @@ examples/vanilla build OK
 Validation observee apres:
 
 ```txt
-df71ec1 feat(core): add composition block offset placement
+9866774 feat(core): add composition item labels
 ```
