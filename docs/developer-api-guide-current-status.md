@@ -3,7 +3,7 @@
 > Status: documentation addendum.
 > Purpose: keep the developer documentation aligned with the current implementation.
 > Scope: documentation only.
-> Last verified state: after `9866774 feat(core): add composition item labels`.
+> Last verified state: after `9e336a0 docs: add custom motion driver guide`.
 
 ## 1. Why this addendum exists
 
@@ -28,13 +28,13 @@ Web driver: implemented and tested
 Vanilla example: infinite/yoyo/controller + composition demo
 Plugin/preset documentation: partial
 Custom MotionDefinition guide: written
+Custom MotionDriver guide: written
 Composition API guide: written
 Composition compiler: implemented
 Composition builder: implemented
 Composition runtime shortcuts: implemented
 Composition block offset placement: implemented
 Composition item labels: implemented
-Custom MotionDriver guide: not yet written
 Versioning policy: not yet implemented
 ```
 
@@ -80,7 +80,7 @@ events
 
 ## 4. Current usage modes
 
-The engine supports four main usage modes.
+The engine supports five main usage modes.
 
 ### 4.1 Registered motions
 
@@ -169,29 +169,11 @@ Current placement behavior:
 item.at shifts the compiled item as a block.
 ```
 
-Example:
-
-```txt
-internal step 1 at = 0
-internal step 2 at = 300
-item.at = 1000
-compiled step 1 at = 1000
-compiled step 2 at = 1300
-```
-
 Current item label behavior:
 
 ```txt
 item.label creates a numeric timeline label from item.at.
 later items may reference earlier item labels.
-```
-
-Example:
-
-```txt
-item A label = card-enter, at = 300
-item B at = { label: 'card-enter', offset: 150 }
-=> item B starts at 450
 ```
 
 Composition label errors currently include:
@@ -241,6 +223,71 @@ validateIncreasing()
 validateDecreasing()
 ```
 
+### 4.5 Custom motion drivers
+
+The recommended way to create a platform adapter is documented in:
+
+```txt
+docs/writing-custom-motion-driver.md
+```
+
+The driver rule is:
+
+```txt
+MotionDriver = platform execution adapter
+MotionDefinition = reusable animation definition
+```
+
+The current driver contract is intentionally small:
+
+```txt
+name
+play()
+optional cancel()
+optional finish()
+optional reset()
+optional createPlayback()
+```
+
+The target type is generic:
+
+```txt
+MotionDriver<Element>
+MotionDriver<string>
+MotionDriver<CanvasObject>
+MotionDriver<GameEntity>
+```
+
+Recommended driver implementation levels:
+
+```txt
+1. passive/debug driver
+2. simple immediate driver
+3. scheduled runtime driver
+4. controlled playback driver
+```
+
+Current audit conclusion:
+
+```txt
+- the driver contract is small and healthy
+- the target type is generic
+- controls are optional
+- executionPlan exposes prepared and scheduled timelines
+- reduced motion and conflict strategy are explicit
+- no core contract change is required before experimenting with a debug or canvas driver
+```
+
+Known driver limitations:
+
+```txt
+- no first-class driver capability declaration yet
+- no driver-specific validation hook yet
+- no standardized keyframe property support matrix yet
+- no shared interpolation/easing runtime helper yet
+- no generic active playback registry helper yet
+```
+
 ## 5. Event system summary
 
 The current engine event system exposes these callbacks:
@@ -266,22 +313,6 @@ direct-timeline
 ```
 
 Composition does not currently add a separate `composition` event source. The runtime shortcuts compile to a timeline and reuse the direct timeline pipeline.
-
-Successful playback order:
-
-```txt
-onBeforePlan
-onPlan
-onPlay
-onFinish
-```
-
-Planning-only calls emit:
-
-```txt
-onBeforePlan
-onPlan
-```
 
 `onSkip` is emitted for controlled skipped results such as disabled registered motions, unknown registered motion types, unsupported driver control operations and other explicit skip paths.
 
@@ -383,8 +414,6 @@ status: skipped
 reason: web-playback-finish-not-supported-for-infinite-animation
 ```
 
-The controller keeps its previous `running` or `paused` status so the UI can still use `pause`, `resume` or `cancel` after an unsupported `finish()` attempt.
-
 For complete controller behavior:
 
 ```txt
@@ -407,34 +436,6 @@ Important validation rule:
 
 ```txt
 yoyo: true cannot be used together with direction.
-```
-
-Valid infinite yoyo:
-
-```ts
-{
-  iterations: 'infinite',
-  yoyo: true
-}
-```
-
-Valid infinite alternate:
-
-```ts
-{
-  iterations: 'infinite',
-  direction: 'alternate'
-}
-```
-
-Invalid:
-
-```ts
-{
-  iterations: 'infinite',
-  yoyo: true,
-  direction: 'alternate'
-}
 ```
 
 Diagnostic:
@@ -504,13 +505,6 @@ Current purpose:
 - display result and controller events
 ```
 
-The complete visual builder idea was postponed because it mixed two goals:
-
-```txt
-1. testing the engine
-2. building an animation editor
-```
-
 The current recommended approach is to keep examples small, focused and useful for debugging.
 
 A useful future example would show a local custom motion created with `SchemaMotionDefinition` and registered in the vanilla app.
@@ -532,6 +526,9 @@ docs/motion-composition-api.md
 
 docs/writing-custom-motion-definition.md
   Guide for creating custom reusable MotionDefinition classes.
+
+docs/writing-custom-motion-driver.md
+  Guide for creating custom platform MotionDriver adapters.
 
 docs/engine-events-api.md
   Detailed reference for global engine events.
@@ -595,6 +592,7 @@ docs/development-direct-api-design.md
 29. docs: add motion composition API guide
 30. feat(core): add composition block offset placement
 31. feat(core): add composition item labels
+32. docs: add custom motion driver guide
 ```
 
 ## 14. Recommended next steps
@@ -602,7 +600,7 @@ docs/development-direct-api-design.md
 Recommended next steps now:
 
 ```txt
-1. docs: add writing a custom MotionDriver guide
+1. feat(debug): add experimental motion-debug driver package
 2. feat(core): design nested composition groups
 3. feat(core): add structured composition diagnostics later
 4. feat(core): add per-item reduced motion compilation later
@@ -620,6 +618,8 @@ Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as
 - MotionTimelineDefinition remains the serializable runtime source of truth.
 - MotionCompositionDefinition remains the serializable authoring/orchestration source of truth for compositions.
 - Composition must compile to MotionTimelineDefinition before playback.
+- MotionDriver is a platform adapter, not an animation definition.
+- New platform drivers should live outside motion-core.
 - createMotionTimeline() is a builder convenience, not a replacement for the model.
 - createMotionComposition() is a builder convenience, not a replacement for the model.
 - createMotionEngine() is the public factory.
@@ -661,4 +661,10 @@ motion-core build OK
 motion-web build OK
 motion-pack-basic build OK
 examples/vanilla build OK
+```
+
+Latest documentation-only update:
+
+```txt
+9e336a0 docs: add custom motion driver guide
 ```
