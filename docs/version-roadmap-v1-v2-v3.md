@@ -3,6 +3,7 @@
 > Status: planning document.
 > Scope: product roadmap, versioning rules and release boundaries.
 > Goal: define what must be finished before V1, what belongs to V1.x, V2 and V3, and prevent uncontrolled scope creep.
+> Last updated after: `e263246 feat(core): add timeline sampler`.
 
 ## 1. Why this document exists
 
@@ -123,8 +124,6 @@ A patch version may add tests and documentation.
 
 A later major version must not be used to finish an incomplete previous major version.
 
-This means:
-
 ```txt
 V1 must be stable and complete for its stated scope.
 V2 must not be used to finish missing V1 basics.
@@ -148,11 +147,11 @@ V3.0.0 fixes basic V2 architecture that was never completed.
 
 ## 7. Current project state before V1
 
-Current estimated state:
+Current estimated state after Timeline Sampler:
 
 ```txt
-V1 technical progress: about 65%
-V1 publishable progress: about 50-55%
+V1 technical progress: about 72-75%
+V1 publishable progress: about 58-60%
 ```
 
 Already implemented or documented:
@@ -172,6 +171,7 @@ validation
 planning
 scheduling
 execution plan
+Timeline Sampler
 engine events
 skip event
 playback controller abstractions
@@ -186,14 +186,15 @@ vanilla example
 custom MotionDefinition guide
 custom MotionDriver guide
 composition API guide
+timeline sampler API guide
 ```
 
 Main missing V1 family:
 
 ```txt
-timeline sampling
 playback state
 seek/progress controls
+jumpToLabel
 reverse/backward playback model
 playback rate controls
 advanced playback events
@@ -213,8 +214,6 @@ validate, plan, inspect and control animations through a stable core API,
 with an official Web driver and a documented extension model.
 ```
 
-V1 should not be a prototype.
-
 V1 should be good enough to use in real projects such as:
 
 ```txt
@@ -229,7 +228,7 @@ plugin-based platforms
 
 ## 9. V1 required feature set
 
-V1 is not complete until all items in this section are implemented, tested and documented.
+V1 is not complete until all required items are implemented, tested and documented.
 
 ### 9.1 Core architecture and public contracts
 
@@ -340,17 +339,15 @@ advanced composition diagnostics object model
 
 These are V2 or V1.x candidates depending on size.
 
-### 9.5 Timeline Sampler
+### 9.5 Timeline Sampler - completed
 
-Required for V1.
-
-Purpose:
+Status:
 
 ```txt
-Compute timeline state at a specific time or progress without playing the animation.
+Implemented, tested and documented.
 ```
 
-Required APIs:
+Implemented APIs:
 
 ```txt
 sampleMotionTimeline(timeline, input)
@@ -358,25 +355,59 @@ sampleMotionTimelineAtTime(timeline, time)
 sampleMotionTimelineAtProgress(timeline, progress)
 ```
 
-Required output should include:
+Implemented output includes:
 
 ```txt
 time
 progress
 duration
-active tracks
-active steps
+tracks
+activeSteps
+completedSteps
+pendingSteps
 sampled keyframe values
-completed steps
-pending steps
 ```
 
-V1 acceptance:
+Current support:
 
 ```txt
-The core can answer: what should this animation look like at 350ms?
-The sampler works without DOM, WAAPI or platform APIs.
-The sampler is tested with labels, anchors, block offsets, stagger, delays and multiple tracks.
+sampling by time
+sampling by progress
+multiple tracks
+multiple steps
+pending / active / completed step status
+labels through preparation
+reverse direction
+yoyo sampling
+finite iterations
+infinite iterations with time sampling
+opacity interpolation
+custom numeric interpolation
+discrete fallback for non-numeric values
+```
+
+Current tests:
+
+```txt
+sample-motion-timeline.spec.ts: 9 tests passed
+motion-core: 302 tests passed
+```
+
+Documentation:
+
+```txt
+docs/timeline-sampler-api.md
+```
+
+Current limitations:
+
+```txt
+No advanced transform interpolation yet.
+No color interpolation yet.
+No easing curve sampling yet.
+No filter interpolation yet.
+No timeline snapshot restore API yet.
+No playback controller integration yet.
 ```
 
 ### 9.6 Playback state
@@ -532,8 +563,6 @@ performance diagnostics remain available
 basic accessibility warnings exist in inspectMotionTimeline()
 ```
 
-V1 does not require full WCAG/RGAA automation.
-
 V1 should include first-level warnings for:
 
 ```txt
@@ -631,11 +660,11 @@ V1 can be published when this checklist is complete.
 
 ```txt
 [ ] Public API reviewed and frozen for V1
-[ ] motion-core tests pass
-[ ] motion-web tests pass
-[ ] motion-pack-basic tests pass
-[ ] examples build pass
-[ ] Timeline Sampler implemented and tested
+[x] motion-core tests pass
+[x] motion-web tests pass
+[x] motion-pack-basic tests pass
+[x] examples build pass
+[x] Timeline Sampler implemented and tested
 [ ] Playback state implemented and tested
 [ ] seek(time) implemented and tested
 [ ] seekProgress(progress) implemented and tested
@@ -786,21 +815,6 @@ Purpose:
 Compose groups of motions as reusable blocks.
 ```
 
-Example:
-
-```ts
-composition.group(
-  {
-    label: 'card-sequence',
-    at: 300
-  },
-  (group) => {
-    group.motion('fade-in');
-    group.motion('slide-in', { at: 150 });
-  }
-);
-```
-
 Required V2 behavior:
 
 ```txt
@@ -821,15 +835,6 @@ Purpose:
 
 ```txt
 Compile a normal composition timeline and a reduced-motion composition timeline.
-```
-
-Possible API:
-
-```txt
-compileMotionComposition(composition, {
-  registry,
-  reducedMotion: true
-})
 ```
 
 Behavior:
@@ -873,18 +878,6 @@ Purpose:
 Allow applications and builders to enforce rules.
 ```
 
-Example:
-
-```ts
-validateMotionTimeline(timeline, {
-  constraints: {
-    maxDuration: 3000,
-    forbidInfinite: true,
-    requireReducedMotionFallback: true
-  }
-});
-```
-
 Use cases:
 
 ```txt
@@ -911,16 +904,6 @@ intent: entrance | exit | feedback | attention | loading | transition
 vestibularRisk: low | medium | high
 flashingRisk: none | low | high
 reducedMotionRecommended: true
-```
-
-Use cases:
-
-```txt
-AI-assisted motion generation
-builder recommendations
-accessibility warnings
-automatic reduced-motion strategy
-motion catalog organization
 ```
 
 ### 14.6 Dynamic engine event subscriptions
@@ -952,7 +935,7 @@ V2 can be started only after V1 is stable.
 [ ] V1 docs complete
 [ ] V1 published or internally frozen
 [ ] V1 advanced playback controls complete
-[ ] V1 sampler complete
+[x] V1 sampler complete
 [ ] V1 inspector complete
 [ ] V2 RFC written
 [ ] Breaking changes listed
@@ -1027,15 +1010,6 @@ composition presets
 variants
 style/design-system mappings
 brand motion tokens
-```
-
-Example:
-
-```txt
-fade-in.subtle
-fade-in.strong
-card-enter.default
-modal-enter.accessible
 ```
 
 ### 18.3 Motion devtools core protocol
@@ -1136,33 +1110,31 @@ V1 may prepare architecture for these, but should not try to complete them.
 Current next steps toward V1:
 
 ```txt
-1. Timeline Sampler
-2. Playback state model
-3. seek(time)
-4. seekProgress(progress)
-5. jumpToLabel(label)
-6. reverse/playBackward minimal
-7. setPlaybackRate(rate)
-8. advanced playback events minimum
-9. inspectMotionTimeline()
-10. V1 docs/publication cleanup
+1. Playback state model
+2. seek(time)
+3. seekProgress(progress)
+4. jumpToLabel(label)
+5. reverse/playBackward minimal
+6. setPlaybackRate(rate)
+7. advanced playback events minimum
+8. inspectMotionTimeline()
+9. V1 docs/publication cleanup
 ```
 
-Recommended first implementation phase:
+Recommended next implementation phase:
 
 ```txt
-Phase Core Playback 1 - Timeline Sampler
+Phase Core Playback 2 - Playback State
 ```
 
 Why:
 
 ```txt
-seek depends on sampling
-progress depends on sampling
-snapshots depend on sampling
-inspectors can reuse sampling ideas
-builder preview depends on sampling
-future drivers become easier when sampling exists
+seek needs to expose the new current time
+progress needs a stable state model
+controllers need a common state contract
+builder preview needs currentTime/progress/status
+events need a shared state payload
 ```
 
 ## 22. Release naming recommendation
