@@ -9,7 +9,8 @@ import type { MotionPlaybackState } from '../models/motion-playback-state';
 
 export class PromiseMotionPlaybackController
   extends BaseMotionPlaybackController
-  implements MotionPlaybackController {
+  implements MotionPlaybackController
+{
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(

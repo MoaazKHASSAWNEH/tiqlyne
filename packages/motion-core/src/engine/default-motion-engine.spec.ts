@@ -208,12 +208,12 @@ class NativePlaybackTestDriver implements MotionDriver<string> {
       activeStepIndexes: []
     }),
     on: () => {
-      return (): void => { };
+      return (): void => {};
     },
     once: () => {
-      return (): void => { };
+      return (): void => {};
     },
-    dispose: (): void => { },
+    dispose: (): void => {},
     pause: async (): Promise<MotionPlaybackResult> => ({
       status: 'paused',
       reason: 'native-controller-pause'

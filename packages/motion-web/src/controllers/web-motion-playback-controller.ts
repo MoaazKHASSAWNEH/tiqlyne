@@ -10,7 +10,8 @@ import {
 
 export class WebMotionPlaybackController
   extends BaseMotionPlaybackController
-  implements MotionPlaybackController {
+  implements MotionPlaybackController
+{
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -39,7 +40,7 @@ export class WebMotionPlaybackController
     return this.currentStatus;
   }
 
-    getState(): MotionPlaybackState {
+  getState(): MotionPlaybackState {
     const currentTime = this.resolveCurrentTime();
     const duration = this.resolveDuration();
 
@@ -132,7 +133,7 @@ export class WebMotionPlaybackController
     return result;
   }
 
-    private resolveCurrentTime(): number | null {
+  private resolveCurrentTime(): number | null {
     const times = this.animations
       .map((animation) => normalizeNumberish(animation.currentTime))
       .filter(isFiniteNumber);

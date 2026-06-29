@@ -16,7 +16,7 @@ export interface MotionPlaybackController {
   readonly status: MotionPlaybackControllerStatus;
   readonly disposed: boolean;
   readonly finished: Promise<MotionPlaybackResult>;
-  
+
   getState(): MotionPlaybackState;
   pause(): Promise<MotionPlaybackResult>;
   resume(): Promise<MotionPlaybackResult>;
