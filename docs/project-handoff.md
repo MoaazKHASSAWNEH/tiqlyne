@@ -2,7 +2,7 @@
 
 > Status: document de reprise principal.
 > Objectif: permettre a Moaaz, a un autre agent LLM ou a un developpeur de reprendre le projet exactement au bon point.
-> Dernier etat verifie: apres `9866774 feat(core): add composition item labels`.
+> Dernier etat verifie: apres `9e336a0 docs: add custom motion driver guide`.
 
 Ce document doit etre lu avant de modifier le code.
 
@@ -61,6 +61,14 @@ MotionCompositionDefinition
 ```
 
 La composition est une couche d'authoring/orchestration. Elle ne doit pas devenir un deuxieme runtime.
+
+Regle importante pour les drivers:
+
+```txt
+MotionDriver = adaptateur plateforme.
+Il execute une MotionTimelineDefinition sur un type de target concret.
+Il ne definit pas les effets reutilisables.
+```
 
 ## 2. Regle de travail importante
 
@@ -146,6 +154,49 @@ validateLessThan()
 validateLessThanOrEqual()
 validateIncreasing()
 validateDecreasing()
+```
+
+API driver actuellement disponible:
+
+```txt
+MotionDriver<TTarget>
+MotionPlayOptions
+MotionCreatePlaybackOptions
+MotionPlaybackResult
+MotionPlaybackController
+NoopMotionDriver
+TestMotionDriver
+PromiseMotionPlaybackController
+MotionExecutionPlan
+ScheduledMotionTimeline
+PreparedMotionTimeline
+```
+
+Document driver a lire:
+
+```txt
+docs/writing-custom-motion-driver.md
+```
+
+Conclusion audit driver actuelle:
+
+```txt
+- contrat petit et sain
+- target generique
+- play() obligatoire
+- cancel/finish/reset/createPlayback optionnels
+- executionPlan disponible pour les drivers avances
+- reduced motion et conflict strategy passes explicitement
+```
+
+Limitations driver connues:
+
+```txt
+- pas encore declaration formelle de capacites driver
+- pas encore hook de validation specifique driver
+- pas encore matrice standard de support des proprietes keyframes
+- pas encore helper generique d'interpolation/easing runtime
+- pas encore active playback registry generique
 ```
 
 API composition actuellement disponible:
@@ -309,4 +360,10 @@ Validation observee apres:
 
 ```txt
 9866774 feat(core): add composition item labels
+```
+
+Derniere mise a jour documentation:
+
+```txt
+9e336a0 docs: add custom motion driver guide
 ```
