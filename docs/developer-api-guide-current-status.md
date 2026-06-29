@@ -3,7 +3,7 @@
 > Status: documentation addendum.
 > Purpose: keep the developer documentation aligned with the current implementation.
 > Scope: documentation only.
-> Last verified state: after `7f9e6df feat(core): add numeric option validators` and the custom motion definition guide.
+> Last verified state: after `df71ec1 feat(core): add composition block offset placement`.
 
 ## 1. Why this addendum exists
 
@@ -25,9 +25,14 @@ Engine events: first version implemented
 Skip event: implemented
 Playback controller: implemented
 Web driver: implemented and tested
-Vanilla example: minimal infinite/yoyo controller test
+Vanilla example: infinite/yoyo/controller + composition demo
 Plugin/preset documentation: partial
 Custom MotionDefinition guide: written
+Composition API guide: written
+Composition compiler: implemented
+Composition builder: implemented
+Composition runtime shortcuts: implemented
+Composition block offset placement: implemented
 Custom MotionDriver guide: not yet written
 Versioning policy: not yet implemented
 ```
@@ -74,7 +79,7 @@ events
 
 ## 4. Current usage modes
 
-The engine supports three main usage modes.
+The engine supports four main usage modes.
 
 ### 4.1 Registered motions
 
@@ -109,9 +114,66 @@ await motion.playTimeline(element, timeline);
 
 Use direct timelines for custom runtime animations, examples, builders and low-level testing.
 
-### 4.3 Custom motion definitions
+### 4.3 Motion compositions
 
-The recommended way to create reusable custom motions is now documented in:
+```ts
+const composition = createMotionComposition((composition) => {
+  composition.motion('fade-in');
+  composition.motion('slide-in', {
+    at: 250,
+    options: {
+      direction: 'bottom',
+      distance: 32,
+      fade: false
+    }
+  });
+});
+
+await motion.playComposition(element, composition);
+```
+
+Use compositions to orchestrate several registered motions or direct timelines while keeping the runtime path unified.
+
+Composition rule:
+
+```txt
+MotionCompositionDefinition
+  -> compileMotionComposition()
+  -> MotionTimelineDefinition
+  -> planTimeline() / playTimeline() / createTimelinePlayback()
+```
+
+Available composition APIs:
+
+```txt
+MotionCompositionDefinition
+createMotionComposition()
+MotionCompositionBuilder
+compileMotionComposition()
+motion.planComposition()
+motion.playComposition()
+motion.createCompositionPlayback()
+```
+
+Current placement behavior:
+
+```txt
+item.at shifts the compiled item as a block.
+```
+
+Example:
+
+```txt
+internal step 1 at = 0
+internal step 2 at = 300
+item.at = 1000
+compiled step 1 at = 1000
+compiled step 2 at = 1300
+```
+
+### 4.4 Custom motion definitions
+
+The recommended way to create reusable custom motions is documented in:
 
 ```txt
 docs/writing-custom-motion-definition.md
@@ -169,8 +231,10 @@ registered-motion
   Comes from motion.play(target, config).
 
 direct-timeline
-  Comes from motion.playTimeline(target, timeline) or motion.planTimeline(timeline).
+  Comes from motion.playTimeline(target, timeline), motion.planTimeline(timeline), and the current composition runtime shortcuts after compilation.
 ```
+
+Composition does not currently add a separate `composition` event source. The runtime shortcuts compile to a timeline and reuse the direct timeline pipeline.
 
 Successful playback order:
 
@@ -190,9 +254,9 @@ onPlan
 
 `onSkip` is emitted for controlled skipped results such as disabled registered motions, unknown registered motion types, unsupported driver control operations and other explicit skip paths.
 
-`onError` is emitted by `play()` and `playTimeline()` when they catch planning or runtime errors and return a failed `MotionPlaybackResult`.
+`onError` is emitted by `play()`, `playTimeline()` and `playComposition()` when they catch planning or runtime errors and return a failed `MotionPlaybackResult`.
 
-Direct calls to `plan()` and `planTimeline()` still throw directly when planning fails.
+Direct calls to `plan()`, `planTimeline()` and `planComposition()` still throw directly when planning fails.
 
 ## 6. Event limits
 
@@ -212,6 +276,7 @@ onTrackFinish
 onEveryFrame
 dynamic motion.on(...) subscriptions
 engine listener unsubscribe support
+composition-specific event source
 ```
 
 Do not document those as available until implemented and tested.
@@ -231,7 +296,7 @@ driver-reset-not-supported
 web-playback-finish-not-supported-for-infinite-animation
 ```
 
-Invalid timelines are not skips. They remain planning errors and are observed through `onError` when using `play()` or `playTimeline()`.
+Invalid timelines and invalid compositions are not skips. They remain planning errors and are observed through `onError` when using playback APIs that catch planning errors.
 
 For complete skip details:
 
@@ -253,6 +318,12 @@ await playback.resume();
 await playback.finish();
 await playback.cancel();
 playback.dispose();
+```
+
+Composition playback controllers are also available:
+
+```ts
+const playback = motion.createCompositionPlayback(element, composition);
 ```
 
 Controller events:
@@ -352,7 +423,9 @@ The Web driver documentation explains how to use:
 createMotionEngine<Element>()
 WebMotionDriver
 createMotionTimeline()
+createMotionComposition()
 motion.playTimeline()
+motion.playComposition()
 motion.play()
 engine events
 playback controllers
@@ -394,6 +467,9 @@ Current purpose:
 - test pause/resume
 - test finish on infinite -> skipped
 - test cancel/reset
+- test createMotionComposition()
+- test compileMotionComposition()
+- test motion.playComposition()
 - display result and controller events
 ```
 
@@ -420,6 +496,9 @@ docs/developer-api-guide.md
 docs/developer-api-guide-current-status.md
   This current status addendum.
 
+docs/motion-composition-api.md
+  Current composition API reference, including runtime shortcuts and block offset placement.
+
 docs/writing-custom-motion-definition.md
   Guide for creating custom reusable MotionDefinition classes.
 
@@ -437,6 +516,9 @@ docs/playback-controller-behavior.md
 
 docs/motion-core-web-examples.md
   Practical examples guide for core + Web usage.
+
+docs/development-motion-composition-design.md
+  Internal design notes for the composition/orchestration API.
 
 docs/development-motion-definition-dx-audit.md
   Internal audit for MotionDefinition developer experience.
@@ -465,8 +547,8 @@ docs/development-direct-api-design.md
 12. feat(core,web): add stagger and advanced stagger
 13. feat(core,web): add labels and anchors
 14. feat(core,web): add playback timing options
-15. feat(core,web): add playbackRate support
-16. feat(core,web): add iterations infinite / yoyo support
+15. feat(core): add playbackRate support
+16. feat(core): add iterations infinite / yoyo support
 17. feat(example): add minimal infinite yoyo visual test
 18. fix(web): skip finish for infinite playback controllers
 19. docs: document playback controller behavior
@@ -474,6 +556,13 @@ docs/development-direct-api-design.md
 21. refactor(basic): migrate basic motions to schema definitions
 22. feat(core): add numeric option validators
 23. docs: add custom motion definition guide
+24. docs: add motion composition design
+25. feat(core): add motion composition compiler
+26. feat(core): add motion composition builder
+27. docs(example): add vanilla motion composition demo
+28. feat(core): add composition runtime shortcuts
+29. docs: add motion composition API guide
+30. feat(core): add composition block offset placement
 ```
 
 ## 14. Recommended next steps
@@ -481,12 +570,13 @@ docs/development-direct-api-design.md
 Recommended next steps now:
 
 ```txt
-1. audit: document current engine capabilities and missing features
-2. docs: add writing a custom MotionDriver guide
-3. feat(core): design motion composition / orchestration API
-4. feat(core): add conditional option validators later, for example validateWhen()
-5. docs: split the large developer guide into concepts/api/guides pages
-6. feat(core): add dynamic event subscription API later, for example motion.on(...)
+1. docs: add writing a custom MotionDriver guide
+2. feat(core): add item.label support for composition items
+3. feat(core): design nested composition groups
+4. feat(core): add structured composition diagnostics later
+5. feat(core): add per-item reduced motion compilation later
+6. docs: split the large developer guide into concepts/api/guides pages
+7. feat(core): add dynamic event subscription API later, for example motion.on(...)
 ```
 
 Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as a focused test until the engine documentation and orchestration API are more complete.
@@ -496,8 +586,11 @@ Avoid starting a complete visual builder immediately. Keep `examples/vanilla` as
 ```txt
 - motion-core must stay framework-agnostic.
 - motion-core must not import DOM, WAAPI, Angular, React or GSAP.
-- MotionTimelineDefinition remains the serializable source of truth.
+- MotionTimelineDefinition remains the serializable runtime source of truth.
+- MotionCompositionDefinition remains the serializable authoring/orchestration source of truth for compositions.
+- Composition must compile to MotionTimelineDefinition before playback.
 - createMotionTimeline() is a builder convenience, not a replacement for the model.
+- createMotionComposition() is a builder convenience, not a replacement for the model.
 - createMotionEngine() is the public factory.
 - DefaultMotionEngine is an implementation detail for most users.
 - Engine defaults must not override timeline, track or step values.
@@ -522,4 +615,19 @@ pnpm test
 pnpm build
 ```
 
-Last known complete validation passed after the numeric option validators and custom motion definition guide updates.
+Last known complete validation passed after:
+
+```txt
+df71ec1 feat(core): add composition block offset placement
+```
+
+Known validation result:
+
+```txt
+21 test files passed
+284 tests passed
+motion-core build OK
+motion-web build OK
+motion-pack-basic build OK
+examples/vanilla build OK
+```
