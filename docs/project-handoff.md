@@ -2,7 +2,7 @@
 
 > Status: document de reprise principal.
 > Objectif: permettre a Moaaz, a un autre agent LLM ou a un developpeur de reprendre le projet exactement au bon point.
-> Dernier etat verifie: apres `9e336a0 docs: add custom motion driver guide`.
+> Dernier etat verifie: apres `81327e4 docs: add V1 V2 V3 version roadmap`.
 
 Ce document doit etre lu avant de modifier le code.
 
@@ -68,6 +68,22 @@ Regle importante pour les drivers:
 MotionDriver = adaptateur plateforme.
 Il execute une MotionTimelineDefinition sur un type de target concret.
 Il ne definit pas les effets reutilisables.
+```
+
+Regle importante pour la roadmap versions:
+
+```txt
+V1 = premiere version stable du moteur core.
+V1.x = ameliorations ou petites fonctionnalites directement liees a V1.
+V1.x.y = corrections de bugs et maintenance.
+V2 = nouvelle famille majeure de fonctionnalites.
+V3 = ecosysteme, devtools, plugins et expansion multi-plateforme.
+```
+
+Document roadmap a lire:
+
+```txt
+docs/version-roadmap-v1-v2-v3.md
 ```
 
 ## 2. Regle de travail importante
@@ -322,7 +338,36 @@ Il sert a verifier rapidement:
 
 Prochaine amelioration utile: ajouter un petit exemple de custom motion locale, sans transformer l'exemple en visual builder complet.
 
-## 5. Commandes de validation
+## 5. Roadmap versionnee
+
+Le document de reference est:
+
+```txt
+docs/version-roadmap-v1-v2-v3.md
+```
+
+Priorite actuelle:
+
+```txt
+Terminer les fonctionnalites moteur de motion-core avant de partir vers les drivers supplementaires ou les packages externes.
+```
+
+Prochaines etapes V1 recommandees:
+
+```txt
+1. Timeline Sampler
+2. Playback state model
+3. seek(time)
+4. seekProgress(progress)
+5. jumpToLabel(label)
+6. reverse/playBackward minimal
+7. setPlaybackRate(rate)
+8. advanced playback events minimum
+9. inspectMotionTimeline()
+10. V1 docs/publication cleanup
+```
+
+## 6. Commandes de validation
 
 Commandes globales recommandees avant chaque commit:
 
@@ -365,5 +410,5 @@ Validation observee apres:
 Derniere mise a jour documentation:
 
 ```txt
-9e336a0 docs: add custom motion driver guide
+81327e4 docs: add V1 V2 V3 version roadmap
 ```
