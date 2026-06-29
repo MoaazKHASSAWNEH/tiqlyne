@@ -14,7 +14,8 @@ registered motions
 existing direct timelines
 multiple targets
 timing overrides
-labels
+composition labels
+item labels
 placement values
 ```
 
@@ -91,6 +92,7 @@ const composition: MotionCompositionDefinition = {
     {
       kind: 'motion',
       type: 'fade-in',
+      label: 'card-enter',
       at: 'start',
       options: {
         fromOpacity: 0,
@@ -100,7 +102,10 @@ const composition: MotionCompositionDefinition = {
     {
       kind: 'motion',
       type: 'slide-in',
-      at: 250,
+      at: {
+        label: 'card-enter',
+        offset: 150
+      },
       options: {
         direction: 'bottom',
         distance: 32,
@@ -135,6 +140,7 @@ const composition = createMotionComposition((composition) => {
   composition.label('start', 0);
 
   composition.motion('fade-in', {
+    label: 'card-enter',
     at: 'start',
     options: {
       fromOpacity: 0,
@@ -146,7 +152,10 @@ const composition = createMotionComposition((composition) => {
   });
 
   composition.motion('slide-in', {
-    at: 250,
+    at: {
+      label: 'card-enter',
+      offset: 150
+    },
     options: {
       direction: 'bottom',
       distance: 32,
@@ -195,7 +204,7 @@ Use manual compilation when you want to inspect, store, cache, validate, or tran
 
 ## 7. Runtime convenience usage
 
-The engine can now compile a composition internally using its registry.
+The engine can compile a composition internally using its registry.
 
 ```ts
 await motion.playComposition(element, composition);
@@ -276,6 +285,8 @@ A registered motion item references a `MotionDefinition` by type.
 
 ```ts
 composition.motion('fade-in', {
+  label: 'card-enter',
+  at: 300,
   options: {
     fromOpacity: 0,
     toOpacity: 1
@@ -289,6 +300,8 @@ Equivalent object form:
 {
   kind: 'motion',
   type: 'fade-in',
+  label: 'card-enter',
+  at: 300,
   options: {
     fromOpacity: 0,
     toOpacity: 1
@@ -306,7 +319,8 @@ Compilation behavior:
 5. Call definition.buildTimeline(context).
 6. Apply composition item overrides.
 7. Merge the produced tracks into the final timeline.
-8. Validate the final compiled timeline.
+8. Add the optional item label to the final timeline labels.
+9. Validate the final compiled timeline.
 ```
 
 If the motion type is missing from the registry, compilation throws a `MotionPlanningError` with code:
@@ -327,6 +341,7 @@ A direct timeline item embeds an existing `MotionTimelineDefinition`.
 
 ```ts
 composition.timeline(existingTimeline, {
+  label: 'hero-timeline',
   at: 100,
   target: {
     type: 'selector',
@@ -341,6 +356,7 @@ Equivalent object form:
 {
   kind: 'timeline',
   timeline: existingTimeline,
+  label: 'hero-timeline',
   at: 100,
   target: {
     type: 'selector',
@@ -355,9 +371,10 @@ Compilation behavior:
 1. Read tracks from the provided timeline.
 2. Apply optional target override.
 3. Apply optional item defaults.
-4. Apply optional placement to the first step of each track.
-5. Merge tracks into the final timeline.
-6. Validate the final compiled timeline.
+4. Apply optional placement as a block offset.
+5. Add the optional item label to the final timeline labels.
+6. Merge tracks into the final timeline.
+7. Validate the final compiled timeline.
 ```
 
 Direct timeline items do not require registry lookup.
@@ -435,47 +452,6 @@ internal fallback
 
 More specific values win.
 
-Example:
-
-```ts
-compileMotionComposition(
-  createMotionComposition((composition) => {
-    composition.defaults({
-      duration: 500,
-      easing: 'linear'
-    });
-
-    composition.motion('fade-in', {
-      defaults: {
-        duration: 200
-      }
-    });
-  }),
-  {
-    registry,
-    defaults: {
-      duration: 700,
-      delay: 50,
-      easing: 'ease-out'
-    }
-  }
-);
-```
-
-Effective values for the item build context:
-
-```txt
-duration = 200 from item.defaults
-delay = 50 from context.defaults
-easing = linear from composition.defaults
-```
-
-The final timeline defaults contain the merged timeline-level defaults:
-
-```txt
-context.defaults + composition.defaults
-```
-
 Item defaults do not become global timeline defaults.
 
 ## 11. Explicit values are preserved
@@ -520,9 +496,7 @@ If an item does not provide a target, the compiler preserves the track target pr
 If the produced track does not have a target, the compiler falls back to:
 
 ```ts
-{
-  type: 'self';
-}
+{ type: 'self' }
 ```
 
 `self` means the runtime target passed to `motion.playTimeline()` or `motion.playComposition()`.
@@ -546,28 +520,34 @@ composition.motion('slide-in', {
 Current behavior:
 
 ```txt
-item.at is applied to the first step of every compiled track for that item.
+item.at shifts the compiled item as a block.
 ```
 
 Example:
 
 ```txt
-item.at = 250
-compiled track A first step at = 250
-compiled track B first step at = 250
+internal step 1 at = 0
+internal step 2 at = 300
+
+item.at = 1000
+
+compiled step 1 at = 1000
+compiled step 2 at = 1300
 ```
 
-Steps after the first step are not shifted as a block yet.
-
-This means the current composition compiler does not yet implement advanced block offset behavior.
-
-Future behavior may support:
+With labels:
 
 ```txt
-item.at shifts the whole compiled item as a block
+internal step 1 at = 0
+internal step 2 at = 300
+
+item.at = 'intro'
+
+compiled step 1 at = { label: 'intro', offset: 0 }
+compiled step 2 at = { label: 'intro', offset: 300 }
 ```
 
-For now, use simple numeric positions or labels for predictable behavior.
+If an internal step has no `at`, it is placed directly at the item `at`.
 
 ## 14. Labels behavior
 
@@ -583,38 +563,80 @@ const composition = createMotionComposition((composition) => {
 });
 ```
 
-Equivalent object form:
+Item-level labels are also supported.
 
 ```ts
-{
-  labels: {
-    start: 0
-  },
-  items: [
-    {
-      kind: 'motion',
-      type: 'fade-in',
-      at: 'start'
+const composition = createMotionComposition((composition) => {
+  composition.motion('fade-in', {
+    label: 'card-enter',
+    at: 300
+  });
+
+  composition.motion('slide-in', {
+    at: {
+      label: 'card-enter',
+      offset: 150
     }
-  ]
-}
+  });
+});
 ```
 
 Compilation behavior:
 
 ```txt
-composition.labels are copied to the final timeline.labels
-steps may reference those labels through at
+composition.labels are copied first
+item.label entries are added to the final timeline.labels
+later items may reference labels created by earlier items
+steps may reference labels through at
 final timeline validation checks label references
 ```
 
-Current limitation:
+Examples:
 
 ```txt
-item.label is not part of the current implementation
+item.label = card-enter
+item.at = 300
+=> timeline.labels.card-enter = 300
 ```
 
-Use `composition.label(name, position)` or `composition.labels({...})` instead.
+```txt
+composition.labels.intro = 500
+item.label = card-enter
+item.at = { label: 'intro', offset: 150 }
+=> timeline.labels.card-enter = 650
+```
+
+### 14.1 Duplicate labels
+
+An item label cannot duplicate a composition label or a previous item label.
+
+```txt
+composition.labels.intro exists
+item.label = intro
+=> composition-duplicate-label
+```
+
+### 14.2 Missing label references
+
+An item label cannot be resolved from a missing label reference.
+
+```txt
+item.label = card-enter
+item.at = missing-label
+=> composition-item-label-reference-missing
+```
+
+### 14.3 Anchor placement limitation
+
+Item labels do not currently support anchor-based placement.
+
+```txt
+item.label = card-enter
+item.at = { anchor: 'track-start' }
+=> composition-item-label-anchor-position-unsupported
+```
+
+This limitation is intentional because anchor positions are resolved during scheduling, while item labels must be materialized as numeric timeline labels during composition compilation.
 
 ## 15. Builder behavior
 
@@ -639,7 +661,7 @@ Later calls override matching keys from earlier calls.
 composition.label('start', 0);
 ```
 
-Adds or overrides one label.
+Adds or overrides one composition-level label.
 
 ### 15.3 labels()
 
@@ -650,7 +672,7 @@ composition.labels({
 });
 ```
 
-Merges multiple labels.
+Merges multiple composition-level labels.
 
 Later values override matching label names.
 
@@ -658,6 +680,7 @@ Later values override matching label names.
 
 ```ts
 composition.motion('fade-in', {
+  label: 'card-enter',
   options: {},
   at: 0,
   defaults: {},
@@ -673,6 +696,7 @@ The method returns the builder, so calls can be chained.
 
 ```ts
 composition.timeline(timeline, {
+  label: 'timeline-enter',
   at: 100,
   target: { type: 'self' },
   defaults: { duration: 200 }
@@ -705,6 +729,9 @@ composition-item-unknown-motion-type
 composition-item-invalid-options
 composition-invalid-timeline
 composition-item-unsupported-kind
+composition-duplicate-label
+composition-item-label-reference-missing
+composition-item-label-anchor-position-unsupported
 ```
 
 ### 16.1 Empty composition
@@ -763,7 +790,27 @@ composition-invalid-timeline
 
 Timeline validation diagnostics are stored on the `MotionPlanningError`.
 
-### 16.5 Runtime convenience failure result
+### 16.5 Item label errors
+
+Duplicate labels throw:
+
+```txt
+composition-duplicate-label
+```
+
+Missing label references throw:
+
+```txt
+composition-item-label-reference-missing
+```
+
+Anchor-based item label placement throws:
+
+```txt
+composition-item-label-anchor-position-unsupported
+```
+
+### 16.6 Runtime convenience failure result
 
 `playComposition()` catches `MotionPlanningError` and returns a failed result instead of throwing.
 
@@ -889,6 +936,7 @@ const composition = createMotionComposition((composition) => {
   });
 
   composition.motion('fade-in', {
+    label: 'card-enter',
     options: {
       fromOpacity: 0,
       toOpacity: 1
@@ -899,7 +947,10 @@ const composition = createMotionComposition((composition) => {
   });
 
   composition.motion('slide-in', {
-    at: 250,
+    at: {
+      label: 'card-enter',
+      offset: 250
+    },
     options: {
       direction: 'bottom',
       distance: 32,
@@ -929,14 +980,13 @@ await motion.playTimeline(element, timeline);
 Current limitations are intentional.
 
 ```txt
-No item.label support.
-No advanced block offset algorithm.
 No per-item reduced motion compilation.
 No structured composition diagnostics.
 No async motion loading.
 No dependency resolution between composition items.
 No nested composition groups.
 No preset/variant system yet.
+No anchor-based item label materialization.
 ```
 
 These limitations keep the first public composition API small and predictable.
@@ -950,6 +1000,7 @@ Recommended:
 ```txt
 create MotionCompositionDefinition
 use createMotionComposition() for authoring DX
+use item.label for synchronizing later items to earlier composition items
 use motion.playComposition() for direct playback
 use compileMotionComposition() when the compiled timeline must be inspected or cached
 store MotionCompositionDefinition when authoring in a builder
@@ -960,7 +1011,7 @@ Avoid:
 
 ```txt
 putting DOM elements in the composition object
-using complex anchor placement before block offsets exist
+using anchor-based positions for item labels
 expecting per-item reduced motion timelines to be generated
 using composition as a second runtime model
 ```
@@ -980,16 +1031,17 @@ createMotionComposition()
 motion.planComposition()
 motion.playComposition()
 motion.createCompositionPlayback()
+composition block offset placement
+composition item labels
 vanilla composition demo
 ```
 
 Not implemented yet:
 
 ```txt
-advanced block offset
-item.label
 composition-specific reduced motion
 composition diagnostics object model
 nested composition groups
 preset/variant system
+anchor-based item label materialization
 ```
