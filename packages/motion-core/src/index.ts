@@ -263,4 +263,18 @@ export {
   type MotionCompositionBuilderCallback
 } from './composition/create-motion-composition';
 
+export type {
+  MotionSampleStepStatus,
+  MotionTimelineSample,
+  MotionTimelineSampleInput,
+  MotionTimelineStepSample,
+  MotionTimelineTrackSample
+} from './sampler/motion-timeline-sample';
+
+export {
+  sampleMotionTimeline,
+  sampleMotionTimelineAtProgress,
+  sampleMotionTimelineAtTime
+} from './sampler/sample-motion-timeline';
+
 export const motionCoreVersion = '0.1.0';
