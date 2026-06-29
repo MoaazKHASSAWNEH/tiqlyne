@@ -92,9 +92,9 @@ This is the main extensibility point: `motion-core` does not know what the targe
 `play()` receives:
 
 ```ts
-target: TTarget
-timeline: MotionTimelineDefinition
-options: MotionPlayOptions
+target: TTarget;
+timeline: MotionTimelineDefinition;
+options: MotionPlayOptions;
 ```
 
 `MotionPlayOptions` contains runtime decisions already normalized by the engine:
