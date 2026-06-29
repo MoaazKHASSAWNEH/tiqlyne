@@ -56,6 +56,18 @@ export class WebMotionPlaybackController
     };
   }
 
+  async seek(time: number): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('seek');
+    }
+
+    if (!Number.isFinite(time)) {
+      return this.createInvalidSeekTimeResult(time);
+    }
+
+    return this.seekAnimations(time);
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');
@@ -173,6 +185,10 @@ export class WebMotionPlaybackController
     return this.resolvePlaybackRate() < 0 ? 'backward' : 'forward';
   }
 
+  private resolveSeekResultStatus(): 'running' | 'paused' {
+    return this.currentStatus === 'paused' ? 'paused' : 'running';
+  }
+
   private applyFinishedResult(result: MotionPlaybackResult): void {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return;
@@ -232,6 +248,54 @@ export class WebMotionPlaybackController
           metadata: {
             action,
             currentStatus: this.currentStatus
+          }
+        }
+      ]
+    };
+  }
+
+  private seekAnimations(time: number): MotionPlaybackResult {
+    try {
+      for (const animation of this.animations) {
+        animation.currentTime = time;
+      }
+
+      return {
+        status: this.resolveSeekResultStatus(),
+        reason: 'web-playback-seek'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-playback-seek-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-playback-seek-failed',
+            message: 'Web playback could not seek safely.',
+            source: 'web-motion-playback-controller',
+            metadata: {
+              time
+            }
+          }
+        ]
+      };
+    }
+  }
+
+  private createInvalidSeekTimeResult(time: number): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-seek-invalid-time',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-seek-invalid-time',
+          message: 'Web playback seek time must be a finite number.',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            time
           }
         }
       ]

@@ -18,6 +18,8 @@ export interface MotionPlaybackController {
   readonly finished: Promise<MotionPlaybackResult>;
 
   getState(): MotionPlaybackState;
+  seek(time: number): Promise<MotionPlaybackResult>;
+
   pause(): Promise<MotionPlaybackResult>;
   resume(): Promise<MotionPlaybackResult>;
   cancel(): Promise<MotionPlaybackResult>;

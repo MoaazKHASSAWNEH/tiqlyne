@@ -52,6 +52,43 @@ export class PromiseMotionPlaybackController
       activeStepIndexes: []
     };
   }
+
+  async seek(time: number): Promise<MotionPlaybackResult> {
+    if (!Number.isFinite(time)) {
+      return {
+        status: 'skipped',
+        reason: 'playback-seek-invalid-time',
+        diagnostics: [
+          {
+            level: 'warning',
+            code: 'playback-seek-invalid-time',
+            message: 'Playback seek time must be a finite number.',
+            source: 'promise-motion-playback-controller',
+            metadata: {
+              time
+            }
+          }
+        ]
+      };
+    }
+
+    return {
+      status: 'skipped',
+      reason: 'playback-seek-not-supported',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-seek-not-supported',
+          message: 'This playback controller does not support seek(time).',
+          source: 'promise-motion-playback-controller',
+          metadata: {
+            time
+          }
+        }
+      ]
+    };
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');

@@ -207,6 +207,10 @@ class NativePlaybackTestDriver implements MotionDriver<string> {
       activeTrackIndexes: [],
       activeStepIndexes: []
     }),
+    seek: async (): Promise<MotionPlaybackResult> => ({
+      status: 'running',
+      reason: 'native-controller-seek'
+    }),
     on: () => {
       return (): void => {};
     },

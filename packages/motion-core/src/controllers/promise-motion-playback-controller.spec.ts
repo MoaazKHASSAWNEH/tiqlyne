@@ -62,4 +62,44 @@ describe('PromiseMotionPlaybackController', () => {
 
     expect(controller.getState().status).toBe('finished');
   });
+
+  it('skips seek because generic promise playback does not support time control', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.seek(100);
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-seek-not-supported'
+    });
+  });
+
+  it('skips seek when time is invalid', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.seek(Number.NaN);
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-seek-invalid-time'
+    });
+  });
 });
