@@ -10,9 +10,15 @@ import type {
   MotionTimelineStepInspection,
   MotionTimelineTrackInspection
 } from './motion-timeline-inspection';
+import {
+  createMotionInfoDiagnostic,
+  createMotionWarningDiagnostic
+} from '../diagnostics/create-motion-diagnostic';
+import { MotionDiagnosticSources } from '../diagnostics/motion-diagnostic-source';
 
 const LONG_TIMELINE_DURATION = 3000;
 const LONG_STEP_DURATION = 1500;
+const INSPECTOR_DIAGNOSTIC_SOURCE = MotionDiagnosticSources.TimelineInspector;
 
 export function inspectMotionTimeline(
   timeline: MotionTimelineDefinition
@@ -113,25 +119,27 @@ function inspectTimelineDiagnostics(
   const diagnostics: MotionDiagnostic[] = [];
 
   if (totalDuration === Infinity || steps.some((step) => step.infinite)) {
-    diagnostics.push({
-      level: 'info',
-      code: 'timeline-inspection-infinite-timeline',
-      message: 'Timeline contains infinite playback.',
-      source: 'timeline-inspector'
-    });
+    diagnostics.push(
+      createMotionInfoDiagnostic(
+        'timeline-inspection-infinite-timeline',
+        'Timeline contains infinite playback.',
+        INSPECTOR_DIAGNOSTIC_SOURCE
+      )
+    );
   }
 
   if (Number.isFinite(totalDuration) && totalDuration > LONG_TIMELINE_DURATION) {
-    diagnostics.push({
-      level: 'warning',
-      code: 'timeline-inspection-long-timeline',
-      message: 'Timeline total duration is longer than the recommended V1 default.',
-      source: 'timeline-inspector',
-      metadata: {
-        totalDuration,
-        recommendedMaxDuration: LONG_TIMELINE_DURATION
-      }
-    });
+    diagnostics.push(
+      createMotionWarningDiagnostic(
+        'timeline-inspection-long-timeline',
+        'Timeline total duration is longer than the recommended V1 default.',
+        INSPECTOR_DIAGNOSTIC_SOURCE,
+        {
+          totalDuration,
+          recommendedMaxDuration: LONG_TIMELINE_DURATION
+        }
+      )
+    );
   }
 
   return diagnostics;
@@ -144,31 +152,33 @@ function inspectStepDiagnostics(
 
   for (const step of steps) {
     if (step.keyframeCount === 0) {
-      diagnostics.push({
-        level: 'warning',
-        code: 'timeline-inspection-empty-step-keyframes',
-        message: 'Timeline step has no keyframes.',
-        source: 'timeline-inspector',
-        metadata: {
-          trackIndex: step.trackIndex,
-          stepIndex: step.stepIndex
-        }
-      });
+      diagnostics.push(
+        createMotionWarningDiagnostic(
+          'timeline-inspection-empty-step-keyframes',
+          'Timeline step has no keyframes.',
+          INSPECTOR_DIAGNOSTIC_SOURCE,
+          {
+            trackIndex: step.trackIndex,
+            stepIndex: step.stepIndex
+          }
+        )
+      );
     }
 
     if (Number.isFinite(step.duration) && step.duration > LONG_STEP_DURATION) {
-      diagnostics.push({
-        level: 'warning',
-        code: 'timeline-inspection-long-step',
-        message: 'Timeline step duration is longer than the recommended V1 default.',
-        source: 'timeline-inspector',
-        metadata: {
-          trackIndex: step.trackIndex,
-          stepIndex: step.stepIndex,
-          duration: step.duration,
-          recommendedMaxDuration: LONG_STEP_DURATION
-        }
-      });
+      diagnostics.push(
+        createMotionWarningDiagnostic(
+          'timeline-inspection-long-step',
+          'Timeline step duration is longer than the recommended V1 default.',
+          INSPECTOR_DIAGNOSTIC_SOURCE,
+          {
+            trackIndex: step.trackIndex,
+            stepIndex: step.stepIndex,
+            duration: step.duration,
+            recommendedMaxDuration: LONG_STEP_DURATION
+          }
+        )
+      );
     }
   }
 
