@@ -191,6 +191,42 @@ export class PromiseMotionPlaybackController
     };
   }
 
+  async setPlaybackRate(rate: number): Promise<MotionPlaybackResult> {
+    if (!Number.isFinite(rate) || rate <= 0) {
+      return {
+        status: 'skipped',
+        reason: 'playback-set-playback-rate-invalid-rate',
+        diagnostics: [
+          {
+            level: 'warning',
+            code: 'playback-set-playback-rate-invalid-rate',
+            message: 'Playback rate must be a finite number greater than 0.',
+            source: 'promise-motion-playback-controller',
+            metadata: {
+              rate
+            }
+          }
+        ]
+      };
+    }
+
+    return {
+      status: 'skipped',
+      reason: 'playback-set-playback-rate-not-supported',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-set-playback-rate-not-supported',
+          message: 'This playback controller does not support setPlaybackRate(rate).',
+          source: 'promise-motion-playback-controller',
+          metadata: {
+            rate
+          }
+        }
+      ]
+    };
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');

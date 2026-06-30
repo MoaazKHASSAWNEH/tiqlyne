@@ -132,6 +132,18 @@ export class WebMotionPlaybackController
     return result;
   }
 
+  async setPlaybackRate(rate: number): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('setPlaybackRate');
+    }
+
+    if (!Number.isFinite(rate) || rate <= 0) {
+      return this.createInvalidPlaybackRateResult(rate);
+    }
+
+    return this.setAnimationsPlaybackRate(rate);
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');
@@ -384,6 +396,60 @@ export class WebMotionPlaybackController
           source: 'web-motion-playback-controller',
           metadata: {
             label
+          }
+        }
+      ]
+    };
+  }
+
+  private setAnimationsPlaybackRate(rate: number): MotionPlaybackResult {
+    try {
+      const signedPlaybackRate = this.resolveSignedPlaybackRate(rate);
+
+      for (const animation of this.animations) {
+        animation.playbackRate = signedPlaybackRate;
+      }
+
+      return {
+        status: this.resolveSeekResultStatus(),
+        reason: 'web-playback-set-playback-rate'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason: 'web-playback-set-playback-rate-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code: 'web-playback-set-playback-rate-failed',
+            message: 'Web playback rate could not be changed safely.',
+            source: 'web-motion-playback-controller',
+            metadata: {
+              rate
+            }
+          }
+        ]
+      };
+    }
+  }
+
+  private resolveSignedPlaybackRate(rate: number): number {
+    return this.resolvePlaybackDirection() === 'backward' ? -rate : rate;
+  }
+
+  private createInvalidPlaybackRateResult(rate: number): MotionPlaybackResult {
+    return {
+      status: 'skipped',
+      reason: 'web-playback-set-playback-rate-invalid-rate',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'web-playback-set-playback-rate-invalid-rate',
+          message: 'Web playback rate must be a finite number greater than 0.',
+          source: 'web-motion-playback-controller',
+          metadata: {
+            rate
           }
         }
       ]

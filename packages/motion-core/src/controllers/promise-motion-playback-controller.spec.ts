@@ -222,4 +222,44 @@ describe('PromiseMotionPlaybackController', () => {
       reason: 'playback-play-backward-not-supported'
     });
   });
+
+  it('skips setPlaybackRate because generic promise playback does not support rate control', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.setPlaybackRate(2);
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-set-playback-rate-not-supported'
+    });
+  });
+
+  it('skips setPlaybackRate when rate is invalid', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.setPlaybackRate(0);
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-set-playback-rate-invalid-rate'
+    });
+  });
 });

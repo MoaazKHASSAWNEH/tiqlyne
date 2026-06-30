@@ -23,6 +23,7 @@ export interface MotionPlaybackController {
   jumpToLabel(label: string): Promise<MotionPlaybackResult>;
   playForward(): Promise<MotionPlaybackResult>;
   playBackward(): Promise<MotionPlaybackResult>;
+  setPlaybackRate(rate: number): Promise<MotionPlaybackResult>;
 
   pause(): Promise<MotionPlaybackResult>;
   resume(): Promise<MotionPlaybackResult>;

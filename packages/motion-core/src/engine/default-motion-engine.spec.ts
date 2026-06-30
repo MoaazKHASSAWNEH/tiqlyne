@@ -227,6 +227,10 @@ class NativePlaybackTestDriver implements MotionDriver<string> {
       status: 'running',
       reason: 'native-controller-play-backward'
     }),
+    setPlaybackRate: async (): Promise<MotionPlaybackResult> => ({
+      status: 'running',
+      reason: 'native-controller-set-playback-rate'
+    }),
     on: () => {
       return (): void => {};
     },
