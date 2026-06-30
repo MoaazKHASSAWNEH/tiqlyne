@@ -45,6 +45,7 @@ export class WebMotionPlaybackController
   getState(): MotionPlaybackState {
     const currentTime = this.resolveCurrentTime();
     const duration = this.resolveDuration();
+    const currentLabel = this.resolveCurrentLabel(currentTime);
 
     return {
       status: this.currentStatus,
@@ -54,7 +55,12 @@ export class WebMotionPlaybackController
       playbackRate: this.resolvePlaybackRate(),
       direction: this.resolvePlaybackDirection(),
       activeTrackIndexes: [],
-      activeStepIndexes: []
+      activeStepIndexes: [],
+      ...(currentLabel !== undefined
+        ? {
+            currentLabel
+          }
+        : {})
     };
   }
 
@@ -251,6 +257,28 @@ export class WebMotionPlaybackController
     }
 
     return Math.max(...durations);
+  }
+
+  private resolveCurrentLabel(currentTime: number | null): string | undefined {
+    if (currentTime === null) {
+      return undefined;
+    }
+
+    const entries = Object.entries(this.labels)
+      .filter((entry): entry is [string, number] => Number.isFinite(entry[1]))
+      .sort((left, right) => left[1] - right[1]);
+
+    let currentLabel: string | undefined;
+
+    for (const [label, time] of entries) {
+      if (time > currentTime) {
+        break;
+      }
+
+      currentLabel = label;
+    }
+
+    return currentLabel;
   }
 
   private resolvePlaybackRate(): number {
