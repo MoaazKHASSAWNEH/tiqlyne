@@ -161,6 +161,36 @@ export class PromiseMotionPlaybackController
     };
   }
 
+  async playForward(): Promise<MotionPlaybackResult> {
+    return {
+      status: 'skipped',
+      reason: 'playback-play-forward-not-supported',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-play-forward-not-supported',
+          message: 'This playback controller does not support playForward().',
+          source: 'promise-motion-playback-controller'
+        }
+      ]
+    };
+  }
+
+  async playBackward(): Promise<MotionPlaybackResult> {
+    return {
+      status: 'skipped',
+      reason: 'playback-play-backward-not-supported',
+      diagnostics: [
+        {
+          level: 'warning',
+          code: 'playback-play-backward-not-supported',
+          message: 'This playback controller does not support playBackward().',
+          source: 'promise-motion-playback-controller'
+        }
+      ]
+    };
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');

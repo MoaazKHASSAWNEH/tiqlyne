@@ -108,6 +108,30 @@ export class WebMotionPlaybackController
     return this.seekAnimations(time);
   }
 
+  async playForward(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('playForward');
+    }
+
+    const result = this.playAnimationsInDirection('forward');
+
+    this.applyDirectionalPlaybackResult(result);
+
+    return result;
+  }
+
+  async playBackward(): Promise<MotionPlaybackResult> {
+    if (isTerminalPlaybackStatus(this.currentStatus)) {
+      return this.createInvalidTransitionResult('playBackward');
+    }
+
+    const result = this.playAnimationsInDirection('backward');
+
+    this.applyDirectionalPlaybackResult(result);
+
+    return result;
+  }
+
   async pause(): Promise<MotionPlaybackResult> {
     if (isTerminalPlaybackStatus(this.currentStatus)) {
       return this.createInvalidTransitionResult('pause');
@@ -366,6 +390,86 @@ export class WebMotionPlaybackController
     };
   }
 
+  private playAnimationsInDirection(direction: MotionPlaybackDirectionState): MotionPlaybackResult {
+    try {
+      const playbackRate = resolveDirectionalPlaybackRate(this.resolvePlaybackRate(), direction);
+
+      for (const animation of this.animations) {
+        animation.playbackRate = playbackRate;
+
+        if (direction === 'backward') {
+          this.prepareAnimationForBackwardPlayback(animation);
+        }
+
+        animation.play();
+      }
+
+      return {
+        status: 'running',
+        reason:
+          direction === 'backward' ? 'web-playback-play-backward' : 'web-playback-play-forward'
+      };
+    } catch (error) {
+      return {
+        status: 'failed',
+        reason:
+          direction === 'backward'
+            ? 'web-playback-play-backward-failed'
+            : 'web-playback-play-forward-failed',
+        error,
+        diagnostics: [
+          {
+            level: 'error',
+            code:
+              direction === 'backward'
+                ? 'web-playback-play-backward-failed'
+                : 'web-playback-play-forward-failed',
+            message:
+              direction === 'backward'
+                ? 'Web playback could not play backward safely.'
+                : 'Web playback could not play forward safely.',
+            source: 'web-motion-playback-controller',
+            metadata: {
+              direction
+            }
+          }
+        ]
+      };
+    }
+  }
+
+  private prepareAnimationForBackwardPlayback(animation: Animation): void {
+    const currentTime = normalizeNumberish(animation.currentTime);
+
+    if (currentTime !== null && currentTime > 0) {
+      return;
+    }
+
+    const effect = animation.effect;
+
+    if (effect === null || effect === undefined) {
+      return;
+    }
+
+    const endTime = normalizeNumberish(effect.getComputedTiming().endTime);
+
+    if (endTime === null) {
+      return;
+    }
+
+    animation.currentTime = endTime;
+  }
+
+  private applyDirectionalPlaybackResult(result: MotionPlaybackResult): void {
+    const previousStatus = this.currentStatus;
+
+    this.currentStatus = result.status;
+
+    if (previousStatus !== this.currentStatus) {
+      this.emitResult(result, previousStatus);
+    }
+  }
+
   private seekAnimations(time: number): MotionPlaybackResult {
     try {
       for (const animation of this.animations) {
@@ -575,4 +679,13 @@ function resolveProgress(currentTime: number | null, duration: number | null): n
 
 function clampProgress(progress: number): number {
   return Math.min(Math.max(progress, 0), 1);
+}
+
+function resolveDirectionalPlaybackRate(
+  currentPlaybackRate: number,
+  direction: MotionPlaybackDirectionState
+): number {
+  const absolutePlaybackRate = Math.abs(currentPlaybackRate) || 1;
+
+  return direction === 'backward' ? -absolutePlaybackRate : absolutePlaybackRate;
 }

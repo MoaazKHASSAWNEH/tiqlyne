@@ -182,4 +182,44 @@ describe('PromiseMotionPlaybackController', () => {
       reason: 'playback-jump-to-label-invalid-label'
     });
   });
+
+  it('skips playForward because generic promise playback does not support direction control', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.playForward();
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-play-forward-not-supported'
+    });
+  });
+
+  it('skips playBackward because generic promise playback does not support direction control', async () => {
+    const controller = new PromiseMotionPlaybackController(
+      'playback-1',
+      new Promise<MotionPlaybackResult>(() => {}),
+      async () => ({
+        status: 'cancelled'
+      }),
+      async () => ({
+        status: 'finished'
+      })
+    );
+
+    const result = await controller.playBackward();
+
+    expect(result).toMatchObject({
+      status: 'skipped',
+      reason: 'playback-play-backward-not-supported'
+    });
+  });
 });

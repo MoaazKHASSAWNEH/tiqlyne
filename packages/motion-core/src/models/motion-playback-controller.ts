@@ -21,6 +21,8 @@ export interface MotionPlaybackController {
   seek(time: number): Promise<MotionPlaybackResult>;
   seekProgress(progress: number): Promise<MotionPlaybackResult>;
   jumpToLabel(label: string): Promise<MotionPlaybackResult>;
+  playForward(): Promise<MotionPlaybackResult>;
+  playBackward(): Promise<MotionPlaybackResult>;
 
   pause(): Promise<MotionPlaybackResult>;
   resume(): Promise<MotionPlaybackResult>;
