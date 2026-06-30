@@ -1,0 +1,200 @@
+import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
+import type { MotionDiagnostic } from '../models/motion-diagnostic';
+import type { MotionKeyframe } from '../models/motion-keyframe';
+import type { MotionTargetReference } from '../models/motion-target';
+import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type { PreparedMotionStep } from '../models/prepared-motion-timeline';
+import type {
+  MotionTimelineInspection,
+  MotionTimelineLabelInspection,
+  MotionTimelineStepInspection,
+  MotionTimelineTrackInspection
+} from './motion-timeline-inspection';
+
+const LONG_TIMELINE_DURATION = 3000;
+const LONG_STEP_DURATION = 1500;
+
+export function inspectMotionTimeline(
+  timeline: MotionTimelineDefinition
+): MotionTimelineInspection {
+  const preparedTimeline = prepareMotionTimeline(timeline);
+  const labels = inspectLabels(timeline.labels);
+  const diagnostics: MotionDiagnostic[] = [];
+
+  const tracks = preparedTimeline.tracks.map((track): MotionTimelineTrackInspection => {
+    const steps = track.steps.map((step): MotionTimelineStepInspection => inspectStep(step));
+
+    return {
+      trackIndex: track.trackIndex,
+      target: track.target,
+      stepCount: steps.length,
+      animatedProperties: uniqueStrings(steps.flatMap((step) => step.animatedProperties)),
+      steps
+    };
+  });
+
+  const allSteps = tracks.flatMap((track) => track.steps);
+
+  diagnostics.push(...inspectTimelineDiagnostics(preparedTimeline.totalDuration, allSteps));
+  diagnostics.push(...inspectStepDiagnostics(allSteps));
+
+  return {
+    totalDuration: preparedTimeline.totalDuration,
+    trackCount: tracks.length,
+    stepCount: allSteps.length,
+    labelCount: labels.length,
+    labels,
+    targets: uniqueTargets(tracks.map((track) => track.target)),
+    animatedProperties: uniqueStrings(allSteps.flatMap((step) => step.animatedProperties)),
+    tracks,
+    diagnostics
+  };
+}
+
+function inspectLabels(
+  labels: MotionTimelineDefinition['labels']
+): ReadonlyArray<MotionTimelineLabelInspection> {
+  if (labels === undefined) {
+    return [];
+  }
+
+  return Object.entries(labels)
+    .map(([name, time]) => ({
+      name,
+      time
+    }))
+    .sort((left, right) => left.time - right.time);
+}
+
+function inspectStep(step: PreparedMotionStep): MotionTimelineStepInspection {
+  const animatedProperties = inspectAnimatedProperties(step.keyframes);
+
+  return {
+    trackIndex: step.trackIndex,
+    stepIndex: step.stepIndex,
+    startTime: step.startTime,
+    endTime: step.endTime,
+    duration: step.duration,
+    delay: step.delay,
+    activeDuration: step.activeDuration,
+    iterations: step.iterations ?? 1,
+    animatedProperties,
+    keyframeCount: step.keyframes.length,
+    infinite: step.iterations === 'infinite'
+  };
+}
+
+function inspectAnimatedProperties(
+  keyframes: ReadonlyArray<MotionKeyframe>
+): ReadonlyArray<string> {
+  const properties: string[] = [];
+
+  for (const keyframe of keyframes) {
+    for (const key of Object.keys(keyframe)) {
+      if (key === 'offset' || key === 'custom') {
+        continue;
+      }
+
+      properties.push(key);
+    }
+
+    if (keyframe.custom !== undefined) {
+      properties.push(...Object.keys(keyframe.custom).map((key) => `custom.${key}`));
+    }
+  }
+
+  return [...uniqueStrings(properties)].sort();
+}
+
+function inspectTimelineDiagnostics(
+  totalDuration: number,
+  steps: ReadonlyArray<MotionTimelineStepInspection>
+): ReadonlyArray<MotionDiagnostic> {
+  const diagnostics: MotionDiagnostic[] = [];
+
+  if (totalDuration === Infinity || steps.some((step) => step.infinite)) {
+    diagnostics.push({
+      level: 'info',
+      code: 'timeline-inspection-infinite-timeline',
+      message: 'Timeline contains infinite playback.',
+      source: 'timeline-inspector'
+    });
+  }
+
+  if (Number.isFinite(totalDuration) && totalDuration > LONG_TIMELINE_DURATION) {
+    diagnostics.push({
+      level: 'warning',
+      code: 'timeline-inspection-long-timeline',
+      message: 'Timeline total duration is longer than the recommended V1 default.',
+      source: 'timeline-inspector',
+      metadata: {
+        totalDuration,
+        recommendedMaxDuration: LONG_TIMELINE_DURATION
+      }
+    });
+  }
+
+  return diagnostics;
+}
+
+function inspectStepDiagnostics(
+  steps: ReadonlyArray<MotionTimelineStepInspection>
+): ReadonlyArray<MotionDiagnostic> {
+  const diagnostics: MotionDiagnostic[] = [];
+
+  for (const step of steps) {
+    if (step.keyframeCount === 0) {
+      diagnostics.push({
+        level: 'warning',
+        code: 'timeline-inspection-empty-step-keyframes',
+        message: 'Timeline step has no keyframes.',
+        source: 'timeline-inspector',
+        metadata: {
+          trackIndex: step.trackIndex,
+          stepIndex: step.stepIndex
+        }
+      });
+    }
+
+    if (Number.isFinite(step.duration) && step.duration > LONG_STEP_DURATION) {
+      diagnostics.push({
+        level: 'warning',
+        code: 'timeline-inspection-long-step',
+        message: 'Timeline step duration is longer than the recommended V1 default.',
+        source: 'timeline-inspector',
+        metadata: {
+          trackIndex: step.trackIndex,
+          stepIndex: step.stepIndex,
+          duration: step.duration,
+          recommendedMaxDuration: LONG_STEP_DURATION
+        }
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
+function uniqueStrings(values: ReadonlyArray<string>): ReadonlyArray<string> {
+  return Array.from(new Set(values));
+}
+
+function uniqueTargets(
+  values: ReadonlyArray<MotionTargetReference>
+): ReadonlyArray<MotionTargetReference> {
+  const seen = new Set<string>();
+  const targets: MotionTargetReference[] = [];
+
+  for (const target of values) {
+    const key = JSON.stringify(target);
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    targets.push(target);
+  }
+
+  return targets;
+}

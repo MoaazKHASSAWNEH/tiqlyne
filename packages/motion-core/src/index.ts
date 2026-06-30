@@ -282,4 +282,13 @@ export type {
   MotionPlaybackState
 } from './models/motion-playback-state';
 
+export { inspectMotionTimeline } from './inspector/inspect-motion-timeline';
+
+export type {
+  MotionTimelineInspection,
+  MotionTimelineLabelInspection,
+  MotionTimelineTrackInspection,
+  MotionTimelineStepInspection
+} from './inspector/motion-timeline-inspection';
+
 export const motionCoreVersion = '0.1.0';
