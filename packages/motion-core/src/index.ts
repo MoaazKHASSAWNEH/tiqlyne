@@ -315,4 +315,8 @@ export { MotionDiagnosticCodes } from './diagnostics/motion-diagnostic-code';
 
 export type { MotionDiagnosticCode } from './diagnostics/motion-diagnostic-code';
 
+export { MotionPlaybackResultReasons } from './models/motion-playback-result-reason';
+
+export type { MotionPlaybackResultReason } from './models/motion-playback-result-reason';
+
 export const motionCoreVersion = '0.1.0';

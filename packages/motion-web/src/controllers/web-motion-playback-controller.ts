@@ -7,6 +7,7 @@ import {
   isTerminalPlaybackStatus,
   MotionDiagnosticCodes,
   MotionDiagnosticSources,
+  MotionPlaybackResultReasons,
   sampleMotionTimelineAtTime,
   type MotionPlaybackController,
   type MotionPlaybackControllerStatus,
@@ -48,7 +49,7 @@ export class WebMotionPlaybackController
       .catch((error: unknown) => {
         this.applyFinishedResult({
           status: 'failed',
-          reason: 'web-playback-finished-promise-rejected',
+          reason: MotionPlaybackResultReasons.WebPlaybackFinishedPromiseRejected,
           error
         });
       });
@@ -410,7 +411,7 @@ export class WebMotionPlaybackController
   private createInvalidSeekProgressResult(progress: number): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-seek-progress-invalid-progress',
+      reason: MotionPlaybackResultReasons.WebPlaybackSeekProgressInvalidProgress,
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
           MotionDiagnosticCodes.WebPlaybackSeekProgressInvalidProgress,
@@ -427,7 +428,7 @@ export class WebMotionPlaybackController
   private createSeekProgressDurationUnavailableResult(progress: number): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-seek-progress-duration-unavailable',
+      reason: MotionPlaybackResultReasons.WebPlaybackSeekProgressDurationUnavailable,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.WebPlaybackSeekProgressDurationUnavailable,
@@ -444,7 +445,7 @@ export class WebMotionPlaybackController
   private createInvalidJumpToLabelResult(label: string): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-jump-to-label-invalid-label',
+      reason: MotionPlaybackResultReasons.WebPlaybackJumpToLabelInvalidLabel,
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
           MotionDiagnosticCodes.WebPlaybackJumpToLabelInvalidLabel,
@@ -461,7 +462,7 @@ export class WebMotionPlaybackController
   private createUnknownJumpToLabelResult(label: string): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-jump-to-label-unknown-label',
+      reason: MotionPlaybackResultReasons.WebPlaybackJumpToLabelUnknownLabel,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.WebPlaybackJumpToLabelUnknownLabel,
@@ -485,12 +486,12 @@ export class WebMotionPlaybackController
 
       return {
         status: this.resolveSeekResultStatus(),
-        reason: 'web-playback-set-playback-rate'
+        reason: MotionPlaybackResultReasons.WebPlaybackSetPlaybackRate
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-playback-set-playback-rate-failed',
+        reason: MotionPlaybackResultReasons.WebPlaybackSetPlaybackRateFailed,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
@@ -513,7 +514,7 @@ export class WebMotionPlaybackController
   private createInvalidPlaybackRateResult(rate: number): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-set-playback-rate-invalid-rate',
+      reason: MotionPlaybackResultReasons.WebPlaybackSetPlaybackRateInvalidRate,
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
           MotionDiagnosticCodes.WebPlaybackSetPlaybackRateInvalidRate,
@@ -544,13 +545,20 @@ export class WebMotionPlaybackController
       return {
         status: 'running',
         reason:
-          direction === 'backward' ? 'web-playback-play-backward' : 'web-playback-play-forward'
+          direction === 'backward'
+            ? MotionPlaybackResultReasons.WebPlaybackPlayBackward
+            : MotionPlaybackResultReasons.WebPlaybackPlayForward
       };
     } catch (error) {
       const code =
         direction === 'backward'
           ? MotionDiagnosticCodes.WebPlaybackPlayBackwardFailed
           : MotionDiagnosticCodes.WebPlaybackPlayForwardFailed;
+
+      const reason =
+        direction === 'backward'
+          ? MotionPlaybackResultReasons.WebPlaybackPlayBackwardFailed
+          : MotionPlaybackResultReasons.WebPlaybackPlayForwardFailed;
 
       const message =
         direction === 'backward'
@@ -559,7 +567,7 @@ export class WebMotionPlaybackController
 
       return {
         status: 'failed',
-        reason: code,
+        reason,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(code, message, this.diagnosticSource, {
@@ -610,12 +618,12 @@ export class WebMotionPlaybackController
 
       return {
         status: this.resolveSeekResultStatus(),
-        reason: 'web-playback-seek'
+        reason: MotionPlaybackResultReasons.WebPlaybackSeek
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-playback-seek-failed',
+        reason: MotionPlaybackResultReasons.WebPlaybackSeekFailed,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
@@ -634,7 +642,7 @@ export class WebMotionPlaybackController
   private createInvalidSeekTimeResult(time: number): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-seek-invalid-time',
+      reason: MotionPlaybackResultReasons.WebPlaybackSeekInvalidTime,
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
           MotionDiagnosticCodes.WebPlaybackSeekInvalidTime,
@@ -656,12 +664,12 @@ export class WebMotionPlaybackController
 
       return {
         status: 'paused',
-        reason: 'web-playback-pause'
+        reason: MotionPlaybackResultReasons.WebPlaybackPause
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-playback-pause-failed',
+        reason: MotionPlaybackResultReasons.WebPlaybackPauseFailed,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
@@ -682,12 +690,12 @@ export class WebMotionPlaybackController
 
       return {
         status: 'running',
-        reason: 'web-playback-resume'
+        reason: MotionPlaybackResultReasons.WebPlaybackResume
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-playback-resume-failed',
+        reason: MotionPlaybackResultReasons.WebPlaybackResumeFailed,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
@@ -708,12 +716,12 @@ export class WebMotionPlaybackController
 
       return {
         status: 'cancelled',
-        reason: 'web-playback-cancel'
+        reason: MotionPlaybackResultReasons.WebPlaybackCancel
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-playback-cancel-failed',
+        reason: MotionPlaybackResultReasons.WebPlaybackCancelFailed,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
@@ -743,7 +751,7 @@ export class WebMotionPlaybackController
   private createFinishNotSupportedForInfiniteAnimationResult(): MotionPlaybackResult {
     return {
       status: 'skipped',
-      reason: 'web-playback-finish-not-supported-for-infinite-animation',
+      reason: MotionPlaybackResultReasons.WebPlaybackFinishNotSupportedForInfiniteAnimation,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.WebPlaybackFinishNotSupportedForInfiniteAnimation,
@@ -762,12 +770,12 @@ export class WebMotionPlaybackController
 
       return {
         status: 'finished',
-        reason: 'web-playback-finish'
+        reason: MotionPlaybackResultReasons.WebPlaybackFinish
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-playback-finish-failed',
+        reason: MotionPlaybackResultReasons.WebPlaybackFinishFailed,
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(

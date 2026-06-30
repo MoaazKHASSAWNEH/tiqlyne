@@ -10,6 +10,7 @@ import type {
   MotionPlaybackControllerStatus
 } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import { MotionPlaybackResultReasons } from '../models/motion-playback-result-reason';
 import type { MotionPlaybackState } from '../models/motion-playback-state';
 import { isTerminalPlaybackStatus } from '../utils/is-terminal-playback-status';
 import { BaseMotionPlaybackController } from './base-motion-playback-controller';
@@ -39,7 +40,7 @@ export class PromiseMotionPlaybackController
       .catch((error: unknown) => {
         this.applyFinishedResult({
           status: 'failed',
-          reason: 'playback-finished-promise-rejected',
+          reason: MotionPlaybackResultReasons.PlaybackFinishedPromiseRejected,
           error
         });
       });
@@ -66,7 +67,7 @@ export class PromiseMotionPlaybackController
     if (!Number.isFinite(time)) {
       return {
         status: 'skipped',
-        reason: 'playback-seek-invalid-time',
+        reason: MotionPlaybackResultReasons.PlaybackSeekInvalidTime,
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
             MotionDiagnosticCodes.PlaybackSeekInvalidTime,
@@ -82,7 +83,7 @@ export class PromiseMotionPlaybackController
 
     return {
       status: 'skipped',
-      reason: 'playback-seek-not-supported',
+      reason: MotionPlaybackResultReasons.PlaybackSeekNotSupported,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.PlaybackSeekNotSupported,
@@ -100,7 +101,7 @@ export class PromiseMotionPlaybackController
     if (!Number.isFinite(progress)) {
       return {
         status: 'skipped',
-        reason: 'playback-seek-progress-invalid-progress',
+        reason: MotionPlaybackResultReasons.PlaybackSeekProgressInvalidProgress,
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
             MotionDiagnosticCodes.PlaybackSeekProgressInvalidProgress,
@@ -116,7 +117,7 @@ export class PromiseMotionPlaybackController
 
     return {
       status: 'skipped',
-      reason: 'playback-seek-progress-not-supported',
+      reason: MotionPlaybackResultReasons.PlaybackSeekProgressNotSupported,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.PlaybackSeekProgressNotSupported,
@@ -134,7 +135,7 @@ export class PromiseMotionPlaybackController
     if (label.trim().length === 0) {
       return {
         status: 'skipped',
-        reason: 'playback-jump-to-label-invalid-label',
+        reason: MotionPlaybackResultReasons.PlaybackJumpToLabelInvalidLabel,
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
             MotionDiagnosticCodes.PlaybackJumpToLabelInvalidLabel,
@@ -150,7 +151,7 @@ export class PromiseMotionPlaybackController
 
     return {
       status: 'skipped',
-      reason: 'playback-jump-to-label-not-supported',
+      reason: MotionPlaybackResultReasons.PlaybackJumpToLabelNotSupported,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.PlaybackJumpToLabelNotSupported,
@@ -167,7 +168,7 @@ export class PromiseMotionPlaybackController
   async playForward(): Promise<MotionPlaybackResult> {
     return {
       status: 'skipped',
-      reason: 'playback-play-forward-not-supported',
+      reason: MotionPlaybackResultReasons.PlaybackPlayForwardNotSupported,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.PlaybackPlayForwardNotSupported,
@@ -181,7 +182,7 @@ export class PromiseMotionPlaybackController
   async playBackward(): Promise<MotionPlaybackResult> {
     return {
       status: 'skipped',
-      reason: 'playback-play-backward-not-supported',
+      reason: MotionPlaybackResultReasons.PlaybackPlayBackwardNotSupported,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.PlaybackPlayBackwardNotSupported,
@@ -196,7 +197,7 @@ export class PromiseMotionPlaybackController
     if (!Number.isFinite(rate) || rate <= 0) {
       return {
         status: 'skipped',
-        reason: 'playback-set-playback-rate-invalid-rate',
+        reason: MotionPlaybackResultReasons.PlaybackSetPlaybackRateInvalidRate,
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
             MotionDiagnosticCodes.PlaybackSetPlaybackRateInvalidRate,
@@ -212,7 +213,7 @@ export class PromiseMotionPlaybackController
 
     return {
       status: 'skipped',
-      reason: 'playback-set-playback-rate-not-supported',
+      reason: MotionPlaybackResultReasons.PlaybackSetPlaybackRateNotSupported,
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
           MotionDiagnosticCodes.PlaybackSetPlaybackRateNotSupported,
@@ -233,7 +234,7 @@ export class PromiseMotionPlaybackController
 
     const result: MotionPlaybackResult = {
       status: 'skipped',
-      reason: 'playback-pause-not-supported'
+      reason: MotionPlaybackResultReasons.PlaybackPauseNotSupported
     };
 
     const previousStatus = this.currentStatus;
@@ -256,7 +257,7 @@ export class PromiseMotionPlaybackController
 
     const result: MotionPlaybackResult = {
       status: 'skipped',
-      reason: 'playback-resume-not-supported'
+      reason: MotionPlaybackResultReasons.PlaybackResumeNotSupported
     };
 
     const previousStatus = this.currentStatus;

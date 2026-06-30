@@ -1,4 +1,8 @@
-import type { MotionPlaybackResult } from '@structifyx/motion-core';
+import {
+  MotionPlaybackResultReasons,
+  type MotionPlaybackResult,
+  type MotionPlaybackResultReason
+} from '@structifyx/motion-core';
 import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
 
 export function createResolvedWebPlayback(
@@ -13,7 +17,7 @@ export function createResolvedWebPlayback(
 
 export function createRunningWebPlayback(
   animations: ReadonlyArray<Animation>,
-  reason = 'web-playback-infinite'
+  reason: MotionPlaybackResultReason | string = MotionPlaybackResultReasons.WebPlaybackInfinite
 ): WebPlaybackCreationResult {
   return {
     animations,
@@ -44,7 +48,7 @@ export function createFinishedWebPlayback(
       .catch(
         (error: unknown): MotionPlaybackResult => ({
           status: 'failed',
-          reason: 'web-animation-error',
+          reason: MotionPlaybackResultReasons.WebAnimationError,
           error
         })
       )
@@ -52,7 +56,7 @@ export function createFinishedWebPlayback(
 }
 
 export function createFailedWebPlayback(
-  reason: string,
+  reason: MotionPlaybackResultReason | string,
   animations: ReadonlyArray<Animation> = [],
   extra: Omit<MotionPlaybackResult, 'status' | 'reason'> = {}
 ): WebPlaybackCreationResult {
@@ -67,7 +71,7 @@ export function createFailedWebPlayback(
 }
 
 export function createSkippedWebPlayback(
-  reason: string,
+  reason: MotionPlaybackResultReason | string,
   animations: ReadonlyArray<Animation> = []
 ): WebPlaybackCreationResult {
   return createResolvedWebPlayback(

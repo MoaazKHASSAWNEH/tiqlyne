@@ -1,5 +1,6 @@
 import type { MotionDriver, MotionPlayOptions } from '../contracts/motion-driver';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import { MotionPlaybackResultReasons } from '../models/motion-playback-result-reason';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
 
 export type TestMotionDriverCall<TTarget = unknown> = {
@@ -43,7 +44,7 @@ export class TestMotionDriver<TTarget = unknown> implements MotionDriver<TTarget
 
     return {
       status: 'cancelled',
-      reason: 'test-driver-cancel'
+      reason: MotionPlaybackResultReasons.TestDriverCancel
     };
   }
 
@@ -55,7 +56,7 @@ export class TestMotionDriver<TTarget = unknown> implements MotionDriver<TTarget
 
     return {
       status: 'finished',
-      reason: 'test-driver-finish'
+      reason: MotionPlaybackResultReasons.TestDriverFinish
     };
   }
 
@@ -67,7 +68,7 @@ export class TestMotionDriver<TTarget = unknown> implements MotionDriver<TTarget
 
     return {
       status: 'finished',
-      reason: 'test-driver-reset'
+      reason: MotionPlaybackResultReasons.TestDriverReset
     };
   }
 
