@@ -311,4 +311,8 @@ export type { CreateMotionDiagnosticInput } from './diagnostics/create-motion-di
 
 export type { MotionDiagnosticSource } from './diagnostics/motion-diagnostic-source';
 
+export { MotionDiagnosticCodes } from './diagnostics/motion-diagnostic-code';
+
+export type { MotionDiagnosticCode } from './diagnostics/motion-diagnostic-code';
+
 export const motionCoreVersion = '0.1.0';

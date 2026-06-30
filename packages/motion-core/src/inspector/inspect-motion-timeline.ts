@@ -1,4 +1,10 @@
 import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
+import { MotionDiagnosticCodes } from '../diagnostics/motion-diagnostic-code';
+import {
+  createMotionInfoDiagnostic,
+  createMotionWarningDiagnostic
+} from '../diagnostics/create-motion-diagnostic';
+import { MotionDiagnosticSources } from '../diagnostics/motion-diagnostic-source';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
 import type { MotionTargetReference } from '../models/motion-target';
@@ -10,11 +16,6 @@ import type {
   MotionTimelineStepInspection,
   MotionTimelineTrackInspection
 } from './motion-timeline-inspection';
-import {
-  createMotionInfoDiagnostic,
-  createMotionWarningDiagnostic
-} from '../diagnostics/create-motion-diagnostic';
-import { MotionDiagnosticSources } from '../diagnostics/motion-diagnostic-source';
 
 const LONG_TIMELINE_DURATION = 3000;
 const LONG_STEP_DURATION = 1500;
@@ -121,7 +122,7 @@ function inspectTimelineDiagnostics(
   if (totalDuration === Infinity || steps.some((step) => step.infinite)) {
     diagnostics.push(
       createMotionInfoDiagnostic(
-        'timeline-inspection-infinite-timeline',
+        MotionDiagnosticCodes.TimelineInspectionInfiniteTimeline,
         'Timeline contains infinite playback.',
         INSPECTOR_DIAGNOSTIC_SOURCE
       )
@@ -131,7 +132,7 @@ function inspectTimelineDiagnostics(
   if (Number.isFinite(totalDuration) && totalDuration > LONG_TIMELINE_DURATION) {
     diagnostics.push(
       createMotionWarningDiagnostic(
-        'timeline-inspection-long-timeline',
+        MotionDiagnosticCodes.TimelineInspectionLongTimeline,
         'Timeline total duration is longer than the recommended V1 default.',
         INSPECTOR_DIAGNOSTIC_SOURCE,
         {
@@ -154,7 +155,7 @@ function inspectStepDiagnostics(
     if (step.keyframeCount === 0) {
       diagnostics.push(
         createMotionWarningDiagnostic(
-          'timeline-inspection-empty-step-keyframes',
+          MotionDiagnosticCodes.TimelineInspectionEmptyStepKeyframes,
           'Timeline step has no keyframes.',
           INSPECTOR_DIAGNOSTIC_SOURCE,
           {
@@ -168,7 +169,7 @@ function inspectStepDiagnostics(
     if (Number.isFinite(step.duration) && step.duration > LONG_STEP_DURATION) {
       diagnostics.push(
         createMotionWarningDiagnostic(
-          'timeline-inspection-long-step',
+          MotionDiagnosticCodes.TimelineInspectionLongStep,
           'Timeline step duration is longer than the recommended V1 default.',
           INSPECTOR_DIAGNOSTIC_SOURCE,
           {

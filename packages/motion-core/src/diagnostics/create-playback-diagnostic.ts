@@ -5,6 +5,7 @@ import {
   createMotionWarningDiagnostic
 } from './create-motion-diagnostic';
 import type { MotionDiagnosticSource } from './motion-diagnostic-source';
+import type { MotionDiagnosticCode } from './motion-diagnostic-code';
 
 export function createPlaybackInvalidTransitionDiagnostic(
   action: string,
@@ -23,7 +24,7 @@ export function createPlaybackInvalidTransitionDiagnostic(
 }
 
 export function createPlaybackUnsupportedDiagnostic(
-  code: string,
+  code: MotionDiagnosticCode | string,
   message: string,
   source: MotionDiagnosticSource | string,
   metadata?: MotionDiagnosticMetadata
@@ -32,7 +33,7 @@ export function createPlaybackUnsupportedDiagnostic(
 }
 
 export function createPlaybackInvalidInputDiagnostic(
-  code: string,
+  code: MotionDiagnosticCode | string,
   message: string,
   source: MotionDiagnosticSource | string,
   metadata?: MotionDiagnosticMetadata
@@ -41,7 +42,7 @@ export function createPlaybackInvalidInputDiagnostic(
 }
 
 export function createPlaybackOperationFailedDiagnostic(
-  code: string,
+  code: MotionDiagnosticCode | string,
   message: string,
   source: MotionDiagnosticSource | string,
   metadata?: MotionDiagnosticMetadata

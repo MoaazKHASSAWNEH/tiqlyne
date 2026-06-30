@@ -5,6 +5,7 @@ import {
   createPlaybackOperationFailedDiagnostic,
   createPlaybackUnsupportedDiagnostic,
   isTerminalPlaybackStatus,
+  MotionDiagnosticCodes,
   MotionDiagnosticSources,
   sampleMotionTimelineAtTime,
   type MotionPlaybackController,
@@ -412,7 +413,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-seek-progress-invalid-progress',
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
-          'web-playback-seek-progress-invalid-progress',
+          MotionDiagnosticCodes.WebPlaybackSeekProgressInvalidProgress,
           'Web playback seek progress must be a finite number.',
           this.diagnosticSource,
           {
@@ -429,7 +430,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-seek-progress-duration-unavailable',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'web-playback-seek-progress-duration-unavailable',
+          MotionDiagnosticCodes.WebPlaybackSeekProgressDurationUnavailable,
           'Web playback cannot seek by progress without a finite duration.',
           this.diagnosticSource,
           {
@@ -446,7 +447,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-jump-to-label-invalid-label',
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
-          'web-playback-jump-to-label-invalid-label',
+          MotionDiagnosticCodes.WebPlaybackJumpToLabelInvalidLabel,
           'Web playback label must not be empty.',
           this.diagnosticSource,
           {
@@ -463,7 +464,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-jump-to-label-unknown-label',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'web-playback-jump-to-label-unknown-label',
+          MotionDiagnosticCodes.WebPlaybackJumpToLabelUnknownLabel,
           `Web playback label "${label}" does not exist.`,
           this.diagnosticSource,
           {
@@ -493,7 +494,7 @@ export class WebMotionPlaybackController
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
-            'web-playback-set-playback-rate-failed',
+            MotionDiagnosticCodes.WebPlaybackSetPlaybackRateFailed,
             'Web playback rate could not be changed safely.',
             this.diagnosticSource,
             {
@@ -515,7 +516,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-set-playback-rate-invalid-rate',
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
-          'web-playback-set-playback-rate-invalid-rate',
+          MotionDiagnosticCodes.WebPlaybackSetPlaybackRateInvalidRate,
           'Web playback rate must be a finite number greater than 0.',
           this.diagnosticSource,
           {
@@ -548,8 +549,8 @@ export class WebMotionPlaybackController
     } catch (error) {
       const code =
         direction === 'backward'
-          ? 'web-playback-play-backward-failed'
-          : 'web-playback-play-forward-failed';
+          ? MotionDiagnosticCodes.WebPlaybackPlayBackwardFailed
+          : MotionDiagnosticCodes.WebPlaybackPlayForwardFailed;
 
       const message =
         direction === 'backward'
@@ -618,7 +619,7 @@ export class WebMotionPlaybackController
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
-            'web-playback-seek-failed',
+            MotionDiagnosticCodes.WebPlaybackSeekFailed,
             'Web playback could not seek safely.',
             this.diagnosticSource,
             {
@@ -636,7 +637,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-seek-invalid-time',
       diagnostics: [
         createPlaybackInvalidInputDiagnostic(
-          'web-playback-seek-invalid-time',
+          MotionDiagnosticCodes.WebPlaybackSeekInvalidTime,
           'Web playback seek time must be a finite number.',
           this.diagnosticSource,
           {
@@ -664,7 +665,7 @@ export class WebMotionPlaybackController
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
-            'web-playback-pause-failed',
+            MotionDiagnosticCodes.WebPlaybackPauseFailed,
             'Web playback could not be paused safely.',
             this.diagnosticSource
           )
@@ -690,7 +691,7 @@ export class WebMotionPlaybackController
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
-            'web-playback-resume-failed',
+            MotionDiagnosticCodes.WebPlaybackResumeFailed,
             'Web playback could not be resumed safely.',
             this.diagnosticSource
           )
@@ -716,7 +717,7 @@ export class WebMotionPlaybackController
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
-            'web-playback-cancel-failed',
+            MotionDiagnosticCodes.WebPlaybackCancelFailed,
             'Web playback could not be cancelled safely.',
             this.diagnosticSource
           )
@@ -745,7 +746,7 @@ export class WebMotionPlaybackController
       reason: 'web-playback-finish-not-supported-for-infinite-animation',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'web-playback-finish-not-supported-for-infinite-animation',
+          MotionDiagnosticCodes.WebPlaybackFinishNotSupportedForInfiniteAnimation,
           'Web playback cannot finish an infinite animation. Use cancel() or reset() instead.',
           this.diagnosticSource
         )
@@ -770,7 +771,7 @@ export class WebMotionPlaybackController
         error,
         diagnostics: [
           createPlaybackOperationFailedDiagnostic(
-            'web-playback-finish-failed',
+            MotionDiagnosticCodes.WebPlaybackFinishFailed,
             'Web playback could not be finished safely.',
             this.diagnosticSource
           )

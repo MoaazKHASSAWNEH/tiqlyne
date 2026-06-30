@@ -1,3 +1,4 @@
+import { MotionDiagnosticCodes } from '../diagnostics/motion-diagnostic-code';
 import {
   createPlaybackInvalidInputDiagnostic,
   createPlaybackInvalidTransitionDiagnostic,
@@ -68,7 +69,7 @@ export class PromiseMotionPlaybackController
         reason: 'playback-seek-invalid-time',
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
-            'playback-seek-invalid-time',
+            MotionDiagnosticCodes.PlaybackSeekInvalidTime,
             'Playback seek time must be a finite number.',
             this.diagnosticSource,
             {
@@ -84,7 +85,7 @@ export class PromiseMotionPlaybackController
       reason: 'playback-seek-not-supported',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'playback-seek-not-supported',
+          MotionDiagnosticCodes.PlaybackSeekNotSupported,
           'This playback controller does not support seek(time).',
           this.diagnosticSource,
           {
@@ -102,7 +103,7 @@ export class PromiseMotionPlaybackController
         reason: 'playback-seek-progress-invalid-progress',
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
-            'playback-seek-progress-invalid-progress',
+            MotionDiagnosticCodes.PlaybackSeekProgressInvalidProgress,
             'Playback seek progress must be a finite number.',
             this.diagnosticSource,
             {
@@ -118,7 +119,7 @@ export class PromiseMotionPlaybackController
       reason: 'playback-seek-progress-not-supported',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'playback-seek-progress-not-supported',
+          MotionDiagnosticCodes.PlaybackSeekProgressNotSupported,
           'This playback controller does not support seekProgress(progress).',
           this.diagnosticSource,
           {
@@ -136,7 +137,7 @@ export class PromiseMotionPlaybackController
         reason: 'playback-jump-to-label-invalid-label',
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
-            'playback-jump-to-label-invalid-label',
+            MotionDiagnosticCodes.PlaybackJumpToLabelInvalidLabel,
             'Playback label must not be empty.',
             this.diagnosticSource,
             {
@@ -152,7 +153,7 @@ export class PromiseMotionPlaybackController
       reason: 'playback-jump-to-label-not-supported',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'playback-jump-to-label-not-supported',
+          MotionDiagnosticCodes.PlaybackJumpToLabelNotSupported,
           'This playback controller does not support jumpToLabel(label).',
           this.diagnosticSource,
           {
@@ -169,7 +170,7 @@ export class PromiseMotionPlaybackController
       reason: 'playback-play-forward-not-supported',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'playback-play-forward-not-supported',
+          MotionDiagnosticCodes.PlaybackPlayForwardNotSupported,
           'This playback controller does not support playForward().',
           this.diagnosticSource
         )
@@ -183,7 +184,7 @@ export class PromiseMotionPlaybackController
       reason: 'playback-play-backward-not-supported',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'playback-play-backward-not-supported',
+          MotionDiagnosticCodes.PlaybackPlayBackwardNotSupported,
           'This playback controller does not support playBackward().',
           this.diagnosticSource
         )
@@ -198,7 +199,7 @@ export class PromiseMotionPlaybackController
         reason: 'playback-set-playback-rate-invalid-rate',
         diagnostics: [
           createPlaybackInvalidInputDiagnostic(
-            'playback-set-playback-rate-invalid-rate',
+            MotionDiagnosticCodes.PlaybackSetPlaybackRateInvalidRate,
             'Playback rate must be a finite number greater than 0.',
             this.diagnosticSource,
             {
@@ -214,7 +215,7 @@ export class PromiseMotionPlaybackController
       reason: 'playback-set-playback-rate-not-supported',
       diagnostics: [
         createPlaybackUnsupportedDiagnostic(
-          'playback-set-playback-rate-not-supported',
+          MotionDiagnosticCodes.PlaybackSetPlaybackRateNotSupported,
           'This playback controller does not support setPlaybackRate(rate).',
           this.diagnosticSource,
           {

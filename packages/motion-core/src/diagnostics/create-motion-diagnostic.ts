@@ -4,10 +4,11 @@ import type {
   MotionDiagnosticMetadata
 } from '../models/motion-diagnostic';
 import type { MotionDiagnosticSource } from './motion-diagnostic-source';
+import type { MotionDiagnosticCode } from './motion-diagnostic-code';
 
 export type CreateMotionDiagnosticInput = {
   readonly level: MotionDiagnosticLevel;
-  readonly code: string;
+  readonly code: MotionDiagnosticCode | string;
   readonly message: string;
   readonly source?: MotionDiagnosticSource | string;
   readonly metadata?: MotionDiagnosticMetadata;
@@ -32,7 +33,7 @@ export function createMotionDiagnostic(input: CreateMotionDiagnosticInput): Moti
 }
 
 export function createMotionWarningDiagnostic(
-  code: string,
+  code: MotionDiagnosticCode | string,
   message: string,
   source?: MotionDiagnosticSource | string,
   metadata?: MotionDiagnosticMetadata
@@ -47,7 +48,7 @@ export function createMotionWarningDiagnostic(
 }
 
 export function createMotionErrorDiagnostic(
-  code: string,
+  code: MotionDiagnosticCode | string,
   message: string,
   source?: MotionDiagnosticSource | string,
   metadata?: MotionDiagnosticMetadata
@@ -62,7 +63,7 @@ export function createMotionErrorDiagnostic(
 }
 
 export function createMotionInfoDiagnostic(
-  code: string,
+  code: MotionDiagnosticCode | string,
   message: string,
   source?: MotionDiagnosticSource | string,
   metadata?: MotionDiagnosticMetadata
