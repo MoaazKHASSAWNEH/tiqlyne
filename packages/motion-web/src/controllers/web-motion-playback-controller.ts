@@ -1,6 +1,8 @@
 import {
   BaseMotionPlaybackController,
   isTerminalPlaybackStatus,
+  sampleMotionTimelineAtTime,
+  type MotionTimelineDefinition,
   type MotionPlaybackController,
   type MotionPlaybackControllerStatus,
   type MotionPlaybackDirectionState,
@@ -8,6 +10,11 @@ import {
   type MotionTimelineLabels,
   type MotionPlaybackResult
 } from '@structifyx/motion-core';
+
+type ActivePlaybackIndexes = {
+  readonly trackIndexes: ReadonlyArray<number>;
+  readonly stepIndexes: ReadonlyArray<number>;
+};
 
 export class WebMotionPlaybackController
   extends BaseMotionPlaybackController
@@ -19,7 +26,8 @@ export class WebMotionPlaybackController
     readonly id: string,
     private readonly animations: ReadonlyArray<Animation>,
     readonly finished: Promise<MotionPlaybackResult>,
-    private readonly labels: MotionTimelineLabels = {}
+    private readonly labels: MotionTimelineLabels = {},
+    private readonly timeline?: MotionTimelineDefinition
   ) {
     super();
 
@@ -46,6 +54,7 @@ export class WebMotionPlaybackController
     const currentTime = this.resolveCurrentTime();
     const duration = this.resolveDuration();
     const currentLabel = this.resolveCurrentLabel(currentTime);
+    const activeIndexes = this.resolveActiveIndexes(currentTime);
 
     return {
       status: this.currentStatus,
@@ -54,8 +63,8 @@ export class WebMotionPlaybackController
       progress: resolveProgress(currentTime, duration),
       playbackRate: this.resolvePlaybackRate(),
       direction: this.resolvePlaybackDirection(),
-      activeTrackIndexes: [],
-      activeStepIndexes: [],
+      activeTrackIndexes: activeIndexes.trackIndexes,
+      activeStepIndexes: activeIndexes.stepIndexes,
       ...(currentLabel !== undefined
         ? {
             currentLabel
@@ -279,6 +288,29 @@ export class WebMotionPlaybackController
     }
 
     return currentLabel;
+  }
+
+  private resolveActiveIndexes(currentTime: number | null): ActivePlaybackIndexes {
+    if (currentTime === null || this.timeline === undefined) {
+      return {
+        trackIndexes: [],
+        stepIndexes: []
+      };
+    }
+
+    try {
+      const sample = sampleMotionTimelineAtTime(this.timeline, currentTime);
+
+      return {
+        trackIndexes: uniqueNumbers(sample.activeSteps.map((step) => step.trackIndex)),
+        stepIndexes: sample.activeSteps.map((step) => step.stepIndex)
+      };
+    } catch {
+      return {
+        trackIndexes: [],
+        stepIndexes: []
+      };
+    }
   }
 
   private resolvePlaybackRate(): number {
@@ -782,4 +814,8 @@ function resolveDirectionalPlaybackRate(
   const absolutePlaybackRate = Math.abs(currentPlaybackRate) || 1;
 
   return direction === 'backward' ? -absolutePlaybackRate : absolutePlaybackRate;
+}
+
+function uniqueNumbers(values: ReadonlyArray<number>): ReadonlyArray<number> {
+  return Array.from(new Set(values));
 }

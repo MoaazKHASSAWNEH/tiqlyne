@@ -62,7 +62,8 @@ export class WebMotionDriver implements MotionDriver<Element> {
       this.createPlaybackId(),
       playback.animations,
       playback.finished,
-      timeline.labels
+      timeline.labels,
+      timeline
     );
   }
 
