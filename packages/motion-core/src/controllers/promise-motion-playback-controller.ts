@@ -1,16 +1,24 @@
+import {
+  createPlaybackInvalidInputDiagnostic,
+  createPlaybackInvalidTransitionDiagnostic,
+  createPlaybackUnsupportedDiagnostic
+} from '../diagnostics/create-playback-diagnostic';
+import { MotionDiagnosticSources } from '../diagnostics/motion-diagnostic-source';
 import type {
   MotionPlaybackController,
   MotionPlaybackControllerStatus
 } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import type { MotionPlaybackState } from '../models/motion-playback-state';
 import { isTerminalPlaybackStatus } from '../utils/is-terminal-playback-status';
 import { BaseMotionPlaybackController } from './base-motion-playback-controller';
-import type { MotionPlaybackState } from '../models/motion-playback-state';
 
 export class PromiseMotionPlaybackController
   extends BaseMotionPlaybackController
   implements MotionPlaybackController
 {
+  private readonly diagnosticSource = MotionDiagnosticSources.PromisePlaybackController;
+
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -59,15 +67,14 @@ export class PromiseMotionPlaybackController
         status: 'skipped',
         reason: 'playback-seek-invalid-time',
         diagnostics: [
-          {
-            level: 'warning',
-            code: 'playback-seek-invalid-time',
-            message: 'Playback seek time must be a finite number.',
-            source: 'promise-motion-playback-controller',
-            metadata: {
+          createPlaybackInvalidInputDiagnostic(
+            'playback-seek-invalid-time',
+            'Playback seek time must be a finite number.',
+            this.diagnosticSource,
+            {
               time
             }
-          }
+          )
         ]
       };
     }
@@ -76,15 +83,14 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: 'playback-seek-not-supported',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-seek-not-supported',
-          message: 'This playback controller does not support seek(time).',
-          source: 'promise-motion-playback-controller',
-          metadata: {
+        createPlaybackUnsupportedDiagnostic(
+          'playback-seek-not-supported',
+          'This playback controller does not support seek(time).',
+          this.diagnosticSource,
+          {
             time
           }
-        }
+        )
       ]
     };
   }
@@ -95,15 +101,14 @@ export class PromiseMotionPlaybackController
         status: 'skipped',
         reason: 'playback-seek-progress-invalid-progress',
         diagnostics: [
-          {
-            level: 'warning',
-            code: 'playback-seek-progress-invalid-progress',
-            message: 'Playback seek progress must be a finite number.',
-            source: 'promise-motion-playback-controller',
-            metadata: {
+          createPlaybackInvalidInputDiagnostic(
+            'playback-seek-progress-invalid-progress',
+            'Playback seek progress must be a finite number.',
+            this.diagnosticSource,
+            {
               progress
             }
-          }
+          )
         ]
       };
     }
@@ -112,15 +117,14 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: 'playback-seek-progress-not-supported',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-seek-progress-not-supported',
-          message: 'This playback controller does not support seekProgress(progress).',
-          source: 'promise-motion-playback-controller',
-          metadata: {
+        createPlaybackUnsupportedDiagnostic(
+          'playback-seek-progress-not-supported',
+          'This playback controller does not support seekProgress(progress).',
+          this.diagnosticSource,
+          {
             progress
           }
-        }
+        )
       ]
     };
   }
@@ -131,15 +135,14 @@ export class PromiseMotionPlaybackController
         status: 'skipped',
         reason: 'playback-jump-to-label-invalid-label',
         diagnostics: [
-          {
-            level: 'warning',
-            code: 'playback-jump-to-label-invalid-label',
-            message: 'Playback label must not be empty.',
-            source: 'promise-motion-playback-controller',
-            metadata: {
+          createPlaybackInvalidInputDiagnostic(
+            'playback-jump-to-label-invalid-label',
+            'Playback label must not be empty.',
+            this.diagnosticSource,
+            {
               label
             }
-          }
+          )
         ]
       };
     }
@@ -148,15 +151,14 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: 'playback-jump-to-label-not-supported',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-jump-to-label-not-supported',
-          message: 'This playback controller does not support jumpToLabel(label).',
-          source: 'promise-motion-playback-controller',
-          metadata: {
+        createPlaybackUnsupportedDiagnostic(
+          'playback-jump-to-label-not-supported',
+          'This playback controller does not support jumpToLabel(label).',
+          this.diagnosticSource,
+          {
             label
           }
-        }
+        )
       ]
     };
   }
@@ -166,12 +168,11 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: 'playback-play-forward-not-supported',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-play-forward-not-supported',
-          message: 'This playback controller does not support playForward().',
-          source: 'promise-motion-playback-controller'
-        }
+        createPlaybackUnsupportedDiagnostic(
+          'playback-play-forward-not-supported',
+          'This playback controller does not support playForward().',
+          this.diagnosticSource
+        )
       ]
     };
   }
@@ -181,12 +182,11 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: 'playback-play-backward-not-supported',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-play-backward-not-supported',
-          message: 'This playback controller does not support playBackward().',
-          source: 'promise-motion-playback-controller'
-        }
+        createPlaybackUnsupportedDiagnostic(
+          'playback-play-backward-not-supported',
+          'This playback controller does not support playBackward().',
+          this.diagnosticSource
+        )
       ]
     };
   }
@@ -197,15 +197,14 @@ export class PromiseMotionPlaybackController
         status: 'skipped',
         reason: 'playback-set-playback-rate-invalid-rate',
         diagnostics: [
-          {
-            level: 'warning',
-            code: 'playback-set-playback-rate-invalid-rate',
-            message: 'Playback rate must be a finite number greater than 0.',
-            source: 'promise-motion-playback-controller',
-            metadata: {
+          createPlaybackInvalidInputDiagnostic(
+            'playback-set-playback-rate-invalid-rate',
+            'Playback rate must be a finite number greater than 0.',
+            this.diagnosticSource,
+            {
               rate
             }
-          }
+          )
         ]
       };
     }
@@ -214,15 +213,14 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: 'playback-set-playback-rate-not-supported',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-set-playback-rate-not-supported',
-          message: 'This playback controller does not support setPlaybackRate(rate).',
-          source: 'promise-motion-playback-controller',
-          metadata: {
+        createPlaybackUnsupportedDiagnostic(
+          'playback-set-playback-rate-not-supported',
+          'This playback controller does not support setPlaybackRate(rate).',
+          this.diagnosticSource,
+          {
             rate
           }
-        }
+        )
       ]
     };
   }
@@ -318,16 +316,7 @@ export class PromiseMotionPlaybackController
       status: 'skipped',
       reason: `playback-${action}-not-allowed-from-${this.currentStatus}`,
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-invalid-transition',
-          message: `Cannot run "${action}" while playback is "${this.currentStatus}".`,
-          source: 'promise-motion-playback-controller',
-          metadata: {
-            action,
-            currentStatus: this.currentStatus
-          }
-        }
+        createPlaybackInvalidTransitionDiagnostic(action, this.currentStatus, this.diagnosticSource)
       ]
     };
   }

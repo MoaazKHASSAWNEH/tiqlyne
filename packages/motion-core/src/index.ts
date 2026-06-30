@@ -291,4 +291,24 @@ export type {
   MotionTimelineStepInspection
 } from './inspector/motion-timeline-inspection';
 
+export {
+  createMotionDiagnostic,
+  createMotionErrorDiagnostic,
+  createMotionInfoDiagnostic,
+  createMotionWarningDiagnostic
+} from './diagnostics/create-motion-diagnostic';
+
+export {
+  createPlaybackInvalidInputDiagnostic,
+  createPlaybackInvalidTransitionDiagnostic,
+  createPlaybackOperationFailedDiagnostic,
+  createPlaybackUnsupportedDiagnostic
+} from './diagnostics/create-playback-diagnostic';
+
+export { MotionDiagnosticSources } from './diagnostics/motion-diagnostic-source';
+
+export type { CreateMotionDiagnosticInput } from './diagnostics/create-motion-diagnostic';
+
+export type { MotionDiagnosticSource } from './diagnostics/motion-diagnostic-source';
+
 export const motionCoreVersion = '0.1.0';
