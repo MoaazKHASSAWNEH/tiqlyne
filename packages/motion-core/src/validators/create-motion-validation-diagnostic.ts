@@ -1,19 +1,25 @@
-import type { MotionDiagnostic, MotionDiagnosticLevel } from '../models/motion-diagnostic';
+import {
+  createMotionDiagnostic,
+  createMotionErrorDiagnostic,
+  createMotionWarningDiagnostic
+} from '../diagnostics/create-motion-diagnostic';
+import { MotionDiagnosticSources } from '../diagnostics/motion-diagnostic-source';
+import type {
+  MotionDiagnostic,
+  MotionDiagnosticLevel,
+  MotionDiagnosticMetadata
+} from '../models/motion-diagnostic';
 
-export type MotionValidationMetadata = Record<string, string | number | boolean | null>;
+export type MotionValidationMetadata = MotionDiagnosticMetadata;
+
+const VALIDATION_DIAGNOSTIC_SOURCE = MotionDiagnosticSources.TimelineValidator;
 
 export function createMotionValidationDiagnostic(
   code: string,
   message: string,
   metadata?: MotionValidationMetadata
 ): MotionDiagnostic {
-  return {
-    level: 'error',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
+  return createMotionErrorDiagnostic(code, message, VALIDATION_DIAGNOSTIC_SOURCE, metadata);
 }
 
 export function createMotionValidationWarningDiagnostic(
@@ -21,13 +27,7 @@ export function createMotionValidationWarningDiagnostic(
   message: string,
   metadata?: MotionValidationMetadata
 ): MotionDiagnostic {
-  return {
-    level: 'warning',
-    code,
-    message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
+  return createMotionWarningDiagnostic(code, message, VALIDATION_DIAGNOSTIC_SOURCE, metadata);
 }
 
 export function createMotionValidationLevelDiagnostic(
@@ -36,11 +36,15 @@ export function createMotionValidationLevelDiagnostic(
   message: string,
   metadata?: MotionValidationMetadata
 ): MotionDiagnostic {
-  return {
+  return createMotionDiagnostic({
     level,
     code,
     message,
-    source: 'motion-timeline-validator',
-    ...(metadata !== undefined ? { metadata } : {})
-  };
+    source: VALIDATION_DIAGNOSTIC_SOURCE,
+    ...(metadata !== undefined
+      ? {
+          metadata
+        }
+      : {})
+  });
 }
