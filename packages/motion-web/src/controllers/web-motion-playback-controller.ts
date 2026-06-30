@@ -82,7 +82,11 @@ export class WebMotionPlaybackController
       return this.createInvalidSeekTimeResult(time);
     }
 
-    return this.seekAnimations(time);
+    const result = this.seekAnimations(time);
+
+    this.emitControllerEvent('seek', result);
+
+    return result;
   }
 
   async seekProgress(progress: number): Promise<MotionPlaybackResult> {
@@ -102,7 +106,11 @@ export class WebMotionPlaybackController
 
     const time = clampProgress(progress) * duration;
 
-    return this.seekAnimations(time);
+    const result = this.seekAnimations(time);
+
+    this.emitControllerEvent('seek', result);
+
+    return result;
   }
 
   async jumpToLabel(label: string): Promise<MotionPlaybackResult> {
@@ -120,7 +128,11 @@ export class WebMotionPlaybackController
       return this.createUnknownJumpToLabelResult(label);
     }
 
-    return this.seekAnimations(time);
+    const result = this.seekAnimations(time);
+
+    this.emitControllerEvent('seek', result);
+
+    return result;
   }
 
   async playForward(): Promise<MotionPlaybackResult> {
@@ -131,6 +143,7 @@ export class WebMotionPlaybackController
     const result = this.playAnimationsInDirection('forward');
 
     this.applyDirectionalPlaybackResult(result);
+    this.emitControllerEvent('directionChange', result);
 
     return result;
   }
@@ -143,6 +156,7 @@ export class WebMotionPlaybackController
     const result = this.playAnimationsInDirection('backward');
 
     this.applyDirectionalPlaybackResult(result);
+    this.emitControllerEvent('directionChange', result);
 
     return result;
   }
@@ -156,7 +170,11 @@ export class WebMotionPlaybackController
       return this.createInvalidPlaybackRateResult(rate);
     }
 
-    return this.setAnimationsPlaybackRate(rate);
+    const result = this.setAnimationsPlaybackRate(rate);
+
+    this.emitControllerEvent('playbackRateChange', result);
+
+    return result;
   }
 
   async pause(): Promise<MotionPlaybackResult> {
@@ -780,6 +798,13 @@ export class WebMotionPlaybackController
         ]
       };
     }
+  }
+
+  private emitControllerEvent(
+    type: 'seek' | 'playbackRateChange' | 'directionChange',
+    result: MotionPlaybackResult
+  ): void {
+    this.emitPlaybackEvent(type, this.currentStatus, this.currentStatus, result, this.getState());
   }
 }
 

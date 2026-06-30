@@ -5,6 +5,7 @@ import type {
 } from '../models/motion-playback-event';
 import type { MotionPlaybackControllerStatus } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import type { MotionPlaybackState } from '../models/motion-playback-state';
 
 export abstract class BaseMotionPlaybackController {
   private readonly listeners = new Map<MotionPlaybackEventType, Set<MotionPlaybackEventListener>>();
@@ -56,7 +57,8 @@ export abstract class BaseMotionPlaybackController {
     type: MotionPlaybackEventType,
     status: MotionPlaybackControllerStatus,
     previousStatus: MotionPlaybackControllerStatus,
-    result?: MotionPlaybackResult
+    result?: MotionPlaybackResult,
+    state?: MotionPlaybackState
   ): void {
     if (this.isDisposed) {
       return;
@@ -74,12 +76,23 @@ export abstract class BaseMotionPlaybackController {
       status,
       previousStatus,
       timestamp: Date.now(),
-      ...(result !== undefined ? { result } : {})
+      ...(result !== undefined ? { result } : {}),
+      ...(state !== undefined ? { state } : {})
     };
 
     for (const listener of listeners) {
       listener(event);
     }
+  }
+
+  protected emitPlaybackEvent(
+    type: MotionPlaybackEventType,
+    status: MotionPlaybackControllerStatus,
+    previousStatus: MotionPlaybackControllerStatus,
+    result: MotionPlaybackResult,
+    state: MotionPlaybackState
+  ): void {
+    this.emit(type, status, previousStatus, result, state);
   }
 
   protected emitStatusChange(
