@@ -1,14 +1,19 @@
 import {
   BaseMotionPlaybackController,
+  createPlaybackInvalidInputDiagnostic,
+  createPlaybackInvalidTransitionDiagnostic,
+  createPlaybackOperationFailedDiagnostic,
+  createPlaybackUnsupportedDiagnostic,
   isTerminalPlaybackStatus,
+  MotionDiagnosticSources,
   sampleMotionTimelineAtTime,
-  type MotionTimelineDefinition,
   type MotionPlaybackController,
   type MotionPlaybackControllerStatus,
   type MotionPlaybackDirectionState,
+  type MotionPlaybackResult,
   type MotionPlaybackState,
-  type MotionTimelineLabels,
-  type MotionPlaybackResult
+  type MotionTimelineDefinition,
+  type MotionTimelineLabels
 } from '@structifyx/motion-core';
 
 type ActivePlaybackIndexes = {
@@ -20,6 +25,8 @@ export class WebMotionPlaybackController
   extends BaseMotionPlaybackController
   implements MotionPlaybackController
 {
+  private readonly diagnosticSource = MotionDiagnosticSources.WebPlaybackController;
+
   private currentStatus: MotionPlaybackControllerStatus = 'running';
 
   constructor(
@@ -394,16 +401,7 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: `web-playback-${action}-not-allowed-from-${this.currentStatus}`,
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'playback-invalid-transition',
-          message: `Cannot run "${action}" while playback is "${this.currentStatus}".`,
-          source: 'web-motion-playback-controller',
-          metadata: {
-            action,
-            currentStatus: this.currentStatus
-          }
-        }
+        createPlaybackInvalidTransitionDiagnostic(action, this.currentStatus, this.diagnosticSource)
       ]
     };
   }
@@ -413,15 +411,14 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-seek-progress-invalid-progress',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-seek-progress-invalid-progress',
-          message: 'Web playback seek progress must be a finite number.',
-          source: 'web-motion-playback-controller',
-          metadata: {
+        createPlaybackInvalidInputDiagnostic(
+          'web-playback-seek-progress-invalid-progress',
+          'Web playback seek progress must be a finite number.',
+          this.diagnosticSource,
+          {
             progress
           }
-        }
+        )
       ]
     };
   }
@@ -431,15 +428,14 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-seek-progress-duration-unavailable',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-seek-progress-duration-unavailable',
-          message: 'Web playback cannot seek by progress without a finite duration.',
-          source: 'web-motion-playback-controller',
-          metadata: {
+        createPlaybackUnsupportedDiagnostic(
+          'web-playback-seek-progress-duration-unavailable',
+          'Web playback cannot seek by progress without a finite duration.',
+          this.diagnosticSource,
+          {
             progress
           }
-        }
+        )
       ]
     };
   }
@@ -449,15 +445,14 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-jump-to-label-invalid-label',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-jump-to-label-invalid-label',
-          message: 'Web playback label must not be empty.',
-          source: 'web-motion-playback-controller',
-          metadata: {
+        createPlaybackInvalidInputDiagnostic(
+          'web-playback-jump-to-label-invalid-label',
+          'Web playback label must not be empty.',
+          this.diagnosticSource,
+          {
             label
           }
-        }
+        )
       ]
     };
   }
@@ -467,15 +462,14 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-jump-to-label-unknown-label',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-jump-to-label-unknown-label',
-          message: `Web playback label "${label}" does not exist.`,
-          source: 'web-motion-playback-controller',
-          metadata: {
+        createPlaybackUnsupportedDiagnostic(
+          'web-playback-jump-to-label-unknown-label',
+          `Web playback label "${label}" does not exist.`,
+          this.diagnosticSource,
+          {
             label
           }
-        }
+        )
       ]
     };
   }
@@ -498,15 +492,14 @@ export class WebMotionPlaybackController
         reason: 'web-playback-set-playback-rate-failed',
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-playback-set-playback-rate-failed',
-            message: 'Web playback rate could not be changed safely.',
-            source: 'web-motion-playback-controller',
-            metadata: {
+          createPlaybackOperationFailedDiagnostic(
+            'web-playback-set-playback-rate-failed',
+            'Web playback rate could not be changed safely.',
+            this.diagnosticSource,
+            {
               rate
             }
-          }
+          )
         ]
       };
     }
@@ -521,15 +514,14 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-set-playback-rate-invalid-rate',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-set-playback-rate-invalid-rate',
-          message: 'Web playback rate must be a finite number greater than 0.',
-          source: 'web-motion-playback-controller',
-          metadata: {
+        createPlaybackInvalidInputDiagnostic(
+          'web-playback-set-playback-rate-invalid-rate',
+          'Web playback rate must be a finite number greater than 0.',
+          this.diagnosticSource,
+          {
             rate
           }
-        }
+        )
       ]
     };
   }
@@ -554,29 +546,24 @@ export class WebMotionPlaybackController
           direction === 'backward' ? 'web-playback-play-backward' : 'web-playback-play-forward'
       };
     } catch (error) {
+      const code =
+        direction === 'backward'
+          ? 'web-playback-play-backward-failed'
+          : 'web-playback-play-forward-failed';
+
+      const message =
+        direction === 'backward'
+          ? 'Web playback could not play backward safely.'
+          : 'Web playback could not play forward safely.';
+
       return {
         status: 'failed',
-        reason:
-          direction === 'backward'
-            ? 'web-playback-play-backward-failed'
-            : 'web-playback-play-forward-failed',
+        reason: code,
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code:
-              direction === 'backward'
-                ? 'web-playback-play-backward-failed'
-                : 'web-playback-play-forward-failed',
-            message:
-              direction === 'backward'
-                ? 'Web playback could not play backward safely.'
-                : 'Web playback could not play forward safely.',
-            source: 'web-motion-playback-controller',
-            metadata: {
-              direction
-            }
-          }
+          createPlaybackOperationFailedDiagnostic(code, message, this.diagnosticSource, {
+            direction
+          })
         ]
       };
     }
@@ -630,15 +617,14 @@ export class WebMotionPlaybackController
         reason: 'web-playback-seek-failed',
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-playback-seek-failed',
-            message: 'Web playback could not seek safely.',
-            source: 'web-motion-playback-controller',
-            metadata: {
+          createPlaybackOperationFailedDiagnostic(
+            'web-playback-seek-failed',
+            'Web playback could not seek safely.',
+            this.diagnosticSource,
+            {
               time
             }
-          }
+          )
         ]
       };
     }
@@ -649,15 +635,14 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-seek-invalid-time',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-seek-invalid-time',
-          message: 'Web playback seek time must be a finite number.',
-          source: 'web-motion-playback-controller',
-          metadata: {
+        createPlaybackInvalidInputDiagnostic(
+          'web-playback-seek-invalid-time',
+          'Web playback seek time must be a finite number.',
+          this.diagnosticSource,
+          {
             time
           }
-        }
+        )
       ]
     };
   }
@@ -678,12 +663,11 @@ export class WebMotionPlaybackController
         reason: 'web-playback-pause-failed',
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-playback-pause-failed',
-            message: 'Web playback could not be paused safely.',
-            source: 'web-motion-playback-controller'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            'web-playback-pause-failed',
+            'Web playback could not be paused safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
@@ -705,12 +689,11 @@ export class WebMotionPlaybackController
         reason: 'web-playback-resume-failed',
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-playback-resume-failed',
-            message: 'Web playback could not be resumed safely.',
-            source: 'web-motion-playback-controller'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            'web-playback-resume-failed',
+            'Web playback could not be resumed safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
@@ -732,12 +715,11 @@ export class WebMotionPlaybackController
         reason: 'web-playback-cancel-failed',
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-playback-cancel-failed',
-            message: 'Web playback could not be cancelled safely.',
-            source: 'web-motion-playback-controller'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            'web-playback-cancel-failed',
+            'Web playback could not be cancelled safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
@@ -762,13 +744,11 @@ export class WebMotionPlaybackController
       status: 'skipped',
       reason: 'web-playback-finish-not-supported-for-infinite-animation',
       diagnostics: [
-        {
-          level: 'warning',
-          code: 'web-playback-finish-not-supported-for-infinite-animation',
-          message:
-            'Web playback cannot finish an infinite animation. Use cancel() or reset() instead.',
-          source: 'web-motion-playback-controller'
-        }
+        createPlaybackUnsupportedDiagnostic(
+          'web-playback-finish-not-supported-for-infinite-animation',
+          'Web playback cannot finish an infinite animation. Use cancel() or reset() instead.',
+          this.diagnosticSource
+        )
       ]
     };
   }
@@ -789,12 +769,11 @@ export class WebMotionPlaybackController
         reason: 'web-playback-finish-failed',
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-playback-finish-failed',
-            message: 'Web playback could not be finished safely.',
-            source: 'web-motion-playback-controller'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            'web-playback-finish-failed',
+            'Web playback could not be finished safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
