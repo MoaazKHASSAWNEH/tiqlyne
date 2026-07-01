@@ -1,3 +1,11 @@
+/**
+ * Stable diagnostic codes emitted by the core and web packages.
+ *
+ * Diagnostic codes are intended for tooling, logging, tests and application-level
+ * handling. They are separate from playback result reasons: a result reason
+ * explains the outcome of an operation, while a diagnostic code explains a
+ * specific warning, validation issue or failure detail.
+ */
 export const MotionDiagnosticCodes = {
   PlaybackInvalidTransition: 'playback-invalid-transition',
 
@@ -48,5 +56,11 @@ export const MotionDiagnosticCodes = {
   TimelineInspectionLongStep: 'timeline-inspection-long-step'
 } as const;
 
+/**
+ * Built-in diagnostic code value.
+ *
+ * Custom drivers, plugins and applications may still emit custom string codes
+ * where needed.
+ */
 export type MotionDiagnosticCode =
   (typeof MotionDiagnosticCodes)[keyof typeof MotionDiagnosticCodes];

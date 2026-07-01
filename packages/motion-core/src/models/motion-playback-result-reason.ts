@@ -1,3 +1,10 @@
+/**
+ * Stable playback result reasons emitted by the core and web packages.
+ *
+ * A result reason explains why a playback operation returned a given status.
+ * It is intentionally separate from diagnostics: a reason summarizes the outcome,
+ * while diagnostics provide additional structured details.
+ */
 export const MotionPlaybackResultReasons = {
   MotionDisabled: 'motion-disabled',
   UnknownMotionType: 'unknown-motion-type',
@@ -87,5 +94,11 @@ export const MotionPlaybackResultReasons = {
   MotionConflictIgnored: 'motion-conflict-ignored'
 } as const;
 
+/**
+ * Built-in playback result reason value.
+ *
+ * Custom drivers, plugins and applications may still return custom string reasons
+ * where needed.
+ */
 export type MotionPlaybackResultReason =
   (typeof MotionPlaybackResultReasons)[keyof typeof MotionPlaybackResultReasons];
