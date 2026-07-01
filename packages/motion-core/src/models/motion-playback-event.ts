@@ -1,20 +1,9 @@
 import type { MotionPlaybackControllerStatus } from './motion-playback-controller';
+import type { MotionPlaybackEventType } from './motion-playback-event-type';
 import type { MotionPlaybackResult } from './motion-playback-result';
 import type { MotionPlaybackState } from './motion-playback-state';
 
-export type MotionPlaybackEventType =
-  | 'start'
-  | 'statusChange'
-  | 'pause'
-  | 'resume'
-  | 'cancel'
-  | 'finish'
-  | 'skip'
-  | 'fail'
-  | 'seek'
-  | 'progress'
-  | 'playbackRateChange'
-  | 'directionChange';
+export type { MotionPlaybackEventType } from './motion-playback-event-type';
 
 export type MotionPlaybackEvent = {
   readonly type: MotionPlaybackEventType;

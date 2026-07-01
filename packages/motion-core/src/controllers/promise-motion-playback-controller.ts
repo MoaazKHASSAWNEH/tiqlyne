@@ -12,6 +12,7 @@ import type {
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import { MotionPlaybackResultReasons } from '../models/motion-playback-result-reason';
 import type { MotionPlaybackState } from '../models/motion-playback-state';
+import { MotionPlaybackEventTypes } from '../models/motion-playback-event-type';
 import { isTerminalPlaybackStatus } from '../utils/is-terminal-playback-status';
 import { BaseMotionPlaybackController } from './base-motion-playback-controller';
 
@@ -31,7 +32,7 @@ export class PromiseMotionPlaybackController
   ) {
     super();
 
-    this.emit('start', this.currentStatus, this.currentStatus);
+    this.emit(MotionPlaybackEventTypes.Start, this.currentStatus, this.currentStatus);
 
     this.finished
       .then((result) => {
@@ -329,27 +330,57 @@ export class PromiseMotionPlaybackController
   ): void {
     switch (result.status) {
       case 'finished':
-        this.emitStatusChange('finish', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Finish,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'cancelled':
-        this.emitStatusChange('cancel', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Cancel,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'skipped':
-        this.emitStatusChange('skip', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Skip,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'failed':
-        this.emitStatusChange('fail', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Fail,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'paused':
-        this.emitStatusChange('pause', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Pause,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'running':
-        this.emitStatusChange('resume', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Resume,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
     }
   }

@@ -7,6 +7,7 @@ import {
   isTerminalPlaybackStatus,
   MotionDiagnosticCodes,
   MotionDiagnosticSources,
+  MotionPlaybackEventTypes,
   MotionPlaybackResultReasons,
   sampleMotionTimelineAtTime,
   type MotionPlaybackController,
@@ -40,7 +41,7 @@ export class WebMotionPlaybackController
   ) {
     super();
 
-    this.emit('start', this.currentStatus, this.currentStatus);
+    this.emit(MotionPlaybackEventTypes.Start, this.currentStatus, this.currentStatus);
 
     this.finished
       .then((result) => {
@@ -93,7 +94,7 @@ export class WebMotionPlaybackController
 
     const result = this.seekAnimations(time);
 
-    this.emitControllerEvent('seek', result);
+    this.emitControllerEvent(MotionPlaybackEventTypes.Seek, result);
 
     return result;
   }
@@ -117,7 +118,7 @@ export class WebMotionPlaybackController
 
     const result = this.seekAnimations(time);
 
-    this.emitControllerEvent('seek', result);
+    this.emitControllerEvent(MotionPlaybackEventTypes.Seek, result);
 
     return result;
   }
@@ -139,7 +140,7 @@ export class WebMotionPlaybackController
 
     const result = this.seekAnimations(time);
 
-    this.emitControllerEvent('seek', result);
+    this.emitControllerEvent(MotionPlaybackEventTypes.Seek, result);
 
     return result;
   }
@@ -152,7 +153,7 @@ export class WebMotionPlaybackController
     const result = this.playAnimationsInDirection('forward');
 
     this.applyDirectionalPlaybackResult(result);
-    this.emitControllerEvent('directionChange', result);
+    this.emitControllerEvent(MotionPlaybackEventTypes.DirectionChange, result);
 
     return result;
   }
@@ -165,7 +166,7 @@ export class WebMotionPlaybackController
     const result = this.playAnimationsInDirection('backward');
 
     this.applyDirectionalPlaybackResult(result);
-    this.emitControllerEvent('directionChange', result);
+    this.emitControllerEvent(MotionPlaybackEventTypes.DirectionChange, result);
 
     return result;
   }
@@ -181,7 +182,7 @@ export class WebMotionPlaybackController
 
     const result = this.setAnimationsPlaybackRate(rate);
 
-    this.emitControllerEvent('playbackRateChange', result);
+    this.emitControllerEvent(MotionPlaybackEventTypes.PlaybackRateChange, result);
 
     return result;
   }
@@ -373,27 +374,57 @@ export class WebMotionPlaybackController
   ): void {
     switch (result.status) {
       case 'finished':
-        this.emitStatusChange('finish', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Finish,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'cancelled':
-        this.emitStatusChange('cancel', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Cancel,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'skipped':
-        this.emitStatusChange('skip', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Skip,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'failed':
-        this.emitStatusChange('fail', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Fail,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'paused':
-        this.emitStatusChange('pause', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Pause,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
 
       case 'running':
-        this.emitStatusChange('resume', this.currentStatus, previousStatus, result);
+        this.emitStatusChange(
+          MotionPlaybackEventTypes.Resume,
+          this.currentStatus,
+          previousStatus,
+          result
+        );
         break;
     }
   }
@@ -789,7 +820,10 @@ export class WebMotionPlaybackController
   }
 
   private emitControllerEvent(
-    type: 'seek' | 'playbackRateChange' | 'directionChange',
+    type:
+      | typeof MotionPlaybackEventTypes.Seek
+      | typeof MotionPlaybackEventTypes.PlaybackRateChange
+      | typeof MotionPlaybackEventTypes.DirectionChange,
     result: MotionPlaybackResult
   ): void {
     this.emitPlaybackEvent(type, this.currentStatus, this.currentStatus, result, this.getState());

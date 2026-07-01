@@ -3,6 +3,7 @@ import type {
   MotionPlaybackEventListener,
   MotionPlaybackEventType
 } from '../models/motion-playback-event';
+import { MotionPlaybackEventTypes } from '../models/motion-playback-event-type';
 import type { MotionPlaybackControllerStatus } from '../models/motion-playback-controller';
 import type { MotionPlaybackResult } from '../models/motion-playback-result';
 import type { MotionPlaybackState } from '../models/motion-playback-state';
@@ -96,12 +97,15 @@ export abstract class BaseMotionPlaybackController {
   }
 
   protected emitStatusChange(
-    type: Exclude<MotionPlaybackEventType, 'start' | 'statusChange'>,
+    type: Exclude<
+      MotionPlaybackEventType,
+      typeof MotionPlaybackEventTypes.Start | typeof MotionPlaybackEventTypes.StatusChange
+    >,
     status: MotionPlaybackControllerStatus,
     previousStatus: MotionPlaybackControllerStatus,
     result: MotionPlaybackResult
   ): void {
     this.emit(type, status, previousStatus, result);
-    this.emit('statusChange', status, previousStatus, result);
+    this.emit(MotionPlaybackEventTypes.StatusChange, status, previousStatus, result);
   }
 }

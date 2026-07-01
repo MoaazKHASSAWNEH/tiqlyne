@@ -6,6 +6,8 @@ export type {
   MotionPlaybackEventType
 } from './models/motion-playback-event';
 
+export { MotionPlaybackEventTypes } from './models/motion-playback-event-type';
+
 export type { MotionConfigNormalizer } from './contracts/motion-config-normalizer';
 
 export { DefaultMotionConfigNormalizer } from './normalizer/default-motion-config-normalizer';
@@ -214,6 +216,13 @@ export type {
   MotionSkipReason
 } from './models/motion-engine-events';
 
+export {
+  MotionEngineEventSources,
+  MotionEngineEventTypes
+} from './models/motion-engine-event-type';
+
+export type { MotionEngineEventType } from './models/motion-engine-event-type';
+
 export { SchemaMotionDefinition } from './base/schema-motion-definition';
 
 export {
@@ -318,5 +327,3 @@ export type { MotionDiagnosticCode } from './diagnostics/motion-diagnostic-code'
 export { MotionPlaybackResultReasons } from './models/motion-playback-result-reason';
 
 export type { MotionPlaybackResultReason } from './models/motion-playback-result-reason';
-
-export const motionCoreVersion = '0.1.0';

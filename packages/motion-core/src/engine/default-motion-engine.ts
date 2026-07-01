@@ -9,6 +9,10 @@ import type { MotionRegistry } from '../contracts/motion-registry';
 import { PromiseMotionPlaybackController } from '../controllers/promise-motion-playback-controller';
 import type { MotionCategory } from '../models/motion-category';
 import type { MotionConfig } from '../models/motion-config';
+import {
+  MotionEngineEventSources,
+  MotionEngineEventTypes
+} from '../models/motion-engine-event-type';
 import type {
   MotionBeforePlanEvent,
   MotionCancelEvent,
@@ -87,8 +91,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       };
 
       this.emitSkip({
-        type: 'skip',
-        source: 'registered-motion',
+        type: MotionEngineEventTypes.Skip,
+        source: MotionEngineEventSources.RegisteredMotion,
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
@@ -108,8 +112,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       };
 
       this.emitSkip({
-        type: 'skip',
-        source: 'registered-motion',
+        type: MotionEngineEventTypes.Skip,
+        source: MotionEngineEventSources.RegisteredMotion,
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
@@ -124,8 +128,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       const executionPlan = this.plan(config);
 
       this.emitPlay({
-        type: 'play',
-        source: 'registered-motion',
+        type: MotionEngineEventTypes.Play,
+        source: MotionEngineEventSources.RegisteredMotion,
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
@@ -148,8 +152,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       });
 
       this.emitFinish({
-        type: 'finish',
-        source: 'registered-motion',
+        type: MotionEngineEventTypes.Finish,
+        source: MotionEngineEventSources.RegisteredMotion,
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
@@ -159,8 +163,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       return result;
     } catch (error: unknown) {
       this.emitError({
-        type: 'error',
-        source: 'registered-motion',
+        type: MotionEngineEventTypes.Error,
+        source: MotionEngineEventSources.RegisteredMotion,
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
@@ -203,8 +207,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       const executionPlan = this.planTimeline(timeline, options);
 
       this.emitPlay({
-        type: 'play',
-        source: 'direct-timeline',
+        type: MotionEngineEventTypes.Play,
+        source: MotionEngineEventSources.DirectTimeline,
         target,
         plan: executionPlan
       });
@@ -225,8 +229,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       });
 
       this.emitFinish({
-        type: 'finish',
-        source: 'direct-timeline',
+        type: MotionEngineEventTypes.Finish,
+        source: MotionEngineEventSources.DirectTimeline,
         target,
         result
       });
@@ -234,8 +238,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       return result;
     } catch (error: unknown) {
       this.emitError({
-        type: 'error',
-        source: 'direct-timeline',
+        type: MotionEngineEventTypes.Error,
+        source: MotionEngineEventSources.DirectTimeline,
         target,
         error
       });
@@ -276,8 +280,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       return await this.playTimeline(target, timeline, options);
     } catch (error: unknown) {
       this.emitError({
-        type: 'error',
-        source: 'direct-timeline',
+        type: MotionEngineEventTypes.Error,
+        source: MotionEngineEventSources.DirectTimeline,
         target,
         error
       });
@@ -311,8 +315,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     const normalizedConfig = this.dependencies.normalizer.normalize(config);
 
     this.emitBeforePlan({
-      type: 'before-plan',
-      source: 'registered-motion',
+      type: MotionEngineEventTypes.BeforePlan,
+      source: MotionEngineEventSources.RegisteredMotion,
       motionId: normalizedConfig.id,
       motionType: normalizedConfig.type,
       config
@@ -400,8 +404,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     });
 
     this.emitPlan({
-      type: 'plan',
-      source: 'registered-motion',
+      type: MotionEngineEventTypes.Plan,
+      source: MotionEngineEventSources.RegisteredMotion,
       motionId: normalizedConfig.id,
       motionType: normalizedConfig.type,
       plan: executionPlan
@@ -417,8 +421,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     const normalizedOptions = normalizeMotionTimelinePlayOptions(options);
 
     this.emitBeforePlan({
-      type: 'before-plan',
-      source: 'direct-timeline',
+      type: MotionEngineEventTypes.BeforePlan,
+      source: MotionEngineEventSources.DirectTimeline,
       timeline
     });
 
@@ -467,8 +471,8 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     });
 
     this.emitPlan({
-      type: 'plan',
-      source: 'direct-timeline',
+      type: MotionEngineEventTypes.Plan,
+      source: MotionEngineEventSources.DirectTimeline,
       plan: executionPlan
     });
 
@@ -492,14 +496,14 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       };
 
       this.emitSkip({
-        type: 'skip',
+        type: MotionEngineEventTypes.Skip,
         target,
         reason: MotionPlaybackResultReasons.DriverCancelNotSupported,
         result
       });
 
       this.emitCancel({
-        type: 'cancel',
+        type: MotionEngineEventTypes.Cancel,
         target,
         result
       });
@@ -510,7 +514,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     const result = await this.dependencies.driver.cancel(target);
 
     this.emitCancel({
-      type: 'cancel',
+      type: MotionEngineEventTypes.Cancel,
       target,
       result
     });
@@ -526,7 +530,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       };
 
       this.emitSkip({
-        type: 'skip',
+        type: MotionEngineEventTypes.Skip,
         target,
         reason: MotionPlaybackResultReasons.DriverFinishNotSupported,
         result
@@ -546,7 +550,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       };
 
       this.emitSkip({
-        type: 'skip',
+        type: MotionEngineEventTypes.Skip,
         target,
         reason: MotionPlaybackResultReasons.DriverResetNotSupported,
         result

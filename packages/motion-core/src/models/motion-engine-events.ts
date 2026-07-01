@@ -1,10 +1,15 @@
 import type { MotionConfig } from './motion-config';
 import type { MotionExecutionPlan } from './motion-execution-plan';
+import {
+  MotionEngineEventSources,
+  MotionEngineEventTypes,
+  type MotionEngineEventSource
+} from './motion-engine-event-type';
 import type { MotionPlaybackResult } from './motion-playback-result';
 import { MotionPlaybackResultReasons } from './motion-playback-result-reason';
 import type { MotionTimelineDefinition } from './motion-timeline';
 
-export type MotionEngineEventSource = 'registered-motion' | 'direct-timeline';
+export type { MotionEngineEventSource } from './motion-engine-event-type';
 
 export type MotionSkipReason =
   | typeof MotionPlaybackResultReasons.MotionDisabled
@@ -22,37 +27,37 @@ export type MotionEngineEventBase<TTarget = unknown> = {
 };
 
 export type MotionBeforePlanEvent<TTarget = unknown> = MotionEngineEventBase<TTarget> & {
-  readonly type: 'before-plan';
+  readonly type: typeof MotionEngineEventTypes.BeforePlan;
   readonly config?: MotionConfig;
   readonly timeline?: MotionTimelineDefinition;
 };
 
 export type MotionPlanEvent<TTarget = unknown> = MotionEngineEventBase<TTarget> & {
-  readonly type: 'plan';
+  readonly type: typeof MotionEngineEventTypes.Plan;
   readonly plan: MotionExecutionPlan;
 };
 
 export type MotionPlayEvent<TTarget = unknown> = MotionEngineEventBase<TTarget> & {
-  readonly type: 'play';
+  readonly type: typeof MotionEngineEventTypes.Play;
   readonly target: TTarget;
   readonly plan: MotionExecutionPlan;
 };
 
 export type MotionFinishEvent<TTarget = unknown> = MotionEngineEventBase<TTarget> & {
-  readonly type: 'finish';
+  readonly type: typeof MotionEngineEventTypes.Finish;
   readonly target: TTarget;
   readonly result: MotionPlaybackResult;
 };
 
 export type MotionCancelEvent<TTarget = unknown> = {
-  readonly type: 'cancel';
+  readonly type: typeof MotionEngineEventTypes.Cancel;
   readonly target: TTarget;
   readonly result: MotionPlaybackResult;
   readonly timestamp: number;
 };
 
 export type MotionErrorEvent<TTarget = unknown> = MotionEngineEventBase<TTarget> & {
-  readonly type: 'error';
+  readonly type: typeof MotionEngineEventTypes.Error;
   readonly error: unknown;
 };
 
@@ -67,7 +72,7 @@ export type MotionEngineEvents<TTarget = unknown> = {
 };
 
 export type MotionSkipEvent<TTarget = unknown> = {
-  readonly type: 'skip';
+  readonly type: typeof MotionEngineEventTypes.Skip;
   readonly reason: MotionSkipReason;
   readonly result: MotionPlaybackResult;
   readonly timestamp: number;
@@ -85,3 +90,5 @@ export type MotionEngineEvent<TTarget = unknown> =
   | MotionCancelEvent<TTarget>
   | MotionSkipEvent<TTarget>
   | MotionErrorEvent<TTarget>;
+
+export { MotionEngineEventSources, MotionEngineEventTypes };
