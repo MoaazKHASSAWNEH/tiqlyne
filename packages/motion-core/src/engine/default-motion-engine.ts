@@ -1,26 +1,14 @@
+import { compileMotionComposition } from '../composition/compile-motion-composition';
+import type { MotionCompositionDefinition } from '../composition/motion-composition-definition';
+import { applyMotionTimelineDefaults } from '../compiler/apply-motion-timeline-defaults';
 import type { MotionConfigNormalizer } from '../contracts/motion-config-normalizer';
+import type { MotionDefinition } from '../contracts/motion-definition';
 import type { MotionDriver } from '../contracts/motion-driver';
 import type { MotionEngine } from '../contracts/motion-engine';
 import type { MotionRegistry } from '../contracts/motion-registry';
-import type { MotionConfig } from '../models/motion-config';
-import type { MotionPlaybackResult } from '../models/motion-playback-result';
-import type { MotionDefinition } from '../contracts/motion-definition';
 import { PromiseMotionPlaybackController } from '../controllers/promise-motion-playback-controller';
-import type { MotionPlaybackController } from '../models/motion-playback-controller';
-import { validateMotionTimeline } from '../validators/validate-motion-timeline';
-import { createMotionExecutionPlan } from '../planner/create-motion-execution-plan';
-import type { MotionExecutionPlan } from '../models/motion-execution-plan';
-import { MotionPlanningError } from './motion-planning-error';
-import { normalizeMotionTimelinePlayOptions } from './normalize-motion-timeline-play-options';
-import type {
-  MotionTimelineDefaults,
-  MotionTimelineDefinition,
-  MotionTrackDefinition
-} from '../models/motion-timeline';
-import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
-import { applyMotionTimelineDefaults } from '../compiler/apply-motion-timeline-defaults';
-import type { MotionValidationOptions } from '../models/motion-validation-options';
 import type { MotionCategory } from '../models/motion-category';
+import type { MotionConfig } from '../models/motion-config';
 import type {
   MotionBeforePlanEvent,
   MotionCancelEvent,
@@ -31,8 +19,21 @@ import type {
   MotionPlayEvent,
   MotionSkipEvent
 } from '../models/motion-engine-events';
-import { compileMotionComposition } from '../composition/compile-motion-composition';
-import type { MotionCompositionDefinition } from '../composition/motion-composition-definition';
+import type { MotionExecutionPlan } from '../models/motion-execution-plan';
+import type { MotionPlaybackController } from '../models/motion-playback-controller';
+import type { MotionPlaybackResult } from '../models/motion-playback-result';
+import { MotionPlaybackResultReasons } from '../models/motion-playback-result-reason';
+import type {
+  MotionTimelineDefaults,
+  MotionTimelineDefinition,
+  MotionTrackDefinition
+} from '../models/motion-timeline';
+import type { MotionTimelinePlayOptions } from '../models/motion-timeline-play-options';
+import type { MotionValidationOptions } from '../models/motion-validation-options';
+import { createMotionExecutionPlan } from '../planner/create-motion-execution-plan';
+import { validateMotionTimeline } from '../validators/validate-motion-timeline';
+import { MotionPlanningError } from './motion-planning-error';
+import { normalizeMotionTimelinePlayOptions } from './normalize-motion-timeline-play-options';
 
 export type DefaultMotionEngineDependencies<TTarget = unknown> = {
   readonly registry: MotionRegistry;
@@ -82,7 +83,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (!normalizedConfig.enabled) {
       const result: MotionPlaybackResult = {
         status: 'skipped',
-        reason: 'motion-disabled'
+        reason: MotionPlaybackResultReasons.MotionDisabled
       };
 
       this.emitSkip({
@@ -91,7 +92,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
-        reason: 'motion-disabled',
+        reason: MotionPlaybackResultReasons.MotionDisabled,
         result
       });
 
@@ -103,7 +104,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (!definition) {
       const result: MotionPlaybackResult = {
         status: 'skipped',
-        reason: 'unknown-motion-type'
+        reason: MotionPlaybackResultReasons.UnknownMotionType
       };
 
       this.emitSkip({
@@ -112,7 +113,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
         target,
         motionId: normalizedConfig.id,
         motionType: normalizedConfig.type,
-        reason: 'unknown-motion-type',
+        reason: MotionPlaybackResultReasons.UnknownMotionType,
         result
       });
 
@@ -185,7 +186,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
       return {
         status: 'failed',
-        reason: 'motion-engine-error',
+        reason: MotionPlaybackResultReasons.MotionEngineError,
         error
       };
     }
@@ -258,7 +259,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
       return {
         status: 'failed',
-        reason: 'motion-engine-error',
+        reason: MotionPlaybackResultReasons.MotionEngineError,
         error
       };
     }
@@ -300,7 +301,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
       return {
         status: 'failed',
-        reason: 'motion-engine-error',
+        reason: MotionPlaybackResultReasons.MotionEngineError,
         error
       };
     }
@@ -318,13 +319,19 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     });
 
     if (!normalizedConfig.enabled) {
-      throw new MotionPlanningError('Motion is disabled.', 'motion-disabled');
+      throw new MotionPlanningError(
+        'Motion is disabled.',
+        MotionPlaybackResultReasons.MotionDisabled
+      );
     }
 
     const definition = this.dependencies.registry.get(normalizedConfig.type);
 
     if (!definition) {
-      throw new MotionPlanningError('Unknown motion type.', 'unknown-motion-type');
+      throw new MotionPlanningError(
+        'Unknown motion type.',
+        MotionPlaybackResultReasons.UnknownMotionType
+      );
     }
 
     const options = definition.normalizeOptions(normalizedConfig.options);
@@ -333,7 +340,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (validationErrors.length > 0) {
       throw new MotionPlanningError(
         'Motion options are invalid.',
-        'invalid-motion-options',
+        MotionPlaybackResultReasons.InvalidMotionOptions,
         [],
         validationErrors
       );
@@ -354,7 +361,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (timelineValidationResult) {
       throw new MotionPlanningError(
         'Motion timeline is invalid.',
-        'invalid-timeline',
+        MotionPlaybackResultReasons.InvalidTimeline,
         timelineValidationResult.diagnostics ?? []
       );
     }
@@ -377,7 +384,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       if (reducedTimelineValidationResult) {
         throw new MotionPlanningError(
           'Reduced motion timeline is invalid.',
-          'invalid-reduced-motion-timeline',
+          MotionPlaybackResultReasons.InvalidReducedMotionTimeline,
           reducedTimelineValidationResult.diagnostics ?? []
         );
       }
@@ -425,7 +432,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (timelineValidationResult) {
       throw new MotionPlanningError(
         'Motion timeline is invalid.',
-        'invalid-timeline',
+        MotionPlaybackResultReasons.InvalidTimeline,
         timelineValidationResult.diagnostics ?? []
       );
     }
@@ -444,7 +451,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
       if (reducedTimelineValidationResult) {
         throw new MotionPlanningError(
           'Reduced motion timeline is invalid.',
-          'invalid-reduced-motion-timeline',
+          MotionPlaybackResultReasons.InvalidReducedMotionTimeline,
           reducedTimelineValidationResult.diagnostics ?? []
         );
       }
@@ -481,13 +488,13 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (!this.dependencies.driver.cancel) {
       const result: MotionPlaybackResult = {
         status: 'skipped',
-        reason: 'driver-cancel-not-supported'
+        reason: MotionPlaybackResultReasons.DriverCancelNotSupported
       };
 
       this.emitSkip({
         type: 'skip',
         target,
-        reason: 'driver-cancel-not-supported',
+        reason: MotionPlaybackResultReasons.DriverCancelNotSupported,
         result
       });
 
@@ -515,13 +522,13 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (!this.dependencies.driver.finish) {
       const result: MotionPlaybackResult = {
         status: 'skipped',
-        reason: 'driver-finish-not-supported'
+        reason: MotionPlaybackResultReasons.DriverFinishNotSupported
       };
 
       this.emitSkip({
         type: 'skip',
         target,
-        reason: 'driver-finish-not-supported',
+        reason: MotionPlaybackResultReasons.DriverFinishNotSupported,
         result
       });
 
@@ -535,13 +542,13 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
     if (!this.dependencies.driver.reset) {
       const result: MotionPlaybackResult = {
         status: 'skipped',
-        reason: 'driver-reset-not-supported'
+        reason: MotionPlaybackResultReasons.DriverResetNotSupported
       };
 
       this.emitSkip({
         type: 'skip',
         target,
-        reason: 'driver-reset-not-supported',
+        reason: MotionPlaybackResultReasons.DriverResetNotSupported,
         result
       });
 
@@ -859,7 +866,7 @@ export class DefaultMotionEngine<TTarget = unknown> implements MotionEngine<TTar
 
     return {
       status: 'failed',
-      reason: 'invalid-timeline',
+      reason: MotionPlaybackResultReasons.InvalidTimeline,
       diagnostics: validation.diagnostics
     };
   }

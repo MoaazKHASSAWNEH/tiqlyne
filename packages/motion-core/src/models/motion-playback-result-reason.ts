@@ -1,4 +1,16 @@
 export const MotionPlaybackResultReasons = {
+  MotionDisabled: 'motion-disabled',
+  UnknownMotionType: 'unknown-motion-type',
+  MotionEngineError: 'motion-engine-error',
+
+  InvalidMotionOptions: 'invalid-motion-options',
+  InvalidTimeline: 'invalid-timeline',
+  InvalidReducedMotionTimeline: 'invalid-reduced-motion-timeline',
+
+  DriverCancelNotSupported: 'driver-cancel-not-supported',
+  DriverFinishNotSupported: 'driver-finish-not-supported',
+  DriverResetNotSupported: 'driver-reset-not-supported',
+
   PlaybackFinishedPromiseRejected: 'playback-finished-promise-rejected',
 
   PlaybackSeekInvalidTime: 'playback-seek-invalid-time',
@@ -61,7 +73,18 @@ export const MotionPlaybackResultReasons = {
   WebPlaybackFinish: 'web-playback-finish',
   WebPlaybackFinishFailed: 'web-playback-finish-failed',
   WebPlaybackFinishNotSupportedForInfiniteAnimation:
-    'web-playback-finish-not-supported-for-infinite-animation'
+    'web-playback-finish-not-supported-for-infinite-animation',
+
+  WebDriverCancel: 'web-driver-cancel',
+  WebDriverCancelFailed: 'web-driver-cancel-failed',
+  WebDriverFinish: 'web-driver-finish',
+  WebDriverFinishFailed: 'web-driver-finish-failed',
+  WebDriverReset: 'web-driver-reset',
+  WebDriverResetFailed: 'web-driver-reset-failed',
+
+  ReducedMotion: 'reduced-motion',
+  TargetNotFound: 'target-not-found',
+  MotionConflictIgnored: 'motion-conflict-ignored'
 } as const;
 
 export type MotionPlaybackResultReason =

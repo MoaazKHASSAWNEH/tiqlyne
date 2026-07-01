@@ -1,16 +1,17 @@
 import type { MotionConfig } from './motion-config';
 import type { MotionExecutionPlan } from './motion-execution-plan';
 import type { MotionPlaybackResult } from './motion-playback-result';
+import { MotionPlaybackResultReasons } from './motion-playback-result-reason';
 import type { MotionTimelineDefinition } from './motion-timeline';
 
 export type MotionEngineEventSource = 'registered-motion' | 'direct-timeline';
 
 export type MotionSkipReason =
-  | 'motion-disabled'
-  | 'unknown-motion-type'
-  | 'driver-cancel-not-supported'
-  | 'driver-finish-not-supported'
-  | 'driver-reset-not-supported';
+  | typeof MotionPlaybackResultReasons.MotionDisabled
+  | typeof MotionPlaybackResultReasons.UnknownMotionType
+  | typeof MotionPlaybackResultReasons.DriverCancelNotSupported
+  | typeof MotionPlaybackResultReasons.DriverFinishNotSupported
+  | typeof MotionPlaybackResultReasons.DriverResetNotSupported;
 
 export type MotionEngineEventBase<TTarget = unknown> = {
   readonly source: MotionEngineEventSource;

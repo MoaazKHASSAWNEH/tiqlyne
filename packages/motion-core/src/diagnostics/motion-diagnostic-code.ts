@@ -38,6 +38,10 @@ export const MotionDiagnosticCodes = {
   WebPlaybackFinishNotSupportedForInfiniteAnimation:
     'web-playback-finish-not-supported-for-infinite-animation',
 
+  WebDriverCancelFailed: 'web-driver-cancel-failed',
+  WebDriverFinishFailed: 'web-driver-finish-failed',
+  WebDriverResetFailed: 'web-driver-reset-failed',
+
   TimelineInspectionInfiniteTimeline: 'timeline-inspection-infinite-timeline',
   TimelineInspectionLongTimeline: 'timeline-inspection-long-timeline',
   TimelineInspectionEmptyStepKeyframes: 'timeline-inspection-empty-step-keyframes',

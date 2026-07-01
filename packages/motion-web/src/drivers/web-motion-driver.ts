@@ -1,37 +1,41 @@
 import {
   applyMotionTimelineDefaults,
+  createPlaybackOperationFailedDiagnostic,
+  MotionDiagnosticCodes,
+  MotionDiagnosticSources,
+  MotionPlaybackResultReasons,
   type MotionDriver,
   type MotionPlayOptions,
-  type MotionPlaybackResult,
   type MotionPlaybackController,
+  type MotionPlaybackResult,
   type MotionTimelineDefinition
 } from '@structifyx/motion-core';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
-import { resolveWebTargets, resolveWebTrackTargets } from '../utils/resolve-web-targets';
 import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
 import {
   createFailedWebPlayback,
   createFinishedWebPlayback,
-  createSkippedWebPlayback,
-  createRunningWebPlayback
+  createRunningWebPlayback,
+  createSkippedWebPlayback
 } from '../utils/create-web-playback-result';
 import {
-  resolveWebActiveExecutionPlan,
-  resolveWebPlayableTimeline,
-  resolveWebReducedMotionDiagnostics,
-  resolveWebScheduledTimeline
-} from '../utils/resolve-web-reduced-motion';
+  createWebAnimationsFromScheduledTimeline,
+  createWebAnimationsFromTimeline
+} from '../utils/create-web-timeline-animations';
+import { hasInfiniteWebTimeline } from '../utils/has-infinite-web-timeline';
 import {
   cancelWebAnimations,
   getEffectiveWebConflictStrategy,
   hasActiveWebAnimations
 } from '../utils/resolve-web-conflict';
 import {
-  createWebAnimationsFromScheduledTimeline,
-  createWebAnimationsFromTimeline
-} from '../utils/create-web-timeline-animations';
+  resolveWebActiveExecutionPlan,
+  resolveWebPlayableTimeline,
+  resolveWebReducedMotionDiagnostics,
+  resolveWebScheduledTimeline
+} from '../utils/resolve-web-reduced-motion';
+import { resolveWebTrackTargets } from '../utils/resolve-web-targets';
 import { validateWebPlayableTimeline } from '../utils/validate-web-playable-timeline';
-import { hasInfiniteWebTimeline } from '../utils/has-infinite-web-timeline';
 
 export type WebMotionDriverOptions = {
   readonly reducedMotion?: boolean;
@@ -40,6 +44,8 @@ export type WebMotionDriverOptions = {
 
 export class WebMotionDriver implements MotionDriver<Element> {
   readonly name = 'web';
+
+  private readonly diagnosticSource = MotionDiagnosticSources.WebMotionDriver;
 
   constructor(private readonly options: WebMotionDriverOptions = {}) {}
 
@@ -75,20 +81,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
       return {
         status: 'cancelled',
-        reason: 'web-driver-cancel'
+        reason: MotionPlaybackResultReasons.WebDriverCancel
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-driver-cancel-failed',
+        reason: MotionPlaybackResultReasons.WebDriverCancelFailed,
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-driver-cancel-failed',
-            message: 'Web driver could not cancel animations safely.',
-            source: 'web-motion-driver'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            MotionDiagnosticCodes.WebDriverCancelFailed,
+            'Web driver could not cancel animations safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
@@ -102,20 +107,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
       return {
         status: 'finished',
-        reason: 'web-driver-finish'
+        reason: MotionPlaybackResultReasons.WebDriverFinish
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-driver-finish-failed',
+        reason: MotionPlaybackResultReasons.WebDriverFinishFailed,
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-driver-finish-failed',
-            message: 'Web driver could not finish animations safely.',
-            source: 'web-motion-driver'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            MotionDiagnosticCodes.WebDriverFinishFailed,
+            'Web driver could not finish animations safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
@@ -131,20 +135,19 @@ export class WebMotionDriver implements MotionDriver<Element> {
 
       return {
         status: 'finished',
-        reason: 'web-driver-reset'
+        reason: MotionPlaybackResultReasons.WebDriverReset
       };
     } catch (error) {
       return {
         status: 'failed',
-        reason: 'web-driver-reset-failed',
+        reason: MotionPlaybackResultReasons.WebDriverResetFailed,
         error,
         diagnostics: [
-          {
-            level: 'error',
-            code: 'web-driver-reset-failed',
-            message: 'Web driver could not reset animations safely.',
-            source: 'web-motion-driver'
-          }
+          createPlaybackOperationFailedDiagnostic(
+            MotionDiagnosticCodes.WebDriverResetFailed,
+            'Web driver could not reset animations safely.',
+            this.diagnosticSource
+          )
         ]
       };
     }
@@ -159,7 +162,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
       options.respectReducedMotion && this.options.reducedMotion === true;
 
     if (shouldApplyReducedMotion && options.reducedMotionStrategy === 'skip') {
-      return createSkippedWebPlayback('reduced-motion');
+      return createSkippedWebPlayback(MotionPlaybackResultReasons.ReducedMotion);
     }
 
     const diagnostics = resolveWebReducedMotionDiagnostics(
@@ -189,7 +192,7 @@ export class WebMotionDriver implements MotionDriver<Element> {
     );
 
     if (!validation.valid) {
-      return createFailedWebPlayback('invalid-timeline', [], {
+      return createFailedWebPlayback(MotionPlaybackResultReasons.InvalidTimeline, [], {
         diagnostics: validation.diagnostics
       });
     }
@@ -199,13 +202,13 @@ export class WebMotionDriver implements MotionDriver<Element> {
     const trackTargets = resolveWebTrackTargets(target, resolvedPlayableTimeline);
 
     if (!trackTargets) {
-      return createFailedWebPlayback('target-not-found');
+      return createFailedWebPlayback(MotionPlaybackResultReasons.TargetNotFound);
     }
 
     const conflictStrategy = getEffectiveWebConflictStrategy(options, this.options);
 
     if (conflictStrategy === 'ignore' && hasActiveWebAnimations(trackTargets)) {
-      return createSkippedWebPlayback('motion-conflict-ignored');
+      return createSkippedWebPlayback(MotionPlaybackResultReasons.MotionConflictIgnored);
     }
 
     if (conflictStrategy === 'replace') {

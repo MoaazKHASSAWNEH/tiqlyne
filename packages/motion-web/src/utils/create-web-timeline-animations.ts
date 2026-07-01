@@ -1,7 +1,8 @@
-import type {
-  MotionTimelineDefinition,
-  ScheduledMotionTask,
-  ScheduledMotionTimeline
+import {
+  MotionPlaybackResultReasons,
+  type MotionTimelineDefinition,
+  type ScheduledMotionTask,
+  type ScheduledMotionTimeline
 } from '@structifyx/motion-core';
 import {
   createWebAnimationFromStep,
@@ -9,6 +10,9 @@ import {
 } from './create-web-animation';
 import { resolveStaggerOffset } from './resolve-stagger-offset';
 import { resolveWebTargets } from './resolve-web-targets';
+
+export type WebTimelineAnimationCreationFailureReason =
+  typeof MotionPlaybackResultReasons.TargetNotFound;
 
 export type WebTimelineAnimationCreationResult =
   | {
@@ -18,7 +22,7 @@ export type WebTimelineAnimationCreationResult =
   | {
       readonly ok: false;
       readonly animations: ReadonlyArray<Animation>;
-      readonly reason: 'target-not-found';
+      readonly reason: WebTimelineAnimationCreationFailureReason;
     };
 
 export function createWebAnimationsFromTimeline(
@@ -34,7 +38,7 @@ export function createWebAnimationsFromTimeline(
       return {
         ok: false,
         animations,
-        reason: 'target-not-found'
+        reason: MotionPlaybackResultReasons.TargetNotFound
       };
     }
 
@@ -66,7 +70,7 @@ export function createWebAnimationsFromScheduledTimeline(
       return {
         ok: false,
         animations,
-        reason: 'target-not-found'
+        reason: MotionPlaybackResultReasons.TargetNotFound
       };
     }
 
