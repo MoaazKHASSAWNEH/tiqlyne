@@ -6,12 +6,39 @@ import type { MotionTimelineDefinition } from '../models/motion-timeline';
 import { scheduleMotionTimeline } from '../scheduler/schedule-motion-timeline';
 import { createMotionExecutionPlanSummary } from './create-motion-execution-plan-summary';
 
+/**
+ * Input used to create a motion execution plan.
+ */
 export type CreateMotionExecutionPlanInput = {
+  /**
+   * Main timeline to prepare and schedule.
+   */
   readonly timeline: MotionTimelineDefinition;
+
+  /**
+   * Optional reduced-motion timeline to prepare and schedule.
+   */
   readonly reducedMotionTimeline?: MotionTimelineDefinition;
+
+  /**
+   * Optional diagnostics to attach to the plan.
+   */
   readonly diagnostics?: ReadonlyArray<MotionDiagnostic>;
 };
 
+/**
+ * Creates a complete execution plan from a timeline.
+ *
+ * The planner applies timeline defaults, prepares the timeline, schedules
+ * executable tasks, prepares the optional reduced-motion timeline and creates
+ * a compact summary.
+ *
+ * This function does not execute animations. Drivers receive the resulting plan
+ * through engine play options and can inspect it if needed.
+ *
+ * @param input - Timeline planning input.
+ * @returns Complete execution plan.
+ */
 export function createMotionExecutionPlan(
   input: CreateMotionExecutionPlanInput
 ): MotionExecutionPlan {
