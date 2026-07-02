@@ -1,18 +1,16 @@
 import type { MotionConfigNormalizer } from '../contracts/motion-config-normalizer';
 import type { MotionConfig } from '../models/motion-config';
+import type { MotionConflictStrategy } from '../models/motion-conflict-strategy';
+import { isMotionConflictStrategy } from '../models/motion-conflict-strategy';
+import type { MotionEasing } from '../models/motion-easing';
+import type { MotionTriggerType } from '../models/motion-trigger';
+import { isMotionTriggerType } from '../models/motion-trigger';
 import type { NormalizedMotionConfig } from '../models/normalized-motion-config';
 import type { ReducedMotionStrategy } from '../models/reduced-motion-strategy';
 import { isRecord } from '../utils/is-record';
 import { normalizeBoolean } from '../utils/normalize-boolean';
 import { normalizeNumber } from '../utils/normalize-number';
 import { normalizeString } from '../utils/normalize-string';
-import { isMotionTriggerType } from '../models/motion-trigger';
-import type { MotionTriggerType } from '../models/motion-trigger';
-import {
-  isMotionConflictStrategy,
-  type MotionConflictStrategy
-} from '../models/motion-conflict-strategy';
-import type { MotionEasing } from '../models/motion-easing';
 
 const DEFAULT_ID = 'motion_unknown';
 const DEFAULT_TYPE = 'unknown';
@@ -31,7 +29,17 @@ const ALLOWED_REDUCED_MOTION_STRATEGIES: ReadonlyArray<ReducedMotionStrategy> = 
   'preserve'
 ];
 
+/**
+ * Default implementation of {@link MotionConfigNormalizer}.
+ *
+ * The normalizer protects the engine from unsafe or incomplete config values by
+ * resolving defaults, clamping duration/delay and validating known enum-like
+ * fields such as trigger, reduced-motion strategy and conflict strategy.
+ */
 export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
+  /**
+   * Normalizes a raw motion config into a complete engine config.
+   */
   normalize(config: MotionConfig): NormalizedMotionConfig {
     return {
       id: normalizeString(config.id, DEFAULT_ID),
@@ -78,7 +86,7 @@ export class DefaultMotionConfigNormalizer implements MotionConfigNormalizer {
   }
 
   private normalizeTrigger(value: unknown): MotionTriggerType {
-    return isMotionTriggerType(value) ? value : 'onEnter';
+    return isMotionTriggerType(value) ? value : DEFAULT_TRIGGER;
   }
 
   private normalizeReducedMotionStrategy(value: unknown): ReducedMotionStrategy {
