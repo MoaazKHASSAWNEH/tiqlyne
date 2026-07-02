@@ -3,15 +3,13 @@
 > Status: planning document.
 > Scope: product roadmap, versioning rules and release boundaries.
 > Goal: define what must be finished before V1, what belongs to V1.x, V2 and V3, and prevent uncontrolled scope creep.
-> Last updated after: `e263246 feat(core): add timeline sampler`.
+> Last updated after: `77f3beb docs(core): add tsdoc to engine factory and base definitions`.
 
 ## 1. Why this document exists
 
-Structifyx Motion Engine is becoming a real animation engine, not only a collection of animation helpers.
+Structifyx Motion Engine is becoming a real animation engine, not only a collection of helpers.
 
-Without clear release boundaries, the project can become infinite.
-
-This document defines:
+Without clear release boundaries, the project can become infinite. This document defines:
 
 ```txt
 what V1 must contain
@@ -26,101 +24,27 @@ The goal is to publish a stable V1 with a strong core, then evolve deliberately.
 
 ## 2. Versioning policy
 
-The project follows a strict semantic versioning strategy adapted to this project.
-
-Version format:
+The project follows semantic versioning.
 
 ```txt
 MAJOR.MINOR.PATCH
 ```
 
-Example:
-
-```txt
-1.5.10
-```
-
 Meaning:
 
 ```txt
-1 = major version
-5 = minor feature version
-10 = patch / bugfix version
+MAJOR = strategic capability layer or breaking public API change
+MINOR = compatible feature addition inside the same major promise
+PATCH = bugfix, docs, tests or small internal fix
 ```
 
-## 3. Major version rule
+Patch versions should not add new public features.
 
-A major version introduces a new strategic capability layer.
+Minor versions may add features, but must not secretly start the next major version.
 
-Examples:
+Major versions may introduce new concept families and require migration guides if public APIs change.
 
-```txt
-1.0.0
-  First stable public engine.
-
-2.0.0
-  New major feature family that changes what the engine can do.
-
-3.0.0
-  New product-level evolution, such as plugin ecosystem, editor/devtools or advanced platform expansion.
-```
-
-Rule:
-
-```txt
-A major version can introduce new big concepts.
-A major version may include breaking changes only when justified and documented.
-A major version must have a migration guide if public APIs change.
-```
-
-## 4. Minor version rule
-
-A minor version improves or extends the current major version without changing its core promise.
-
-Examples:
-
-```txt
-1.1.0
-  Adds small features strongly related to V1.
-
-1.3.0
-  Adds mini features, API refinements, extra helpers or small improvements related to V1.
-
-1.5.0
-  Adds stronger improvements but still inside the V1 feature family.
-```
-
-Rule:
-
-```txt
-A minor version may add features.
-A minor version must remain compatible with the major version promise.
-A minor version must not secretly start the next major version.
-```
-
-## 5. Patch version rule
-
-A patch version fixes bugs, improves tests, improves documentation, or makes small internal fixes without changing the feature set.
-
-Examples:
-
-```txt
-1.1.1
-  Bugfix after 1.1.0.
-
-1.5.10
-  Tenth patch after 1.5.0.
-```
-
-Rule:
-
-```txt
-A patch version should not add new public features.
-A patch version should not change public API behavior unless it fixes a bug.
-A patch version may add tests and documentation.
-```
-
-## 6. Important release boundary rule
+## 3. Release boundary rule
 
 A later major version must not be used to finish an incomplete previous major version.
 
@@ -130,35 +54,32 @@ V2 must not be used to finish missing V1 basics.
 V3 must not be used to finish missing V2 basics.
 ```
 
-Allowed:
+## 4. Current project state before V1
+
+Current estimated state:
 
 ```txt
-V1.1.0 improves V1 features.
-V1.5.10 fixes V1 bugs.
-V2.0.0 introduces a new major capability family.
+V1 technical progress: about 88-92%
+V1 publishable progress: about 75-80%
 ```
 
-Not allowed:
+Why publishable progress is lower than technical progress:
 
 ```txt
-V2.0.0 adds a core V1 feature that should have been required for V1 stability.
-V3.0.0 fixes basic V2 architecture that was never completed.
+- package metadata still needs release audit
+- README files need release-level polish
+- CHANGELOG.md is not yet prepared
+- pnpm pack checks are not yet documented/executed as release gates
+- public exports need final package-level review
+- npm publication strategy still needs a decision
 ```
 
-## 7. Current project state before V1
-
-Current estimated state after Timeline Sampler:
-
-```txt
-V1 technical progress: about 72-75%
-V1 publishable progress: about 58-60%
-```
-
-Already implemented or documented:
+## 5. Already implemented or documented
 
 ```txt
 motion-core architecture
 MotionDefinition
+BaseMotionDefinition
 SchemaMotionDefinition
 option schema helpers
 option validators
@@ -171,15 +92,31 @@ validation
 planning
 scheduling
 execution plan
-Timeline Sampler
 engine events
 skip event
 playback controller abstractions
+playback state
+seek(time)
+seekProgress(progress)
+jumpToLabel(label)
+playForward()
+playBackward()
+setPlaybackRate(rate)
+currentLabel
+active playback indexes
+advanced playback events
+Timeline Sampler
+Timeline Inspector
 composition compiler
 composition builder
 composition runtime shortcuts
 composition block offset placement
 composition item labels
+centralized diagnostics
+centralized diagnostic codes
+centralized diagnostic sources
+centralized playback result reasons
+centralized engine/playback event types
 motion-web driver
 motion-pack-basic
 vanilla example
@@ -187,22 +124,10 @@ custom MotionDefinition guide
 custom MotionDriver guide
 composition API guide
 timeline sampler API guide
+TSDoc public API documentation pass
 ```
 
-Main missing V1 family:
-
-```txt
-playback state
-seek/progress controls
-jumpToLabel
-reverse/backward playback model
-playback rate controls
-advanced playback events
-timeline inspection
-V1 docs and publication readiness
-```
-
-## 8. V1 objective
+## 6. V1 objective
 
 V1 must be the first stable public version.
 
@@ -210,7 +135,7 @@ V1 promise:
 
 ```txt
 A framework-agnostic TypeScript animation engine that can define, compose,
-validate, plan, inspect and control animations through a stable core API,
+validate, plan, inspect, sample and control animations through a stable core API,
 with an official Web driver and a documented extension model.
 ```
 
@@ -220,42 +145,45 @@ V1 should be good enough to use in real projects such as:
 Structifyx
 Sondatio
 visual builders
-Angular applications
-React applications
+Angular applications through future adapters
+React applications through future adapters
 vanilla Web applications
 plugin-based platforms
 ```
 
-## 9. V1 required feature set
+## 7. V1 required feature set and current status
 
-V1 is not complete until all required items are implemented, tested and documented.
+### 7.1 Core architecture and public contracts
 
-### 9.1 Core architecture and public contracts
-
-Required status for V1:
+Status:
 
 ```txt
-MotionDefinition stable
-MotionDriver stable
-MotionEngine stable
-MotionTimelineDefinition stable
-MotionCompositionDefinition stable
-MotionPlaybackController stable
-MotionPlaybackResult stable
-MotionExecutionPlan stable
+Implemented, tested, documented with TSDoc.
 ```
 
-Rules:
+Includes:
 
 ```txt
-No major public API uncertainty before V1.
-No breaking changes without deciding before V1 freeze.
-All public exports must be intentional.
+MotionDefinition
+MotionDriver
+MotionEngine
+MotionTimelineDefinition
+MotionCompositionDefinition
+MotionPlaybackController
+MotionPlaybackResult
+MotionExecutionPlan
+MotionDiagnostic
 ```
 
-### 9.2 Timeline builder and direct timeline API
+### 7.2 Timeline builder and direct timeline API
 
-Required status for V1:
+Status:
+
+```txt
+Implemented, tested, documented with TSDoc.
+```
+
+Includes:
 
 ```txt
 createMotionTimeline()
@@ -273,18 +201,18 @@ direction
 playbackRate
 ```
 
-V1 acceptance:
+### 7.3 Motion definitions and options DX
+
+Status:
 
 ```txt
-Users can build serializable timelines without writing raw objects.
-Raw MotionTimelineDefinition remains the canonical runtime model.
+Implemented, tested, documented with TSDoc.
 ```
 
-### 9.3 Motion definitions and options DX
-
-Required status for V1:
+Includes:
 
 ```txt
+BaseMotionDefinition
 SchemaMotionDefinition
 defineMotionOptions()
 option.number()
@@ -294,19 +222,19 @@ option.boolean()
 option.select()
 option.color()
 InferMotionOptions
-optionValidators
+option validators
 numeric validators
 ```
 
-V1 acceptance:
+### 7.4 Composition API
+
+Status:
 
 ```txt
-External developers can create custom motions with clear typing, defaults, validation and tests.
+Implemented, tested, documented.
 ```
 
-### 9.4 Composition API
-
-Required status for V1:
+Includes:
 
 ```txt
 MotionCompositionDefinition
@@ -320,14 +248,6 @@ composition block offset placement
 composition item labels
 ```
 
-V1 acceptance:
-
-```txt
-Users can compose registered motions and direct timelines.
-Compositions compile to MotionTimelineDefinition.
-Composition is not a second runtime.
-```
-
 V1 does not require:
 
 ```txt
@@ -337,846 +257,253 @@ composition presets
 advanced composition diagnostics object model
 ```
 
-These are V2 or V1.x candidates depending on size.
-
-### 9.5 Timeline Sampler - completed
+### 7.5 Timeline Sampler
 
 Status:
 
 ```txt
-Implemented, tested and documented.
+Implemented, tested, documented with TSDoc.
 ```
 
-Implemented APIs:
+Includes:
 
 ```txt
-sampleMotionTimeline(timeline, input)
-sampleMotionTimelineAtTime(timeline, time)
-sampleMotionTimelineAtProgress(timeline, progress)
+sampleMotionTimeline()
+sampleMotionTimelineAtTime()
+sampleMotionTimelineAtProgress()
+MotionTimelineSample
+MotionTimelineTrackSample
+MotionTimelineStepSample
 ```
 
-Implemented output includes:
-
-```txt
-time
-progress
-duration
-tracks
-activeSteps
-completedSteps
-pendingSteps
-sampled keyframe values
-```
-
-Current support:
-
-```txt
-sampling by time
-sampling by progress
-multiple tracks
-multiple steps
-pending / active / completed step status
-labels through preparation
-reverse direction
-yoyo sampling
-finite iterations
-infinite iterations with time sampling
-opacity interpolation
-custom numeric interpolation
-discrete fallback for non-numeric values
-```
-
-Current tests:
-
-```txt
-sample-motion-timeline.spec.ts: 9 tests passed
-motion-core: 302 tests passed
-```
-
-Documentation:
-
-```txt
-docs/timeline-sampler-api.md
-```
-
-Current limitations:
+Current limitations acceptable for V1:
 
 ```txt
 No advanced transform interpolation yet.
 No color interpolation yet.
 No easing curve sampling yet.
 No filter interpolation yet.
-No timeline snapshot restore API yet.
-No playback controller integration yet.
 ```
 
-### 9.6 Playback state
+### 7.6 Playback state and advanced controls
 
-Required for V1.
-
-Purpose:
+Status:
 
 ```txt
-Expose current playback position and runtime state in a platform-neutral way.
+Implemented, tested, documented with TSDoc.
 ```
 
-Required model:
+Includes:
 
 ```txt
 MotionPlaybackState
-```
-
-Required fields:
-
-```txt
-status
-currentTime
-duration
-progress
-playbackRate
-direction
-activeTrackIndexes
-activeStepIndexes
-currentLabel
-```
-
-V1 acceptance:
-
-```txt
-A playback controller can expose its state.
-A UI can display a progress bar and current time.
-```
-
-### 9.7 Playback Controller V1 advanced controls
-
-Required for V1.
-
-Current controller already supports:
-
-```txt
-pause()
-resume()
-cancel()
-finish()
-dispose()
-events
-```
-
-V1 must add or finalize:
-
-```txt
 getState()
 seek(time)
 seekProgress(progress)
 jumpToLabel(label)
-setPlaybackRate(rate)
 playForward()
-playBackward() or reverse()
+playBackward()
+setPlaybackRate(rate)
+currentLabel
+activeTrackIndexes
+activeStepIndexes
 ```
 
-V1 acceptance:
+### 7.7 Advanced playback events
+
+Status:
 
 ```txt
-Users can move to a specific millisecond.
-Users can move to a progress value.
-Users can jump to a label.
-Users can change speed.
-Users can play backward at least in the supported driver/runtime path.
-Unsupported controls return skipped, not fake success.
+Implemented, tested, documented with TSDoc.
 ```
 
-### 9.8 Advanced playback events
-
-Required minimum for V1:
+Includes:
 
 ```txt
-onUpdate
-onProgress
-onSeek
-onPlaybackRateChange
-onReverse
+seek
+progress
+playbackRateChange
+directionChange
 ```
 
-V1 optional if time allows:
+Plus base events:
 
 ```txt
-onStepStart
-onStepFinish
-onTrackStart
-onTrackFinish
-onLabelEnter
-onLabelLeave
+start
+statusChange
+pause
+resume
+cancel
+finish
+skip
+fail
 ```
 
-V1 acceptance:
+### 7.8 Timeline Inspector
+
+Status:
 
 ```txt
-A builder or debug UI can listen to playback progress and seek changes.
+Implemented, tested, documented with TSDoc.
 ```
 
-### 9.9 Timeline inspector
-
-Required for V1.
-
-Purpose:
+Includes:
 
 ```txt
-Analyze a timeline without playing it.
+inspectMotionTimeline()
+MotionTimelineInspection
+MotionTimelineTrackInspection
+MotionTimelineStepInspection
+MotionTimelineLabelInspection
 ```
 
-Required API:
+Diagnostics:
 
 ```txt
-inspectMotionTimeline(timeline)
+timeline-inspection-infinite-timeline
+timeline-inspection-long-timeline
+timeline-inspection-empty-step-keyframes
+timeline-inspection-long-step
 ```
 
-Required output:
+### 7.9 Diagnostics system
+
+Status:
 
 ```txt
-total duration
-track count
-step count
-labels
-anchors usage
-stagger usage
-animated properties
-performance warnings
-accessibility warnings
-infinite duration flag
+Implemented, tested, documented with TSDoc.
 ```
 
-V1 acceptance:
+Includes:
 
 ```txt
-Developers can understand what a timeline contains before playing it.
-A future visual builder can use this output.
+MotionDiagnosticCodes
+MotionDiagnosticSources
+MotionPlaybackResultReasons
+diagnostic factories
+playback diagnostic factories
 ```
 
-### 9.10 Accessibility and performance baseline
+## 8. Remaining V1 work
 
-Required for V1:
+The remaining V1 work is mostly release readiness, not engine feature design.
+
+Required before a public release:
 
 ```txt
-reduced motion support remains stable
-infinite playback finish behavior remains safe
-performance diagnostics remain available
-basic accessibility warnings exist in inspectMotionTimeline()
+README root updated
+README per publishable package or package docs updated
+CHANGELOG.md created
+release checklist created
+package.json metadata audited
+exports/types/files audited
+dist output audited
+pnpm pack tested for publishable packages
+examples verified against final docs
+publication strategy decided
+versioning decision made: keep 0.x pre-release or prepare 1.0.0
 ```
 
-V1 should include first-level warnings for:
+## 9. Phase V1 Refactor 10 - release package readiness
+
+Recommended sub-steps:
 
 ```txt
-infinite animations
-large movement
-filter-heavy animations
-layout-risk properties
-missing reduced motion path when relevant
+10.1 Audit root package.json.
+10.2 Audit packages/motion-core/package.json.
+10.3 Audit packages/motion-web/package.json.
+10.4 Audit packages/motion-pack-basic/package.json.
+10.5 Decide publishable packages.
+10.6 Add or refresh README.md at repository root.
+10.7 Add or refresh package-specific README files.
+10.8 Add CHANGELOG.md.
+10.9 Add docs/release-v1-checklist.md.
+10.10 Run pnpm clean/build and inspect dist.
+10.11 Run pnpm pack for publishable packages.
+10.12 Verify generated .d.ts public exports.
+10.13 Final docs examples audit.
+10.14 Final validation: format/test/typecheck/build.
 ```
 
-### 9.11 Web driver V1
+## 10. V1.x candidates
 
-Required for V1:
-
-```txt
-WebMotionDriver remains official driver
-Element target support
-self / child / selector / named target resolution
-WAAPI execution
-conflict strategy
-reduced motion
-controller support
-advanced controls where possible
-```
-
-V1 acceptance:
+After V1, compatible minor versions may add:
 
 ```txt
-The official Web driver supports the V1 controller features where technically possible.
-Unsupported features must return skipped with explicit reasons.
-```
-
-### 9.12 Basic motion pack V1
-
-Required for V1:
-
-```txt
-fade-in
-fade-out
-slide-in
-```
-
-Optional for V1:
-
-```txt
-scale-in
-scale-out
-zoom-in
-zoom-out
-rotate-in
-blur-in
-```
-
-Rule:
-
-```txt
-Do not delay V1 only to add many effects.
-The engine is more important than effect quantity.
-```
-
-### 9.13 Documentation and publication
-
-Required for V1:
-
-```txt
-README public
-installation guide
-quickstart
-core concepts
-MotionDefinition guide
-MotionDriver guide
-Composition API guide
-Timeline Sampler guide
-Playback Controller guide
-Web driver guide
-migration / versioning policy
-known limitations
-examples
-```
-
-Required publication files:
-
-```txt
-LICENSE
-CHANGELOG.md
-package metadata
-exports checked
-npm package names confirmed
-release checklist
-```
-
-## 10. V1 release checklist
-
-V1 can be published when this checklist is complete.
-
-```txt
-[ ] Public API reviewed and frozen for V1
-[x] motion-core tests pass
-[x] motion-web tests pass
-[x] motion-pack-basic tests pass
-[x] examples build pass
-[x] Timeline Sampler implemented and tested
-[ ] Playback state implemented and tested
-[ ] seek(time) implemented and tested
-[ ] seekProgress(progress) implemented and tested
-[ ] jumpToLabel(label) implemented and tested
-[ ] reverse/playBackward minimal implemented and tested
-[ ] setPlaybackRate(rate) implemented and tested
-[ ] advanced events minimum implemented and tested
-[ ] inspectMotionTimeline() implemented and tested
-[ ] Web driver supports or safely skips advanced controls
-[ ] docs updated
-[ ] README ready
-[ ] CHANGELOG ready
-[ ] npm package exports reviewed
-[ ] version tags ready
-```
-
-## 11. V1.x policy
-
-V1.x versions improve V1 without changing the V1 promise.
-
-Allowed in V1.x:
-
-```txt
-small improvements to sampler
-small playback controller improvements
-additional playback events related to V1
-additional validation warnings
-more basic motions
-better docs
+extra basic motions
+more keyframe interpolation helpers
+color interpolation in sampler
+transform interpolation in sampler
+additional diagnostics
+more Web driver conveniences
+small builder utilities that do not hide MotionTimelineDefinition
 better examples
-small helper APIs
-performance improvements
-bug fixes
+framework-specific examples without making them core dependencies
 ```
 
-Not allowed in V1.x:
+## 11. V2 candidates
+
+V2 may introduce larger capability layers:
 
 ```txt
-large plugin ecosystem
-visual editor/devtools product
-major driver ecosystem expansion
-new architecture that changes the core runtime model
-breaking API redesign without a major version
+advanced composition groups
+scene/sequence authoring model
+plugin/preset registry architecture
+framework adapters with clear boundaries
+advanced devtools integration
+builder-oriented metadata layer
+more platform drivers
 ```
 
-## 12. V1.x example roadmap
+V2 must not be used to finish missing V1 basics.
 
-### 12.1 V1.1.0 - Playback polish
+## 12. V3 exploration
 
-Possible features:
+V3 may explore product-level ecosystem ideas:
 
 ```txt
-onStepStart
-onStepFinish
-onTrackStart
-onTrackFinish
-onLabelEnter
-onLabelLeave
-better currentLabel detection
-better controller state snapshots
+visual editor integration
+marketplace-like motion pack ecosystem
+advanced timeline devtools
+AI-assisted motion authoring
+cross-platform runtime adapters
+project-level animation governance
 ```
 
-### 12.2 V1.2.0 - Timeline inspector improvements
+## 13. Do not start too early
 
-Possible features:
+Avoid before V1 release readiness:
 
 ```txt
-more accessibility warnings
-more performance warnings
-animated property grouping
-human-readable timeline summary
-inspection metadata for builders
-```
-
-### 12.3 V1.3.0 - More basic motions
-
-Possible features:
-
-```txt
-scale-in
-scale-out
-zoom-in
-zoom-out
-blur-in
-rotate-in
-```
-
-Rule:
-
-```txt
-Only add motions that use the existing V1 core model.
-```
-
-### 12.4 V1.4.0 - Composition improvements related to V1
-
-Possible features:
-
-```txt
-structured composition diagnostics
-better item label diagnostics
-composition validation helpers
-composition preview helpers using sampler
-```
-
-### 12.5 V1.5.0 - Stability and developer experience
-
-Possible features:
-
-```txt
-better error messages
-better TypeScript helper types
-better docs examples
-API reference cleanup
-compatibility test suite
-```
-
-### 12.6 V1.5.x patch releases
-
-Examples:
-
-```txt
-1.5.1 fixes a seek bug
-1.5.2 fixes a Web driver controller edge case
-1.5.10 fixes several reported bugs without adding features
-```
-
-## 13. V2 objective
-
-V2 should introduce a new major capability family after V1 is stable.
-
-Recommended V2 theme:
-
-```txt
-Advanced orchestration, modular runtime and builder-ready intelligence.
-```
-
-V2 should not finish missing V1 controls. Those must already exist in V1.
-
-## 14. V2 major feature candidates
-
-### 14.1 Nested composition groups
-
-V2 candidate.
-
-Purpose:
-
-```txt
-Compose groups of motions as reusable blocks.
-```
-
-Required V2 behavior:
-
-```txt
-group offset
-group labels
-nested placement
-group defaults
-group target override
-group validation
-group compilation to MotionTimelineDefinition
-```
-
-### 14.2 Composition reduced motion
-
-V2 candidate.
-
-Purpose:
-
-```txt
-Compile a normal composition timeline and a reduced-motion composition timeline.
-```
-
-Behavior:
-
-```txt
-call buildReducedMotionTimeline when available
-fallback safely when not available
-preserve item timing where possible
-report diagnostics for missing reduced alternatives
-```
-
-### 14.3 Structured diagnostics model
-
-V2 candidate.
-
-Purpose:
-
-```txt
-Make all important errors machine-readable for builders, AI tools and devtools.
-```
-
-Examples:
-
-```txt
-itemIndex
-trackIndex
-stepIndex
-label
-motionType
-optionName
-suggestedFix
-```
-
-### 14.4 Timeline constraints
-
-V2 candidate.
-
-Purpose:
-
-```txt
-Allow applications and builders to enforce rules.
-```
-
-Use cases:
-
-```txt
-accessibility-first products
-enterprise design systems
-builder-safe animation policies
-performance budgets
-```
-
-### 14.5 Semantic motion metadata
-
-V2 candidate.
-
-Purpose:
-
-```txt
-Describe the intention and risk profile of motions.
-```
-
-Examples:
-
-```txt
-intent: entrance | exit | feedback | attention | loading | transition
-vestibularRisk: low | medium | high
-flashingRisk: none | low | high
-reducedMotionRecommended: true
-```
-
-### 14.6 Dynamic engine event subscriptions
-
-V2 candidate.
-
-Possible API:
-
-```ts
-const unsubscribe = motion.on('play', (event) => {});
-```
-
-Use cases:
-
-```txt
-devtools
-builder preview
-runtime plugins
-analytics
-logging
-```
-
-## 15. V2 release checklist
-
-V2 can be started only after V1 is stable.
-
-```txt
-[ ] V1 API stable
-[ ] V1 docs complete
-[ ] V1 published or internally frozen
-[ ] V1 advanced playback controls complete
-[x] V1 sampler complete
-[ ] V1 inspector complete
-[ ] V2 RFC written
-[ ] Breaking changes listed
-[ ] Migration guide planned
-```
-
-V2 can be released when:
-
-```txt
-[ ] nested groups are implemented or explicitly postponed
-[ ] structured diagnostics implemented
-[ ] composition reduced motion implemented or explicitly scoped out
-[ ] constraints or semantic metadata implemented
-[ ] V2 docs complete
-[ ] V1 migration guide complete if needed
-```
-
-## 16. V2.x policy
-
-V2.x improves V2 features.
-
-Allowed:
-
-```txt
-more group features
-more diagnostics
-more constraints
-more semantic metadata
-more builder-focused helpers
-```
-
-Not allowed:
-
-```txt
-starting V3 product ecosystem before V2 core is stable
-```
-
-## 17. V3 objective
-
-V3 should move beyond core engine capability into ecosystem-level power.
-
-Recommended V3 theme:
-
-```txt
-Ecosystem, plugins, devtools, marketplace and multi-platform expansion.
-```
-
-V3 should be considered only after V1 and V2 core capabilities are stable.
-
-## 18. V3 major feature candidates
-
-### 18.1 Plugin ecosystem
-
-Possible features:
-
-```txt
-motion plugin manifests
-motion packs metadata
-plugin discovery
-plugin validation
-plugin version compatibility
-plugin capability declarations
-```
-
-### 18.2 Presets and variants system
-
-Possible features:
-
-```txt
-motion presets
-composition presets
-variants
-style/design-system mappings
-brand motion tokens
-```
-
-### 18.3 Motion devtools core protocol
-
-Possible features:
-
-```txt
-devtools event stream
-playback inspection protocol
-timeline debugging protocol
-snapshot comparison
-timeline diff
-performance panel data
-accessibility panel data
-```
-
-### 18.4 Multi-platform official drivers
-
-Possible official packages:
-
-```txt
-motion-debug
-motion-canvas
-motion-react-native
-motion-svg
-motion-lottie
-```
-
-Rule:
-
-```txt
-Do not start broad driver ecosystem work before the core playback model is stable.
-```
-
-### 18.5 Builder integration layer
-
-Possible features:
-
-```txt
-builder-safe schemas
-inspector metadata
-property editors metadata
-drag-to-timeline helpers
-AI prompt-safe schemas
-export/import pipelines
-```
-
-### 18.6 AI-assisted motion tooling
-
-Possible features:
-
-```txt
-motion explanation
-motion generation
-motion optimization suggestions
-accessibility suggestions
-semantic-to-timeline compiler
-natural language to composition
-```
-
-This should not be part of V1.
-
-## 19. V3 release checklist
-
-V3 should not start until:
-
-```txt
-[ ] V1 stable
-[ ] V2 stable
-[ ] core APIs proven in real projects
-[ ] at least one real application uses the engine
-[ ] extension points are validated
-[ ] plugin/devtools RFC exists
-```
-
-## 20. What is explicitly out of V1
-
-To keep V1 achievable, these are out of V1 unless explicitly moved back in:
-
-```txt
-full visual builder
-AI motion generator
-large driver ecosystem
-React Native official driver
-Canvas official driver
+visual builder complete
 plugin marketplace
-nested composition groups
-full devtools UI
-full accessibility automation
-full semantic motion catalog
-large preset system
+large API redesign
+new major driver ecosystem
+Angular official adapter
+React official adapter
+animation preset store
+AI authoring workflows
 ```
 
-V1 may prepare architecture for these, but should not try to complete them.
+## 14. Last known validation
 
-## 21. Recommended immediate path from now
-
-Current next steps toward V1:
+Last known complete validation passed after:
 
 ```txt
-1. Playback state model
-2. seek(time)
-3. seekProgress(progress)
-4. jumpToLabel(label)
-5. reverse/playBackward minimal
-6. setPlaybackRate(rate)
-7. advanced playback events minimum
-8. inspectMotionTimeline()
-9. V1 docs/publication cleanup
+77f3beb docs(core): add tsdoc to engine factory and base definitions
 ```
 
-Recommended next implementation phase:
+Known validation result:
 
 ```txt
-Phase Core Playback 2 - Playback State
+git status: clean
+pnpm format: OK
+pnpm test: OK
+pnpm typecheck: OK
+pnpm build: OK
+pnpm --filter @structifyx/motion-core build: OK
+motion-core: 29 test files / 328 tests passed
+motion-web: 12 test files / 159 tests passed
+motion-pack-basic: 4 test files / 25 tests passed
+examples/vanilla build OK
 ```
-
-Why:
-
-```txt
-seek needs to expose the new current time
-progress needs a stable state model
-controllers need a common state contract
-builder preview needs currentTime/progress/status
-events need a shared state payload
-```
-
-## 22. Release naming recommendation
-
-Before public V1, use pre-1.0 releases:
-
-```txt
-0.2.0 - Timeline Sampler
-0.3.0 - Playback state + seek/progress
-0.4.0 - reverse + playbackRate + events
-0.5.0 - inspector + docs cleanup
-0.6.0 - beta public candidate
-1.0.0 - stable V1
-```
-
-After V1:
-
-```txt
-1.1.0 - V1 improvement features
-1.1.1 - bugfix
-1.3.0 - mini features related to V1
-1.5.10 - bugfixes after V1.5.0
-2.0.0 - new major V2 feature family
-3.0.0 - ecosystem-level V3 feature family
-```
-
-## 23. Final decision rule
-
-Before adding any feature, ask:
-
-```txt
-Is this required for V1 stability?
-  If yes, do it before V1.
-
-Is this a small improvement directly tied to V1?
-  If yes, it can be V1.x.
-
-Is this a new major capability family?
-  If yes, move it to V2.
-
-Is this ecosystem/product expansion?
-  If yes, move it to V3.
-```
-
-This rule keeps the project powerful without becoming endless.
