@@ -1,15 +1,15 @@
 import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
-import { MotionDiagnosticCodes } from '../diagnostics/motion-diagnostic-code';
 import {
   createMotionInfoDiagnostic,
   createMotionWarningDiagnostic
 } from '../diagnostics/create-motion-diagnostic';
+import { MotionDiagnosticCodes } from '../diagnostics/motion-diagnostic-code';
 import { MotionDiagnosticSources } from '../diagnostics/motion-diagnostic-source';
 import type { MotionDiagnostic } from '../models/motion-diagnostic';
 import type { MotionKeyframe } from '../models/motion-keyframe';
+import type { PreparedMotionStep } from '../models/prepared-motion-timeline';
 import type { MotionTargetReference } from '../models/motion-target';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
-import type { PreparedMotionStep } from '../models/prepared-motion-timeline';
 import type {
   MotionTimelineInspection,
   MotionTimelineLabelInspection,
@@ -21,6 +21,16 @@ const LONG_TIMELINE_DURATION = 3000;
 const LONG_STEP_DURATION = 1500;
 const INSPECTOR_DIAGNOSTIC_SOURCE = MotionDiagnosticSources.TimelineInspector;
 
+/**
+ * Inspects a timeline and returns a developer-friendly report.
+ *
+ * The inspector prepares the timeline, summarizes tracks, labels, targets,
+ * animated properties and produces lightweight diagnostics for suspicious
+ * timelines such as infinite timelines, very long timelines or empty steps.
+ *
+ * @param timeline - Timeline to inspect.
+ * @returns Timeline inspection report.
+ */
 export function inspectMotionTimeline(
   timeline: MotionTimelineDefinition
 ): MotionTimelineInspection {

@@ -1,8 +1,8 @@
 import { prepareMotionTimeline } from '../compiler/prepare-motion-timeline';
 import { MotionPlanningError } from '../engine/motion-planning-error';
 import type { MotionKeyframe } from '../models/motion-keyframe';
-import type { PreparedMotionStep } from '../models/prepared-motion-timeline';
 import type { MotionTimelineDefinition } from '../models/motion-timeline';
+import type { PreparedMotionStep } from '../models/prepared-motion-timeline';
 import { clamp } from '../utils/clamp';
 import type {
   MotionTimelineSample,
@@ -11,6 +11,20 @@ import type {
   MotionTimelineTrackSample
 } from './motion-timeline-sample';
 
+/**
+ * Samples a timeline at a specific time or progress.
+ *
+ * The sampler prepares the timeline, resolves the requested sample time, then
+ * returns a full snapshot containing track samples, step samples and active /
+ * completed / pending step lists.
+ *
+ * This is useful for tests, previews, inspectors and playback controllers.
+ *
+ * @param timeline - Timeline to sample.
+ * @param input - Sampling input, either absolute time or progress ratio.
+ * @returns Timeline sample snapshot.
+ * @throws MotionPlanningError when the input is invalid or progress sampling is requested on an infinite timeline.
+ */
 export function sampleMotionTimeline(
   timeline: MotionTimelineDefinition,
   input: MotionTimelineSampleInput
@@ -43,6 +57,13 @@ export function sampleMotionTimeline(
   };
 }
 
+/**
+ * Samples a timeline at an absolute time in milliseconds.
+ *
+ * @param timeline - Timeline to sample.
+ * @param time - Absolute time in milliseconds.
+ * @returns Timeline sample snapshot.
+ */
 export function sampleMotionTimelineAtTime(
   timeline: MotionTimelineDefinition,
   time: number
@@ -52,6 +73,13 @@ export function sampleMotionTimelineAtTime(
   });
 }
 
+/**
+ * Samples a timeline at a progress ratio.
+ *
+ * @param timeline - Timeline to sample.
+ * @param progress - Progress ratio where `0` means start and `1` means end.
+ * @returns Timeline sample snapshot.
+ */
 export function sampleMotionTimelineAtProgress(
   timeline: MotionTimelineDefinition,
   progress: number
