@@ -586,7 +586,11 @@ A driver executes plans on a platform.
 Minimal shape:
 
 ```ts
-import type { MotionDriver, MotionPlayOptions, MotionPlaybackResult } from '@structifyx/motion-core';
+import type {
+  MotionDriver,
+  MotionPlayOptions,
+  MotionPlaybackResult
+} from '@structifyx/motion-core';
 
 export class MyDriver implements MotionDriver<MyTarget> {
   readonly name = 'my-driver';
