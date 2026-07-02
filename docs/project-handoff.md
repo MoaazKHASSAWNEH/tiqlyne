@@ -1,10 +1,11 @@
 # Structifyx Motion Engine - Document de reprise projet
 
 > Status: document de reprise principal.
-> Objectif: permettre a Moaaz, a un autre agent LLM ou a un developpeur de reprendre le projet exactement au bon point.
-> Dernier etat verifie: apres `4a7161d feat(core): add playback state model`.
+> Objectif: permettre a Moaaz, a un autre agent ChatGPT/LLM ou a un developpeur de reprendre le projet exactement au bon point.
+> Dernier etat verifie: apres `77f3beb docs(core): add tsdoc to engine factory and base definitions`.
+> Derniere validation complete connue: `pnpm format`, `pnpm test`, `pnpm typecheck`, `pnpm build`, puis build cible `@structifyx/motion-core` OK.
 
-Ce document doit etre lu avant de modifier le code.
+Ce document doit etre lu avant de modifier le projet.
 
 ## 1. Identite du projet
 
@@ -20,41 +21,23 @@ Branche principale actuelle:
 main
 ```
 
-Objectif du projet: construire un moteur d'animation TypeScript, framework-agnostic, fortement type, extensible, utilisable dans plusieurs produits ou frameworks.
-
-Pipeline conceptuel:
+Package scope:
 
 ```txt
-config utilisateur / composition / direct timeline
-  -> normalisation ou compilation
-  -> defaults
-  -> validation
-  -> preparation
-  -> scheduling
-  -> execution plan
-  -> driver plateforme
-  -> playback result / playback controller
+@structifyx
 ```
 
-Regles importantes:
+Objectif du projet: construire un moteur d'animation TypeScript, framework-agnostic, fortement type, extensible, documente et utilisable dans plusieurs produits ou frameworks.
+
+Le moteur doit servir de base officielle pour:
 
 ```txt
-MotionCompositionDefinition -> compileMotionComposition() -> MotionTimelineDefinition.
-La composition est une couche d'authoring/orchestration, pas un deuxieme runtime.
-MotionDriver = adaptateur plateforme, pas definition d'effet reutilisable.
-Timeline Sampler = lecture pure de l'etat temporel d'une timeline sans driver.
-Playback State = etat commun expose par tous les MotionPlaybackController.
-```
-
-Documents a lire:
-
-```txt
-docs/version-roadmap-v1-v2-v3.md
-docs/timeline-sampler-api.md
-docs/playback-state-api.md
-docs/motion-composition-api.md
-docs/writing-custom-motion-definition.md
-docs/writing-custom-motion-driver.md
+- Structifyx
+- Sondatio
+- futurs builders visuels
+- applications Web vanilla
+- integrations Angular / React / autres frameworks via adaptateurs
+- plateformes dynamiques et plugin-based
 ```
 
 ## 2. Regle de travail importante
@@ -62,11 +45,25 @@ docs/writing-custom-motion-driver.md
 Regle utilisateur actuelle:
 
 ```txt
-Ne pas toucher directement au code source du depot GitHub sans autorisation explicite.
-Les modifications directes autorisees ici concernent uniquement les fichiers docs.
+Ne pas modifier le code source directement sans autorisation explicite.
+Les modifications directes autorisees dans cette demande concernent uniquement les fichiers docs.
 ```
 
-Pour le code source, donner les patchs, les contenus de fichiers ou les instructions locales. Pour les docs, les mises a jour directes sur GitHub sont autorisees.
+Pour le code source:
+
+```txt
+- fournir des patchs
+- fournir des contenus de fichiers a copier
+- fournir des commandes locales
+- ne pas pousser de code sans autorisation explicite
+```
+
+Pour les fichiers docs:
+
+```txt
+- les mises a jour directes sur GitHub sont autorisees dans cette phase
+- ne pas modifier les fichiers TypeScript pendant cette phase
+```
 
 ## 3. Stack technique
 
@@ -95,91 +92,44 @@ return {
 
 Ne pas retourner une propriete optionnelle avec `undefined`.
 
-## 4. Etat actuel de `@structifyx/motion-core`
+## 4. Packages du monorepo
+
+### 4.1 `@structifyx/motion-core`
 
 Role:
 
 ```txt
 - contrats publics
-- modeles
-- normalisation
+- modeles serialisables
 - registry
-- moteur par defaut
-- diagnostics
+- normalisation des MotionConfig
+- engine par defaut
+- diagnostics structures
 - validation
-- defaults
+- defaults timeline/track/step
 - preparation de timeline
 - scheduling
 - execution plan
 - timeline sampler
-- playback state
-- controllers generiques
-- drivers neutres de test
+- timeline inspector
+- composition/orchestration
+- playback controller contracts
+- playback state model
+- playback result reasons
+- event types
+- drivers neutres de test/noop
 - helpers DX pour custom MotionDefinition
-- composition/orchestration de motions et timelines
 ```
 
-Regle absolue: `motion-core` ne doit pas importer DOM, WAAPI, Angular, React, GSAP ou une API navigateur.
-
-API sampler actuellement disponible:
+Regle absolue:
 
 ```txt
-sampleMotionTimeline()
-sampleMotionTimelineAtTime()
-sampleMotionTimelineAtProgress()
-MotionTimelineSample
-MotionTimelineTrackSample
-MotionTimelineStepSample
-MotionSampleStepStatus
-MotionTimelineSampleInput
+motion-core ne doit pas importer DOM, WAAPI, Angular, React, GSAP ou une API navigateur.
 ```
 
-API playback state actuellement disponible:
+### 4.2 `@structifyx/motion-web`
 
-```txt
-MotionPlaybackState
-MotionPlaybackDirectionState
-MotionPlaybackController.getState()
-```
-
-Comportement playback state actuel:
-
-```txt
-- PromiseMotionPlaybackController expose status, playbackRate 1, direction forward, timing null.
-- WebMotionPlaybackController expose currentTime/duration/progress quand les animations Web le permettent.
-- activeTrackIndexes, activeStepIndexes et currentLabel sont reserves pour l'integration sampler/seek.
-```
-
-API composition actuellement disponible:
-
-```txt
-MotionCompositionDefinition
-RegisteredMotionCompositionItem
-TimelineCompositionItem
-CompileMotionCompositionContext
-createMotionComposition()
-MotionCompositionBuilder
-compileMotionComposition()
-motion.planComposition()
-motion.playComposition()
-motion.createCompositionPlayback()
-composition block offset placement
-composition item labels
-```
-
-Limitations composition restantes:
-
-```txt
-- pas encore groupes imbriques
-- pas encore reduced motion specifique par item
-- pas encore diagnostics structures specialises composition
-- pas encore presets/variants
-- pas encore materialisation de label depuis anchor position
-```
-
-## 5. Autres packages
-
-### `@structifyx/motion-web`
+Role:
 
 ```txt
 - WebMotionDriver
@@ -190,10 +140,11 @@ Limitations composition restantes:
 - reduced motion Web
 - conflict strategy Web
 - WebMotionPlaybackController
-- getState() Web base sur Animation.currentTime, endTime et playbackRate quand disponible
+- controles avancees: seek, progress seek, jumpToLabel, direction, playbackRate
+- getState() base sur Animation.currentTime, duration, playbackRate et sampler quand possible
 ```
 
-### `@structifyx/motion-pack-basic`
+### 4.3 `@structifyx/motion-pack-basic`
 
 Motions actuelles:
 
@@ -209,74 +160,475 @@ Etat DX actuel:
 - les trois motions utilisent SchemaMotionDefinition
 - les options utilisent defineMotionOptions()
 - les types publics utilisent InferMotionOptions
-- fade-in utilise validateIncreasing pour garantir une opacite montante
-- fade-out utilise validateDecreasing pour garantir une opacite descendante
+- fade-in utilise validateIncreasing
+- fade-out utilise validateDecreasing
 - slide-in utilise option.select/range/boolean et conserve buildReducedMotionTimeline()
 ```
 
-## 6. Roadmap V1 actuelle
+### 4.4 `examples/vanilla`
 
-Timeline Sampler et Playback State sont termines pour leur premiere version.
-
-Prochaines etapes V1 recommandees:
+Role:
 
 ```txt
-1. seek(time)
-2. seekProgress(progress)
-3. jumpToLabel(label)
-4. reverse/playBackward minimal
-5. setPlaybackRate(rate)
-6. advanced playback events minimum
-7. inspectMotionTimeline()
-8. V1 docs/publication cleanup
+- exemple d'integration Web
+- validation manuelle du driver Web
+- demonstration du basic pack
+- demonstration composition/controller selon l'etat actuel de l'exemple
 ```
 
-## 7. Commandes de validation
+## 5. Pipeline conceptuel
 
-Commandes globales recommandees avant chaque commit:
+```txt
+MotionConfig / MotionCompositionDefinition / MotionTimelineDefinition
+  -> normalisation ou compilation
+  -> defaults
+  -> validation
+  -> preparation
+  -> scheduling
+  -> execution plan
+  -> driver plateforme
+  -> playback result / playback controller / diagnostics / events
+```
+
+Regles importantes:
+
+```txt
+MotionTimelineDefinition = source runtime serialisable.
+MotionCompositionDefinition = source authoring/orchestration serialisable.
+MotionCompositionDefinition -> compileMotionComposition() -> MotionTimelineDefinition.
+La composition n'est pas un deuxieme runtime.
+MotionDriver = adaptateur plateforme, pas definition d'effet reutilisable.
+Timeline Sampler = lecture pure de l'etat temporel d'une timeline sans driver.
+Timeline Inspector = rapport developer tooling sans execution.
+Playback State = etat commun expose par MotionPlaybackController.
+Diagnostics = messages structures, pas exceptions systematiques.
+Reasons = raison stable d'un MotionPlaybackResult.
+```
+
+## 6. API publique actuelle importante
+
+### 6.1 Engine
+
+```txt
+createMotionEngine()
+MotionEngine
+MotionEngineConfig
+DefaultMotionEngine
+MotionEngineEvents
+MotionEngineEventTypes
+MotionEngineEventSources
+```
+
+Capacites actuelles du moteur:
+
+```txt
+register()
+registerMany()
+has()
+get()
+getAll()
+getByCategory()
+play()
+playTimeline()
+plan()
+planTimeline()
+playComposition()
+planComposition()
+createPlayback()
+createTimelinePlayback()
+createCompositionPlayback()
+cancel()
+finish()
+reset()
+```
+
+### 6.2 Definitions et options
+
+```txt
+MotionDefinition
+BaseMotionDefinition
+SchemaMotionDefinition
+MotionBuildContext
+defineMotionOptions()
+InferMotionOptions
+MotionOptionsSchema
+option.number()
+option.range()
+option.string()
+option.boolean()
+option.select()
+option.color()
+MotionOptionValidator
+validateDifferent()
+validateGreaterThan()
+validateGreaterThanOrEqual()
+validateLessThan()
+validateLessThanOrEqual()
+validateIncreasing()
+validateDecreasing()
+```
+
+### 6.3 Timelines
+
+```txt
+MotionTimelineDefinition
+MotionTrackDefinition
+MotionStepDefinition
+MotionKeyframe
+MotionTargetReference
+MotionTimelineDefaults
+MotionTimelineLabels
+MotionStepPosition
+MotionLabelStepPosition
+MotionAnchorStepPosition
+MotionPlaybackDirection
+MotionIterationCount
+MotionStaggerDefinition
+createMotionTimeline()
+createMotionTimelineBuilder()
+MotionTimelineBuilder
+MotionTrackBuilder
+MotionStepBuilder
+```
+
+### 6.4 Planning / scheduling
+
+```txt
+createMotionExecutionPlan()
+createMotionExecutionPlanSummary()
+MotionExecutionPlan
+MotionExecutionPlanSummary
+prepareMotionTimeline()
+scheduleMotionTimeline()
+applyMotionTimelineDefaults()
+resolveMotionStepPosition()
+```
+
+### 6.5 Playback controllers
+
+```txt
+MotionPlaybackController
+MotionPlaybackControllerStatus
+MotionPlaybackState
+MotionPlaybackDirectionState
+MotionPlaybackResult
+MotionPlaybackStatus
+MotionPlaybackResultReasons
+MotionPlaybackEvent
+MotionPlaybackEventTypes
+MotionPlaybackEventListener
+PromiseMotionPlaybackController
+BaseMotionPlaybackController
+```
+
+Controles V1 implementes:
+
+```txt
+pause()
+resume()
+cancel()
+finish()
+dispose()
+getState()
+seek(time)
+seekProgress(progress)
+jumpToLabel(label)
+playForward()
+playBackward()
+setPlaybackRate(rate)
+on()
+once()
+```
+
+### 6.6 Diagnostics
+
+```txt
+MotionDiagnostic
+MotionDiagnosticLevel
+MotionDiagnosticMetadata
+MotionDiagnosticCodes
+MotionDiagnosticCode
+MotionDiagnosticSources
+MotionDiagnosticSource
+createMotionDiagnostic()
+createMotionInfoDiagnostic()
+createMotionWarningDiagnostic()
+createMotionErrorDiagnostic()
+createPlaybackInvalidTransitionDiagnostic()
+createPlaybackUnsupportedDiagnostic()
+createPlaybackInvalidInputDiagnostic()
+createPlaybackOperationFailedDiagnostic()
+```
+
+### 6.7 Composition
+
+```txt
+MotionCompositionDefinition
+MotionCompositionItem
+RegisteredMotionCompositionItem
+TimelineCompositionItem
+CompileMotionCompositionContext
+createMotionComposition()
+MotionCompositionBuilder
+compileMotionComposition()
+```
+
+Etat actuel:
+
+```txt
+- composition de motions enregistrees et de timelines directes
+- block offset placement via item.at
+- labels d'items
+- references a des labels precedents
+- compilation vers MotionTimelineDefinition
+- runtime shortcuts dans MotionEngine
+```
+
+Limitations connues:
+
+```txt
+- pas encore de groupes imbriques
+- pas encore de reduced motion specifique par item
+- pas encore de presets/variants de composition
+- diagnostics composition encore simples par rapport a un futur systeme avance
+```
+
+### 6.8 Sampler et inspector
+
+```txt
+sampleMotionTimeline()
+sampleMotionTimelineAtTime()
+sampleMotionTimelineAtProgress()
+MotionTimelineSample
+MotionTimelineTrackSample
+MotionTimelineStepSample
+MotionSampleStepStatus
+MotionTimelineSampleInput
+inspectMotionTimeline()
+MotionTimelineInspection
+MotionTimelineTrackInspection
+MotionTimelineStepInspection
+MotionTimelineLabelInspection
+```
+
+Sampler supporte actuellement:
+
+```txt
+- sampling par time
+- sampling par progress sur timeline finie
+- pending / active / completed
+- reverse direction
+- yoyo
+- iterations finies et infinies
+- interpolation opacity
+- interpolation custom numerique
+- fallback discret pour les valeurs non numeriques
+```
+
+Inspector supporte actuellement:
+
+```txt
+- duree totale
+- nombre de tracks
+- nombre de steps
+- labels tries
+- targets uniques
+- proprietes animees
+- diagnostics pour timeline infinie
+- diagnostics pour timeline longue
+- diagnostics pour step longue
+- diagnostics pour step sans keyframes
+```
+
+## 7. Etat V1 actuel
+
+La phase suivante est la preparation release V1.
+
+Etat estime:
+
+```txt
+V1 technical progress: environ 88-92%
+V1 publishable progress: environ 75-80%
+```
+
+Deja termine:
+
+```txt
+- architecture core/driver
+- direct timeline API
+- createMotionEngine facade
+- engine defaults
+- validation config
+- registry helpers
+- event system global
+- skip event
+- execution plan
+- scheduling
+- stagger / labels / anchors
+- playback timing options
+- iterations / yoyo / infinite
+- MotionDefinition DX
+- SchemaMotionDefinition
+- option schemas
+- option validators
+- basic pack migration
+- composition compiler
+- composition builder
+- composition runtime shortcuts
+- composition item labels
+- timeline sampler
+- playback state
+- seek(time)
+- seekProgress(progress)
+- jumpToLabel(label)
+- playForward/playBackward
+- setPlaybackRate(rate)
+- currentLabel
+- active indexes
+- advanced playback events
+- timeline inspector
+- centralized diagnostics
+- centralized diagnostic codes
+- centralized diagnostic sources
+- centralized playback result reasons
+- centralized engine/playback event types
+- TSDoc public API pass
+```
+
+A ne pas oublier:
+
+```txt
+- V1 n'est pas encore publiee.
+- Le root package.json est private.
+- Les packages sont en 0.1.0.
+- La prochaine etape est la finalisation release/package/docs, pas un nouveau gros feature set.
+```
+
+## 8. Derniere validation complete connue
+
+Derniere validation observee apres:
+
+```txt
+77f3beb docs(core): add tsdoc to engine factory and base definitions
+```
+
+Commandes passees:
+
+```bash
+git status
+pnpm format
+pnpm test
+pnpm typecheck
+pnpm build
+pnpm --filter @structifyx/motion-core build
+```
+
+Resultat:
+
+```txt
+git status: working tree clean
+motion-core: 29 test files passed / 328 tests passed
+motion-web: 12 test files passed / 159 tests passed
+motion-pack-basic: 4 test files passed / 25 tests passed
+examples/vanilla build OK
+@structifyx/motion-core build OK
+```
+
+## 9. Commandes de validation recommandees
+
+Avant chaque commit:
 
 ```bash
 pnpm format
 pnpm test
+pnpm typecheck
 pnpm build
 ```
 
-Commandes ciblees:
+Validation ciblee:
 
 ```bash
-pnpm --filter @structifyx/motion-core build
 pnpm --filter @structifyx/motion-core test
+pnpm --filter @structifyx/motion-core typecheck
+pnpm --filter @structifyx/motion-core build
 
-pnpm --filter @structifyx/motion-web build
 pnpm --filter @structifyx/motion-web test
+pnpm --filter @structifyx/motion-web typecheck
+pnpm --filter @structifyx/motion-web build
 
-pnpm --filter @structifyx/motion-pack-basic build
 pnpm --filter @structifyx/motion-pack-basic test
+pnpm --filter @structifyx/motion-pack-basic typecheck
+pnpm --filter @structifyx/motion-pack-basic build
 ```
 
-Derniere validation complete connue:
+Audit exports publics:
 
-```txt
-motion-core: 23 test files passed
-motion-core: 305 tests passed
-motion-pack-basic: 4 test files passed
-motion-pack-basic: 25 tests passed
-motion-web: 12 test files passed
-motion-web: 159 tests passed
-motion-core build OK
-motion-web build OK
-motion-pack-basic build OK
-examples/vanilla build OK
+```bash
+grep -R "MotionDiagnosticCodes" -n packages/motion-core/src/index.ts
+grep -R "MotionPlaybackResultReasons" -n packages/motion-core/src/index.ts
+grep -R "SchemaMotionDefinition" -n packages/motion-core/src/index.ts
 ```
 
-Validation observee apres:
+## 10. Documentation a lire pour reprendre
+
+Lire dans cet ordre:
 
 ```txt
-4a7161d feat(core): add playback state model
+1. docs/chatgpt-project-resume.md
+2. docs/project-handoff.md
+3. docs/developer-api-guide-current-status.md
+4. docs/complete-usage-guide.md
+5. docs/version-roadmap-v1-v2-v3.md
+6. docs/developer-api-guide.md
+7. docs/writing-custom-motion-definition.md
+8. docs/writing-custom-motion-driver.md
+9. docs/motion-composition-api.md
+10. docs/timeline-sampler-api.md
+11. docs/playback-controller-behavior.md
+12. docs/web-driver-quickstart.md
 ```
 
-Derniere mise a jour documentation:
+## 11. Prochaine etape recommandee
+
+Phase suivante:
 
 ```txt
-68be4c9 docs: add playback state API guide
+Phase V1 Refactor 10 - finalisation release V1 package
+```
+
+Objectif:
+
+```txt
+Preparer le moteur pour une release V1 publique ou pre-release propre.
+```
+
+Sous-etapes recommandees:
+
+```txt
+10.1 Audit package.json des packages
+10.2 Audit exports publics et types .d.ts
+10.3 Rediger ou mettre a jour README racine
+10.4 Rediger README par package si necessaire
+10.5 Creer CHANGELOG.md
+10.6 Creer docs/release-v1-checklist.md
+10.7 Tester pnpm pack sur les packages publiables
+10.8 Verifier files/dist/exports/main/types
+10.9 Decider version: rester 0.1.0 ou passer en 1.0.0 plus tard
+10.10 Derniere validation complete avant release
+```
+
+Ne pas commencer maintenant:
+
+```txt
+- visual builder complet
+- nouveau driver majeur
+- plugin ecosystem complet
+- integration Angular/React officielle
+- refonte d'API publique sans raison forte
+```
+
+## 12. Message court a donner a un nouveau ChatGPT
+
+```txt
+Lis docs/chatgpt-project-resume.md puis docs/project-handoff.md. Le projet est un monorepo TypeScript pnpm nomme motion-engine, avec packages @structifyx/motion-core, @structifyx/motion-web et @structifyx/motion-pack-basic. La phase TSDoc public API est terminee au commit 77f3beb. Ne modifie pas le code sans autorisation. La prochaine etape est Phase V1 Refactor 10: finalisation release V1 package/docs/publication readiness.
 ```
