@@ -1,24 +1,70 @@
-import { DefaultMotionStepBuilder } from './motion-step-builder';
-import { normalizeMotionTargetInput } from './normalize-motion-target-input';
-import type { MotionTargetInput } from './normalize-motion-target-input';
-import type { MotionStepBuilder, MotionStepBuilderOptions } from './motion-step-builder';
 import type {
   MotionStaggerDefinition,
   MotionStepDefinition,
   MotionTimelineDefaults,
   MotionTrackDefinition
 } from '../models/motion-timeline';
+import type { MotionStepBuilder, MotionStepBuilderOptions } from './motion-step-builder';
+import { DefaultMotionStepBuilder } from './motion-step-builder';
+import type { MotionTargetInput } from './normalize-motion-target-input';
+import { normalizeMotionTargetInput } from './normalize-motion-target-input';
 
+/**
+ * Callback used to configure a step inside a track builder.
+ */
 export type MotionStepBuilderCallback = (step: MotionStepBuilder) => void;
 
+/**
+ * Fluent builder used to create a motion track.
+ *
+ * A track targets one or more runtime elements and contains ordered animation
+ * steps for those targets.
+ */
 export type MotionTrackBuilder = {
+  /**
+   * Sets defaults applied to all steps in this track.
+   *
+   * @param defaults - Track-level defaults.
+   * @returns The same builder for chaining.
+   */
   defaults(defaults: MotionTimelineDefaults): MotionTrackBuilder;
+
+  /**
+   * Sets stagger behavior for multiple resolved targets.
+   *
+   * @param stagger - Stagger definition.
+   * @returns The same builder for chaining.
+   */
   stagger(stagger: MotionStaggerDefinition): MotionTrackBuilder;
+
+  /**
+   * Adds a step with default step options.
+   *
+   * @param callback - Function that configures the step builder.
+   * @returns The same builder for chaining.
+   */
   step(callback: MotionStepBuilderCallback): MotionTrackBuilder;
+
+  /**
+   * Adds a step with explicit step options.
+   *
+   * @param options - Step options such as timing, easing or position.
+   * @param callback - Function that configures the step builder.
+   * @returns The same builder for chaining.
+   */
   step(options: MotionStepBuilderOptions, callback: MotionStepBuilderCallback): MotionTrackBuilder;
+
+  /**
+   * Builds an immutable track definition snapshot.
+   *
+   * @returns Track definition.
+   */
   build(): MotionTrackDefinition;
 };
 
+/**
+ * Default implementation of {@link MotionTrackBuilder}.
+ */
 export class DefaultMotionTrackBuilder implements MotionTrackBuilder {
   private readonly stepDefinitions: MotionStepDefinition[] = [];
   private trackDefaults: MotionTimelineDefaults | undefined;
