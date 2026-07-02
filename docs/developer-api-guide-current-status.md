@@ -3,13 +3,19 @@
 > Status: documentation addendum.
 > Purpose: keep the developer documentation aligned with the current implementation.
 > Scope: documentation only.
-> Last verified state: after `e263246 feat(core): add timeline sampler`.
+> Last verified state: after `77f3beb docs(core): add tsdoc to engine factory and base definitions`.
 
 ## 1. Why this addendum exists
 
-`docs/developer-api-guide.md` is the main developer-facing guide, but it was written while the API was still moving quickly.
+`docs/developer-api-guide.md` is the historical developer-facing guide, but the API has moved quickly.
 
-This addendum summarizes the current implementation state and points to the smaller reference documents that should be trusted for recent behavior.
+This addendum is the source of truth for the current implementation state. It should be read with:
+
+```txt
+docs/project-handoff.md
+docs/chatgpt-project-resume.md
+docs/complete-usage-guide.md
+```
 
 ## 2. Current maturity level
 
@@ -20,44 +26,227 @@ Architecture foundation: strong
 Core / driver separation: strong
 Direct API usability: good
 Registry workflow: good
-Global config: first version ready
-Engine events: first version implemented
+Global config: implemented
+Engine events: implemented
 Skip event: implemented
-Playback controller: implemented
-Timeline Sampler: implemented and tested
-Web driver: implemented and tested
-Vanilla example: infinite/yoyo/controller + composition demo
-Versioning policy: written
-Custom MotionDefinition guide: written
-Custom MotionDriver guide: written
-Timeline Sampler guide: written
-Composition API guide: written
+Playback controller base lifecycle: implemented
+Playback state: implemented
+Seek/progress controls: implemented
+Jump to label: implemented
+Forward/backward direction controls: implemented
+Playback rate controls: implemented
+Advanced playback events: implemented
+Timeline sampler: implemented and tested
+Timeline inspector: implemented and tested
 Composition compiler: implemented
 Composition builder: implemented
 Composition runtime shortcuts: implemented
 Composition block offset placement: implemented
 Composition item labels: implemented
-Playback state: not yet implemented
-Advanced seek/progress controls: not yet implemented
-Timeline inspector: not yet implemented
+Centralized diagnostics: implemented
+Centralized diagnostic codes: implemented
+Centralized diagnostic sources: implemented
+Centralized playback result reasons: implemented
+Centralized event types: implemented
+TSDoc public API pass: completed
+Web driver: implemented and tested
+Basic motion pack: implemented and tested
+Vanilla example: builds successfully
+Versioning policy: written but should be refreshed before release
+Publication readiness: next phase
+```
+
+Current package state:
+
+```txt
+root package: private true
+workspace version: 0.1.0
+@structifyx/motion-core: 0.1.0
+@structifyx/motion-web: 0.1.0
+@structifyx/motion-pack-basic: 0.1.0
 ```
 
 ## 3. Current usage modes
 
-The engine supports these main usage modes:
+The engine currently supports these main usage modes:
 
 ```txt
 registered motions
 direct timelines
-timeline sampling
 motion compositions
+timeline sampling
+timeline inspection
+playback controllers
 custom motion definitions
 custom motion drivers
+web execution through motion-web
 ```
 
-## 4. Timeline sampling
+## 4. Current public API groups
 
-Timeline Sampler is now implemented in `motion-core`.
+### 4.1 Engine
+
+```txt
+createMotionEngine()
+MotionEngine
+MotionEngineConfig
+DefaultMotionEngine
+MotionEngineEvents
+MotionEngineEventTypes
+MotionEngineEventSources
+```
+
+Important engine methods:
+
+```txt
+register()
+registerMany()
+has()
+get()
+getAll()
+getByCategory()
+play()
+playTimeline()
+playComposition()
+plan()
+planTimeline()
+planComposition()
+createPlayback()
+createTimelinePlayback()
+createCompositionPlayback()
+cancel()
+finish()
+reset()
+```
+
+### 4.2 Timeline and builder
+
+```txt
+MotionTimelineDefinition
+MotionTrackDefinition
+MotionStepDefinition
+MotionTimelineDefaults
+MotionTimelineLabels
+MotionStepPosition
+MotionTargetReference
+MotionKeyframe
+createMotionTimeline()
+createMotionTimelineBuilder()
+MotionTimelineBuilder
+MotionTrackBuilder
+MotionStepBuilder
+```
+
+### 4.3 Motion definitions and options
+
+```txt
+MotionDefinition
+BaseMotionDefinition
+SchemaMotionDefinition
+MotionBuildContext
+defineMotionOptions()
+DefinedMotionOptions
+InferMotionOptions
+MotionOptionsSchema
+option.number()
+option.range()
+option.string()
+option.boolean()
+option.select()
+option.color()
+MotionOptionValidator
+runMotionOptionValidators()
+validateDifferent()
+validateGreaterThan()
+validateGreaterThanOrEqual()
+validateLessThan()
+validateLessThanOrEqual()
+validateIncreasing()
+validateDecreasing()
+```
+
+### 4.4 Composition
+
+```txt
+MotionCompositionDefinition
+RegisteredMotionCompositionItem
+TimelineCompositionItem
+CompileMotionCompositionContext
+createMotionComposition()
+MotionCompositionBuilder
+compileMotionComposition()
+motion.planComposition()
+motion.playComposition()
+motion.createCompositionPlayback()
+```
+
+Current composition behavior:
+
+```txt
+- item.at shifts the compiled item as a block.
+- item.label creates a numeric timeline label from the item position.
+- later items may reference earlier labels.
+- composition compiles to MotionTimelineDefinition before runtime playback.
+```
+
+### 4.5 Playback controller
+
+Current controller methods:
+
+```txt
+getState()
+seek(time)
+seekProgress(progress)
+jumpToLabel(label)
+playForward()
+playBackward()
+setPlaybackRate(rate)
+pause()
+resume()
+cancel()
+finish()
+on()
+once()
+dispose()
+```
+
+Current playback state fields:
+
+```txt
+status
+currentTime
+duration
+progress
+playbackRate
+direction
+activeTrackIndexes
+activeStepIndexes
+currentLabel
+```
+
+Current advanced playback event types:
+
+```txt
+seek
+progress
+playbackRateChange
+directionChange
+```
+
+Base playback event types also include:
+
+```txt
+start
+statusChange
+pause
+resume
+cancel
+finish
+skip
+fail
+```
+
+### 4.6 Timeline sampler
 
 Main APIs:
 
@@ -67,19 +256,12 @@ sampleMotionTimelineAtTime()
 sampleMotionTimelineAtProgress()
 ```
 
-Purpose:
-
-```txt
-Compute timeline state at a specific time or progress without playing the animation.
-```
-
 Current sampler support:
 
 ```txt
 sampling by time
 sampling by progress on finite timelines
 pending / active / completed step status
-labels through preparation
 reverse direction
 yoyo sampling
 finite and infinite iterations
@@ -94,188 +276,57 @@ Progress sampling on infinite timelines throws:
 timeline-sample-infinite-progress-unsupported
 ```
 
-Timeline sampling does not emit engine events because it does not play, plan through the engine facade, or call a driver.
+### 4.7 Timeline inspector
 
-For the complete sampler reference:
-
-```txt
-docs/timeline-sampler-api.md
-```
-
-## 5. Composition status
-
-Composition rule:
+Main API:
 
 ```txt
-MotionCompositionDefinition
-  -> compileMotionComposition()
-  -> MotionTimelineDefinition
-  -> planTimeline() / playTimeline() / createTimelinePlayback()
+inspectMotionTimeline()
 ```
 
-Available composition APIs:
+Current inspector output:
 
 ```txt
-MotionCompositionDefinition
-createMotionComposition()
-MotionCompositionBuilder
-compileMotionComposition()
-motion.planComposition()
-motion.playComposition()
-motion.createCompositionPlayback()
+totalDuration
+trackCount
+stepCount
+labelCount
+labels
+targets
+animatedProperties
+tracks
+diagnostics
 ```
 
-Current behavior:
+Current inspector diagnostics:
 
 ```txt
-item.at shifts the compiled item as a block.
-item.label creates a numeric timeline label from item.at.
-later items may reference earlier item labels.
+timeline-inspection-infinite-timeline
+timeline-inspection-long-timeline
+timeline-inspection-empty-step-keyframes
+timeline-inspection-long-step
 ```
 
-Composition label errors currently include:
+### 4.8 Diagnostics and reasons
 
 ```txt
-composition-duplicate-label
-composition-item-label-reference-missing
-composition-item-label-anchor-position-unsupported
+MotionDiagnostic
+MotionDiagnosticCodes
+MotionDiagnosticSources
+MotionPlaybackResultReasons
+createMotionDiagnostic()
+createMotionInfoDiagnostic()
+createMotionWarningDiagnostic()
+createMotionErrorDiagnostic()
+createPlaybackInvalidTransitionDiagnostic()
+createPlaybackUnsupportedDiagnostic()
+createPlaybackInvalidInputDiagnostic()
+createPlaybackOperationFailedDiagnostic()
 ```
 
-## 6. Custom motion definitions
+Diagnostic codes are for structured details. Playback result reasons summarize operation outcomes.
 
-The recommended way to create reusable custom motions is documented in:
-
-```txt
-docs/writing-custom-motion-definition.md
-```
-
-The recommended API is:
-
-```txt
-SchemaMotionDefinition
-defineMotionOptions()
-option.*
-optionValidators
-createMotionTimeline()
-```
-
-Current reusable option validators include:
-
-```txt
-validateDifferent()
-validateGreaterThan()
-validateGreaterThanOrEqual()
-validateLessThan()
-validateLessThanOrEqual()
-validateIncreasing()
-validateDecreasing()
-```
-
-## 7. Custom motion drivers
-
-The recommended way to create a platform adapter is documented in:
-
-```txt
-docs/writing-custom-motion-driver.md
-```
-
-The driver rule is:
-
-```txt
-MotionDriver = platform execution adapter
-MotionDefinition = reusable animation definition
-```
-
-The current driver contract is intentionally small:
-
-```txt
-name
-play()
-optional cancel()
-optional finish()
-optional reset()
-optional createPlayback()
-```
-
-## 8. Event system summary
-
-The current engine event system exposes these callbacks:
-
-```txt
-onBeforePlan
-onPlan
-onPlay
-onFinish
-onCancel
-onSkip
-onError
-```
-
-The current implementation deliberately does not include:
-
-```txt
-onProgress
-onPause
-onResume
-onRepeat
-onReverse
-onSeek
-onStepStart
-onStepFinish
-onTrackStart
-onTrackFinish
-onEveryFrame
-dynamic motion.on(...) subscriptions
-engine listener unsubscribe support
-composition-specific event source
-```
-
-Do not document those as available until implemented and tested.
-
-## 9. Playback controller status
-
-Playback controllers currently support:
-
-```txt
-pause()
-resume()
-cancel()
-finish()
-dispose()
-events
-```
-
-Advanced controller methods are not implemented yet:
-
-```txt
-getState()
-seek()
-seekProgress()
-jumpToLabel()
-reverse()
-setPlaybackRate()
-```
-
-Important current behavior:
-
-```txt
-finish() on an infinite Web animation returns skipped, not failed.
-```
-
-Expected result:
-
-```txt
-status: skipped
-reason: web-playback-finish-not-supported-for-infinite-animation
-```
-
-For complete controller behavior:
-
-```txt
-docs/playback-controller-behavior.md
-```
-
-## 10. Web driver summary
+## 5. Web driver summary
 
 The Web driver currently supports:
 
@@ -290,6 +341,8 @@ iterations / direction / yoyo / endDelay / playbackRate mapping
 reduced motion skip/simplify/preserve
 conflict strategy ignore/replace/parallel
 controller pause/resume/cancel/finish/dispose
+controller seek/progress/label/direction/rate controls where WAAPI allows it
+state reporting through WebMotionPlaybackController
 ```
 
 For the complete Web reference:
@@ -298,20 +351,64 @@ For the complete Web reference:
 docs/web-driver-quickstart.md
 ```
 
-## 11. Documentation map
+## 6. Basic motion pack summary
+
+Current basic motions:
 
 ```txt
+fade-in
+fade-out
+slide-in
+```
+
+Current implementation style:
+
+```txt
+SchemaMotionDefinition
+defineMotionOptions()
+InferMotionOptions
+option validators
+reduced-motion timeline for slide-in
+```
+
+## 7. Documentation map
+
+```txt
+docs/chatgpt-project-resume.md
+  Compact resume for opening a new ChatGPT discussion.
+
 docs/project-handoff.md
   Main project handoff. Read first when resuming the project.
+
+docs/complete-usage-guide.md
+  Complete usage guide for developers.
+
+docs/developer-api-guide.md
+  Historical developer API guide. Should stay aligned, but use this status file for latest state.
 
 docs/version-roadmap-v1-v2-v3.md
   V1/V2/V3 scope, version rules and release checklist.
 
 docs/timeline-sampler-api.md
-  Current Timeline Sampler API guide.
+  Timeline Sampler API guide.
 
 docs/motion-composition-api.md
-  Current composition API reference.
+  Composition API reference.
+
+docs/playback-controller-behavior.md
+  Playback controller behavior reference.
+
+docs/playback-state-api.md
+  Playback state reference.
+
+docs/playback-seek-api.md
+  Seek/progress/label playback controls reference.
+
+docs/engine-events-api.md
+  Global engine events reference.
+
+docs/skip-event-api.md
+  onSkip lifecycle event reference.
 
 docs/writing-custom-motion-definition.md
   Guide for creating custom reusable MotionDefinition classes.
@@ -319,89 +416,100 @@ docs/writing-custom-motion-definition.md
 docs/writing-custom-motion-driver.md
   Guide for creating custom platform MotionDriver adapters.
 
-docs/engine-events-api.md
-  Detailed reference for global engine events.
-
-docs/skip-event-api.md
-  Detailed reference for the onSkip lifecycle event.
-
 docs/web-driver-quickstart.md
-  Audited quickstart for motion-core + motion-web usage.
-
-docs/playback-controller-behavior.md
-  Detailed playback controller behavior reference.
+  Quickstart for motion-core + motion-web.
 
 docs/motion-core-web-examples.md
   Practical examples guide for core + Web usage.
 ```
 
-## 12. Current completed milestones
+## 8. Current completed milestones
+
+Important completed milestones include:
 
 ```txt
-1. feat(core): add timeline builder API
-2. feat(core): add direct timeline playback API
-3. feat(core): add createMotionEngine facade
-4. feat(core): add engine defaults and validation config
-5. feat(core): add engine registry helpers
-6. refactor(pack-basic): use timeline builder
-7. feat(core): add global playback event listeners
-8. feat(core): add skip event
-9. docs: add web driver quickstart
-10. docs: add motion core web examples
-11. feat(core,web): add execution plans / scheduling path
-12. feat(core,web): add stagger and advanced stagger
-13. feat(core,web): add labels and anchors
-14. feat(core,web): add playback timing options
-15. feat(core): add playbackRate support
-16. feat(core): add iterations infinite / yoyo support
-17. feat(example): add minimal infinite yoyo visual test
-18. fix(web): skip finish for infinite playback controllers
-19. docs: document playback controller behavior
-20. feat(core): add SchemaMotionDefinition and option schema helpers
-21. refactor(basic): migrate basic motions to schema definitions
-22. feat(core): add numeric option validators
-23. docs: add custom motion definition guide
-24. docs: add motion composition design
-25. feat(core): add motion composition compiler
-26. feat(core): add motion composition builder
-27. docs(example): add vanilla motion composition demo
-28. feat(core): add composition runtime shortcuts
-29. docs: add motion composition API guide
-30. feat(core): add composition block offset placement
-31. feat(core): add composition item labels
-32. docs: add custom motion driver guide
-33. docs: add V1 V2 V3 version roadmap
-34. feat(core): add timeline sampler
-35. docs: add timeline sampler API guide
+1. timeline builder API
+2. direct timeline playback API
+3. createMotionEngine facade
+4. engine defaults and validation config
+5. engine registry helpers
+6. global playback event listeners
+7. skip event
+8. execution plans and scheduling path
+9. stagger and advanced stagger
+10. labels and anchors
+11. playback timing options
+12. playbackRate support
+13. iterations infinite and yoyo support
+14. SchemaMotionDefinition and option schema helpers
+15. basic motions migrated to schema definitions
+16. numeric option validators
+17. motion composition compiler
+18. motion composition builder
+19. composition runtime shortcuts
+20. composition block offset placement
+21. composition item labels
+22. timeline sampler
+23. playback state model
+24. seek(time)
+25. seekProgress(progress)
+26. jumpToLabel(label)
+27. playback direction controls
+28. playback rate control
+29. current playback label
+30. active playback indexes
+31. advanced playback events
+32. timeline inspector
+33. diagnostic factories and sources
+34. centralized diagnostic codes
+35. centralized playback result reasons
+36. centralized event types
+37. TSDoc public API pass
 ```
 
-## 13. Recommended next steps
+## 9. Recommended next steps
 
-Recommended next steps now:
+Recommended next phase:
 
 ```txt
-1. feat(core): add MotionPlaybackState model
-2. feat(core): add seek(time)
-3. feat(core): add seekProgress(progress)
-4. feat(core): add jumpToLabel(label)
-5. feat(core): add reverse/playBackward minimal
-6. feat(core): add setPlaybackRate(rate)
-7. feat(core): add advanced playback events minimum
-8. feat(core): add inspectMotionTimeline()
-9. docs: prepare V1 publication docs
+Phase V1 Refactor 10 - finalisation release V1 package
 ```
 
-Avoid starting a complete visual builder or broad driver ecosystem immediately. Keep focus on V1 core playback features.
+Recommended order:
 
-## 14. Rules to preserve
+```txt
+1. Audit package.json for each package.
+2. Decide which packages are publishable.
+3. Add or update README files.
+4. Add CHANGELOG.md.
+5. Add docs/release-v1-checklist.md.
+6. Audit exports and generated .d.ts files.
+7. Run pnpm pack for publishable packages.
+8. Fix documentation examples if they drift from implementation.
+9. Decide release version strategy.
+10. Final validation before release.
+```
+
+Do not start yet:
+
+```txt
+visual builder complete
+new major driver ecosystem
+Angular/React official adapters
+plugin marketplace
+large API redesign
+```
+
+## 10. Rules to preserve
 
 ```txt
 - motion-core must stay framework-agnostic.
 - motion-core must not import DOM, WAAPI, Angular, React or GSAP.
 - MotionTimelineDefinition remains the serializable runtime source of truth.
-- MotionCompositionDefinition remains the serializable authoring/orchestration source of truth for compositions.
+- MotionCompositionDefinition remains the serializable authoring/orchestration source of truth.
 - Composition must compile to MotionTimelineDefinition before playback.
 - Timeline sampling must remain platform-independent.
+- Timeline inspection must remain platform-independent.
 - MotionDriver is a platform adapter, not an animation definition.
 - New platform drivers should live outside motion-core.
 - Optional properties must be omitted rather than set to undefined.
@@ -410,34 +518,25 @@ Avoid starting a complete visual builder or broad driver ecosystem immediately. 
 - Keep timeline building explicit. Do not add animation-specific shortcuts such as timeline.fade().
 ```
 
-## 15. Local validation reminder
-
-Recommended local commands:
-
-```bash
-git pull
-pnpm format
-pnpm test
-pnpm build
-```
+## 11. Last known validation
 
 Last known complete validation passed after:
 
 ```txt
-e263246 feat(core): add timeline sampler
+77f3beb docs(core): add tsdoc to engine factory and base definitions
 ```
 
 Known validation result:
 
 ```txt
-motion-core: 22 test files passed
-motion-core: 302 tests passed
-motion-pack-basic: 4 test files passed
-motion-pack-basic: 25 tests passed
-motion-web: 12 test files passed
-motion-web: 159 tests passed
-motion-core build OK
-motion-web build OK
-motion-pack-basic build OK
+git status: clean
+pnpm format: OK
+pnpm test: OK
+pnpm typecheck: OK
+pnpm build: OK
+pnpm --filter @structifyx/motion-core build: OK
+motion-core: 29 test files passed / 328 tests passed
+motion-pack-basic: 4 test files passed / 25 tests passed
+motion-web: 12 test files passed / 159 tests passed
 examples/vanilla build OK
 ```
