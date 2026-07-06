@@ -6,3 +6,5 @@ coverage
 .next
 .angular
 .vite
+website/build
+website/.docusaurus
