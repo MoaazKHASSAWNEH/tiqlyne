@@ -84,3 +84,16 @@ console.log(result.status);
 Use events for UI synchronization, logs and debugging.
 
 Use playback results when you need the final animation outcome.
+
+## Common mistakes
+
+- Treating engine callbacks as middleware that can change a plan.
+- Subscribing after a very short playback has already emitted its first event.
+- Assuming `progress` is a continuous timer in the Web controller.
+- Calling `dispose()` and expecting the animation to cancel.
+
+## Related pages
+
+- [Events reference](../reference/events.md)
+- [Playback controllers](./playback-controllers.md)
+- [Playback results](../reference/playback-result.md)

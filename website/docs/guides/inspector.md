@@ -54,3 +54,9 @@ The inspector emits an info diagnostic for infinite playback, warnings when a ti
 Use the inspector when you need metadata.
 
 Use the sampler when you need values over time.
+
+## Related pages
+
+- [Inspector reference](../reference/inspector.md)
+- [Sampler](./sampler.md)
+- [Diagnostics](./diagnostics.md)

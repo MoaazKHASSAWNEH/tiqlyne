@@ -14,7 +14,8 @@ const sidebars: SidebarsConfig = {
         'architecture/overview',
         'architecture/package-boundaries',
         'architecture/execution-pipeline',
-        'architecture/v0-1-0-boundaries'
+        'architecture/v0-1-0-boundaries',
+        'architecture/design-principles'
       ]
     },
 
@@ -42,7 +43,9 @@ const sidebars: SidebarsConfig = {
         'guides/inspector',
         'guides/reduced-motion',
         'guides/custom-motion-definition',
-        'guides/custom-motion-driver'
+        'guides/custom-motion-driver',
+        'guides/troubleshooting',
+        'guides/recipes'
       ]
     },
 
@@ -51,15 +54,26 @@ const sidebars: SidebarsConfig = {
       label: 'Reference',
       items: [
         'reference/motion-engine',
+        'reference/motion-registry',
         'reference/motion-config',
         'reference/motion-definition',
+        'reference/motion-options',
         'reference/motion-timeline',
+        'reference/timeline-builder',
         'reference/motion-composition',
+        'reference/composition-builder',
         'reference/motion-driver',
+        'reference/web-motion-driver',
+        'reference/motion-targets',
         'reference/playback-controller',
         'reference/playback-result',
         'reference/diagnostics',
         'reference/events',
+        'reference/sampler',
+        'reference/inspector',
+        'reference/reduced-motion',
+        'reference/conflict-strategy',
+        'reference/basic-pack',
         'reference/public-exports'
       ]
     },
@@ -74,7 +88,11 @@ const sidebars: SidebarsConfig = {
         'examples/slide-in',
         'examples/direct-timeline',
         'examples/composition',
-        'examples/playback-controller'
+        'examples/playback-controller',
+        'examples/child-targets',
+        'examples/stagger-list',
+        'examples/reduced-motion',
+        'examples/diagnostics'
       ]
     },
 
@@ -86,7 +104,9 @@ const sidebars: SidebarsConfig = {
         'release/v0-1-0',
         'release/limitations',
         'release/roadmap',
-        'release/npm-publication'
+        'release/npm-publication',
+        'release/api-stability',
+        'release/versioning'
       ]
     }
   ]

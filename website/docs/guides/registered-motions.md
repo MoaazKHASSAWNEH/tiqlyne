@@ -149,3 +149,9 @@ Use a direct timeline when the animation is specific to one case.
 | ----------------- | ----------------------------------- |
 | Registered motion | Reusable animation behaviors.       |
 | Direct timeline   | One-off custom animation sequences. |
+
+## Related pages
+
+- [Motion registry reference](../reference/motion-registry.md)
+- [Motion config](../reference/motion-config.md)
+- [Basic motions](./basic-motions.md)

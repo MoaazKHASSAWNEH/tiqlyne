@@ -38,3 +38,9 @@ await motion.playTimeline(root, timeline);
 ```
 
 `at` accepts milliseconds, a label string, `{ label, offset? }`, or `{ anchor, offset? }`. Anchors are `track-start`, `track-end`, `previous-start`, and `previous-end`. Stagger origins are `start`, `end`, and `center`.
+
+## Related pages
+
+- [Timeline model](../reference/motion-timeline.md)
+- [Timeline builder](../reference/timeline-builder.md)
+- [Staggered list example](../examples/stagger-list.md)

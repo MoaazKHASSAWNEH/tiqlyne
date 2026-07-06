@@ -30,3 +30,16 @@ await motion.play(element, {
 In the basic pack, only `slide-in` supplies its own reduced timeline. The generic fallback emits a `reduced-motion-fallback-used` warning diagnostic. If `respectReducedMotion` is `false`, the preference and strategy do not change playback.
 
 If preferences can change while the app is open, create/update driver wiring from a `matchMedia` change listener; 0.1.0 does not subscribe automatically.
+
+## Common mistakes
+
+- Assuming the driver calls `matchMedia` automatically.
+- Using `preserve` while expecting movement to be simplified.
+- Providing an invalid reduced timeline; it is validated independently.
+- Forgetting that direct timelines need `options.reducedMotionTimeline` when a custom fallback is desired.
+
+## Related pages
+
+- [Reduced motion reference](../reference/reduced-motion.md)
+- [Reduced motion example](../examples/reduced-motion.md)
+- [Web driver](../reference/web-motion-driver.md)

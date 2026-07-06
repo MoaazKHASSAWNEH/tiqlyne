@@ -149,3 +149,17 @@ Use compositions when you need to:
 - keep authoring simple;
 - compile higher-level definitions into timelines;
 - expose animation composition in a future builder UI.
+
+## Common mistakes
+
+- Compiling before the referenced motion types are registered.
+- Using duplicate composition/item labels.
+- Giving a labelled item an anchor-based `at` value; absolute item-label resolution does not support anchors in 0.1.0.
+- Expecting a composition to preserve nested timeline labels automatically; define the labels needed by the compiled composition explicitly.
+
+## Related pages
+
+- [Composition model](../reference/motion-composition.md)
+- [Composition builder](../reference/composition-builder.md)
+- [Composition example](../examples/composition.md)
+- [Playback controllers](./playback-controllers.md)

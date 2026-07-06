@@ -33,6 +33,30 @@ if (result.diagnostics?.length) {
 }
 ```
 
+## Display diagnostics in a developer panel
+
+```html
+<ul id="motion-diagnostics" aria-live="polite"></ul>
+```
+
+```ts
+const list = document.querySelector<HTMLUListElement>('#motion-diagnostics');
+if (!list) throw new Error('Diagnostics panel not found');
+
+for (const diagnostic of result.diagnostics ?? []) {
+  const item = document.createElement('li');
+  item.dataset.level = diagnostic.level;
+  item.textContent = `[${diagnostic.code}] ${diagnostic.message}`;
+  list.append(item);
+}
+
+if (result.status === 'failed' && result.diagnostics?.length === 0) {
+  console.error('Motion failed without diagnostics', result.reason, result.error);
+}
+```
+
+Diagnostics are developer-facing. Map codes to localized product copy instead of displaying raw messages to end users.
+
 ## Diagnostic shape
 
 A diagnostic usually contains:
@@ -90,3 +114,10 @@ For example, a browser driver can report issues related to target resolution, in
 Use diagnostics as developer-facing explanations.
 
 For public UI messages, you can map diagnostic codes to clearer user-facing copy.
+
+## Related pages
+
+- [Diagnostics reference](../reference/diagnostics.md)
+- [Playback results](../reference/playback-result.md)
+- [Diagnostics example](../examples/diagnostics.md)
+- [Troubleshooting](./troubleshooting.md)

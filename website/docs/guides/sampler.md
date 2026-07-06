@@ -27,3 +27,9 @@ The sample contains `time`, `progress`, `duration`, `tracks`, and flattened `act
 Times and progress values are clamped. Non-finite inputs throw `MotionPlanningError`. Progress sampling is unsupported for infinite timelines; sample those with an absolute time instead.
 
 The sampler interpolates numeric opacity and numeric custom properties. Other values, including transforms, are resolved discretely rather than fully interpolated, so it is intended for inspection and tests—not as a rendering engine.
+
+## Related pages
+
+- [Sampler reference](../reference/sampler.md)
+- [Inspector](./inspector.md)
+- [Direct timelines](./direct-timelines.md)

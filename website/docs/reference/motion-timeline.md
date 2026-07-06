@@ -19,6 +19,21 @@ A timeline can contain:
 - keyframes
 - timing options
 
+```ts
+type MotionTimelineDefinition = {
+  readonly tracks: ReadonlyArray<MotionTrackDefinition>;
+  readonly defaults?: MotionTimelineDefaults;
+  readonly labels?: Readonly<Record<string, number>>;
+};
+
+type MotionTrackDefinition = {
+  readonly target: MotionTargetReference;
+  readonly steps: ReadonlyArray<MotionStepDefinition>;
+  readonly stagger?: MotionStaggerDefinition;
+  readonly defaults?: MotionTimelineDefaults;
+};
+```
+
 ## Tracks
 
 A track identifies what should be animated.
@@ -30,6 +45,8 @@ Common target forms include `self`, child targets, selector targets and named ta
 A step defines one animation segment inside a track.
 
 A step can contain timing options and keyframes.
+
+`keyframes` is the only required step field. A `MotionKeyframe` can contain `opacity`, `transform`, `filter`, `backgroundColor`, `color`, `borderColor`, `boxShadow`, `outlineColor`, `offset`, and driver-specific `custom` string/number values.
 
 ## Labels
 
@@ -49,6 +66,19 @@ Steps add `at`, required `keyframes`, and a low-level `offset`. Tracks contain a
 
 `MotionStepPosition` accepts an absolute number, label string, `{ label, offset? }`, or `{ anchor, offset? }`. Anchors are `track-start`, `track-end`, `previous-start`, and `previous-end`.
 
+Defaults resolve from most specific to least specific: step, track, timeline, engine, then core defaults. `yoyo: true` is treated as alternate direction behavior. `endDelay` extends the step after active playback; `playbackRate` scales timing. `offset` on a step is a legacy/low-level driver/tooling field and is distinct from keyframe offsets.
+
+## Validation and common mistakes
+
+Timeline validation checks tracks, targets, steps, keyframes, timings, easing, labels, positions, stagger, transforms, filters, and optional performance diagnostics. Frequent mistakes include empty tracks/keyframes, non-finite or negative timing, invalid offsets, missing labels, invalid selectors at runtime, zero/non-positive playback rates, and progress-based operations on infinite timelines.
+
 ## When to use direct timelines
 
 Use direct timelines when you need precise control, multiple tracks, custom sequencing, labels or animation logic that is not worth turning into a reusable motion definition.
+
+## Related pages
+
+- [Timeline builder](./timeline-builder.md)
+- [Direct timelines guide](../guides/direct-timelines.md)
+- [Motion targets](./motion-targets.md)
+- [Sampler](./sampler.md)

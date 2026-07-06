@@ -1,45 +1,77 @@
 ---
-sidebar_position: 7
+sidebar_position: 13
 ---
 
 # Playback controller
 
-A playback controller controls a running animation.
+`MotionPlaybackController` exposes runtime state and controls for one playback.
 
-Controllers are created through the engine.
+```ts
+interface MotionPlaybackController {
+  readonly id: string;
+  readonly status: MotionPlaybackControllerStatus;
+  readonly disposed: boolean;
+  readonly finished: Promise<MotionPlaybackResult>;
+  getState(): MotionPlaybackState;
+  seek(time: number): Promise<MotionPlaybackResult>;
+  seekProgress(progress: number): Promise<MotionPlaybackResult>;
+  jumpToLabel(label: string): Promise<MotionPlaybackResult>;
+  playForward(): Promise<MotionPlaybackResult>;
+  playBackward(): Promise<MotionPlaybackResult>;
+  setPlaybackRate(rate: number): Promise<MotionPlaybackResult>;
+  pause(): Promise<MotionPlaybackResult>;
+  resume(): Promise<MotionPlaybackResult>;
+  cancel(): Promise<MotionPlaybackResult>;
+  finish(): Promise<MotionPlaybackResult>;
+  on(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void;
+  once(type: MotionPlaybackEventType, listener: MotionPlaybackEventListener): () => void;
+  dispose(): void;
+}
+```
 
-## Creation APIs
+Statuses are `idle`, `running`, `paused`, `finished`, `cancelled`, `failed`, and `skipped`.
 
-The engine can create controllers for registered motions, direct timelines and compositions.
+## State
 
-Main methods:
+`getState()` returns status, nullable current time/duration/progress, playback rate, `forward` or `backward` direction, active track/step indexes, and optional current label. Web values are read from WAAPI; fallback values for time/duration/progress are `null`.
 
-- createPlayback
-- createTimelinePlayback
-- createCompositionPlayback
+## Controls and results
 
-## Common controls
+| Method                        | Behavior                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------- |
+| `seek(time)`                  | Absolute milliseconds; Web requires a finite value and clamps to at least zero. |
+| `seekProgress(progress)`      | Web clamps finite progress to `0..1`; unavailable/infinite duration is skipped. |
+| `jumpToLabel(label)`          | Seeks to an exact timeline label; blank/unknown labels are skipped.             |
+| `playForward`, `playBackward` | Set WAAPI direction through playback-rate sign and play.                        |
+| `setPlaybackRate(rate)`       | Requires a finite rate greater than zero.                                       |
+| `pause`, `resume`             | Require a valid non-terminal transition.                                        |
+| `cancel`                      | Cancels underlying animations and reaches `cancelled` on success.               |
+| `finish`                      | Finishes finite animations; skipped for infinite playback.                      |
 
-Common controls include pause, resume, cancel, finish and dispose.
+Every control is async and returns a result. Invalid transitions normally return `skipped` plus `playback-invalid-transition` diagnostics rather than throwing.
 
-Controllers can also expose state reading and event subscription.
+## Native and fallback controllers
 
-## Timeline navigation
+The Web driver supplies `WebMotionPlaybackController` and supports the full contract subject to browser/animation state. If a driver omits `createPlayback`, the engine returns `PromiseMotionPlaybackController`: `finished`, cancel, and finish delegate to engine paths, while seek, direction, rate, pause, and resume are unsupported/skipped.
 
-When supported by the driver, a controller can seek by time, seek by progress and jump to labels.
+```ts
+const playback = motion.createTimelinePlayback(element, timeline);
+const stop = playback.on('statusChange', (event) => console.log(event.status));
 
-## Playback direction and rate
+await playback.pause();
+await playback.seekProgress(0.5);
+await playback.resume();
+const finalResult = await playback.finished;
 
-When supported by the driver, a controller can play forward, play backward and update playback rate.
+stop();
+playback.dispose();
+```
 
-## Finished result
+Disposal only removes event subscriptions; cancel explicitly if the animation should stop.
 
-A controller exposes a finished promise that resolves to a playback result.
+## Related pages
 
-Use the finished result when you need the final animation outcome.
-
-## Complete contract
-
-Every controller has readonly `id`, `status`, `disposed`, and `finished`, plus `getState()`. Async methods are `seek`, `seekProgress`, `jumpToLabel`, `playForward`, `playBackward`, `setPlaybackRate`, `pause`, `resume`, `cancel`, and `finish`. Event methods are `on` and `once`; `dispose()` synchronously removes listeners.
-
-Controller statuses are `idle`, `running`, `paused`, `finished`, `cancelled`, `failed`, and `skipped`. A driver-backed controller may support all controls; the promise fallback uses the same contract but returns skipped results for unsupported operations.
+- [Controller guide](../guides/playback-controllers.md)
+- [Controller example](../examples/playback-controller.md)
+- [Events](./events.md)
+- [Playback results](./playback-result.md)

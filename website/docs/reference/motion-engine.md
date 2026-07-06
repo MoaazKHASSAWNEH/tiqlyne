@@ -2,71 +2,140 @@
 sidebar_position: 1
 ---
 
-# Engine reference
+# Motion engine reference
 
-The engine is the main entry point of Tiqlyne Motion Engine.
+`MotionEngine<TTarget>` is the high-level registry, planning, playback, and controller API. `TTarget` must match the configured driver (`Element` for Web).
 
-It is created with `createMotionEngine` from `@tiqlyne/motion-core`.
+```ts
+const motion = createMotionEngine<Element>({
+  registry,
+  driver: new WebMotionDriver(),
+  defaults: { duration: 300, easing: 'ease-out', fill: 'both' },
+  validation,
+  events
+});
+```
 
-## Main responsibilities
+The driver is required. Registry and normalizer default to `DefaultMotionRegistry` and `DefaultMotionConfigNormalizer`.
 
-The engine can register reusable definitions, prepare animation plans, run timelines with a driver and create playback controllers.
+## Registry methods
 
-## Registry APIs
+| Signature                                                                                          | Return / behavior                                                                                      | Use                          |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------- |
+| `register<TOptions extends object>(definition: MotionDefinition<TOptions>): MotionEngine<TTarget>` | Registers through the configured registry; duplicate default-registry types throw. Returns the engine. | Add one reusable definition. |
+| `registerMany(definitions: ReadonlyArray<MotionDefinition<object>>): MotionEngine<TTarget>`        | Registers in order and returns the engine. A duplicate can leave earlier items registered.             | Add a known collection.      |
+| `has(type: string): boolean`                                                                       | Delegates to registry.                                                                                 | Guard optional configs.      |
+| `get(type: string): MotionDefinition<object> \| undefined`                                         | Delegates to registry.                                                                                 | Inspect one definition.      |
+| `getAll(): ReadonlyArray<MotionDefinition<object>>`                                                | Registry snapshot.                                                                                     | Build tooling/catalogues.    |
+| `getByCategory(category: MotionCategory): ReadonlyArray<MotionDefinition<object>>`                 | Exact category filter.                                                                                 | Group definitions.           |
 
-The registry-related APIs are used to add and read reusable motion definitions.
+```ts
+motion.register(new FadeInMotion());
+motion.registerMany([new FadeOutMotion(), new SlideInMotion()]);
+console.log(motion.getByCategory('entrance'));
+```
 
-Main methods:
+## Playback methods
 
-- register
-- registerMany
-- has
-- get
-- getAll
-- getByCategory
+```ts
+play(target: TTarget, config: MotionConfig): Promise<MotionPlaybackResult>;
+playTimeline(
+  target: TTarget,
+  timeline: MotionTimelineDefinition,
+  options?: MotionTimelinePlayOptions
+): Promise<MotionPlaybackResult>;
+playComposition(
+  target: TTarget,
+  composition: MotionCompositionDefinition,
+  options?: MotionTimelinePlayOptions
+): Promise<MotionPlaybackResult>;
+```
 
-## Playback APIs
+`play` normalizes the config, skips disabled/unknown motions, validates definition options and timelines, creates an execution plan, and delegates to the driver. Expected planning errors become failed results (`invalid-motion-options`, `invalid-timeline`, or `invalid-reduced-motion-timeline`); unexpected errors become `motion-engine-error`.
 
-Playback APIs execute a motion request through the configured driver.
+`playTimeline` skips definition lookup and accepts direct play options. `playComposition` compiles against the engine registry, then follows timeline playback. Use registered playback for semantic reusable motions, direct timelines for low-level control, and compositions for combined items.
 
-Main methods:
+```ts
+const registered = await motion.play(element, { id: 'hero', type: 'fade-in' });
+const direct = await motion.playTimeline(element, timeline);
+const combined = await motion.playComposition(element, composition);
+```
 
-- play
-- playTimeline
-- playComposition
+## Planning methods
 
-## Planning APIs
+```ts
+plan(config: MotionConfig): MotionExecutionPlan;
+planTimeline(
+  timeline: MotionTimelineDefinition,
+  options?: MotionTimelinePlayOptions
+): MotionExecutionPlan;
+planComposition(
+  composition: MotionCompositionDefinition,
+  options?: MotionTimelinePlayOptions
+): MotionExecutionPlan;
+```
 
-Planning APIs prepare animation information without executing it.
+Planning is synchronous and does not call the driver. Unlike `play`, invalid input throws `MotionPlanningError`. The error contains a machine-readable code, diagnostics, and validation errors. Use planning for previews, build-time checks, debugging, and advanced tooling.
 
-Main methods:
+```ts
+try {
+  const plan = motion.plan({ id: 'preview', type: 'slide-in' });
+  console.log(plan.summary);
+} catch (error) {
+  console.error(error);
+}
+```
 
-- plan
-- planTimeline
-- planComposition
+## Controller creation
 
-## Controller APIs
+```ts
+createPlayback(target: TTarget, config: MotionConfig): MotionPlaybackController;
+createTimelinePlayback(
+  target: TTarget,
+  timeline: MotionTimelineDefinition,
+  options?: MotionTimelinePlayOptions
+): MotionPlaybackController;
+createCompositionPlayback(
+  target: TTarget,
+  composition: MotionCompositionDefinition,
+  options?: MotionTimelinePlayOptions
+): MotionPlaybackController;
+```
 
-Controller APIs create playback controllers for interactive control.
+The engine uses the driver's native controller when available. Disabled/unknown/invalid input or missing driver support falls back to `PromiseMotionPlaybackController`; its `finished`, cancel, and finish paths work, while advanced controls report unsupported results.
 
-Main methods:
-
-- createPlayback
-- createTimelinePlayback
-- createCompositionPlayback
+```ts
+const playback = motion.createPlayback(element, { id: 'interactive', type: 'slide-in' });
+const pauseResult = await playback.pause();
+const finalResult = await playback.finished;
+```
 
 ## Target operations
 
-The engine can delegate target operations to the active driver.
+```ts
+cancel(target: TTarget): Promise<MotionPlaybackResult>;
+finish(target: TTarget): Promise<MotionPlaybackResult>;
+reset(target: TTarget): Promise<MotionPlaybackResult>;
+```
 
-Main methods:
+These delegate to optional driver methods. Missing capabilities return skipped reasons `driver-cancel-not-supported`, `driver-finish-not-supported`, or `driver-reset-not-supported`. Web implementations can additionally return their operation-specific success/failure reasons.
 
-- cancel
-- finish
-- reset
+```ts
+await motion.cancel(element);
+await motion.finish(element);
+await motion.reset(element);
+```
 
-## Driver requirement
+## Common mistakes
 
-A driver is required for real platform playback.
+- Omitting required `id` from `MotionConfig`.
+- Using `plan*` without handling thrown `MotionPlanningError`.
+- Assuming controller creation throws; it intentionally falls back.
+- Using a target type that does not match the driver.
 
-The core package can still be used without a platform driver for planning, validation, inspection and tests.
+## Related pages
+
+- [Engine setup](../guides/engine-setup.md)
+- [Motion registry](./motion-registry.md)
+- [Playback controllers](./playback-controller.md)
+- [Playback results](./playback-result.md)

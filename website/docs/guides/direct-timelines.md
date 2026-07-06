@@ -205,3 +205,10 @@ Use direct timelines when you need:
 - labels;
 - one-off animations;
 - a timeline that does not deserve a reusable motion definition.
+
+## Related pages
+
+- [Timeline model](../reference/motion-timeline.md)
+- [Timeline builder](../reference/timeline-builder.md)
+- [Multiple tracks and steps](./multiple-tracks-and-steps.md)
+- [Direct timeline example](../examples/direct-timeline.md)

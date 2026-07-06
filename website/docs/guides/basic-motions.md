@@ -36,3 +36,9 @@ await motion.play(element, {
 ```
 
 Invalid fade ordering fails during planning with reason `invalid-motion-options`. Option values are normalized by their schemas; consult the [basic package page](../packages/motion-pack-basic.md) for exact ranges and generated timelines.
+
+## Related pages
+
+- [Basic pack reference](../reference/basic-pack.md)
+- [Registered motions](./registered-motions.md)
+- [Fade-in example](../examples/fade-in.md)

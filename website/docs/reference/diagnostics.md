@@ -16,6 +16,16 @@ type MotionDiagnostic = {
 
 Built-in sources are `motion-timeline-validator`, `timeline-inspector`, `promise-motion-playback-controller`, `web-motion-playback-controller`, `web-motion-driver`, `motion-composition-compiler`, and `motion-option-validator`.
 
+| Source                               | Producer                                |
+| ------------------------------------ | --------------------------------------- |
+| `motion-timeline-validator`          | Core timeline validation                |
+| `timeline-inspector`                 | Inspection recommendations              |
+| `promise-motion-playback-controller` | Fallback controller                     |
+| `web-motion-playback-controller`     | WAAPI controller operations             |
+| `web-motion-driver`                  | Browser execution and target operations |
+| `motion-composition-compiler`        | Composition resolution/compilation      |
+| `motion-option-validator`            | Registered definition option validation |
+
 ## Built-in codes
 
 Controller input and support:
@@ -45,6 +55,27 @@ Inspector:
 - `timeline-inspection-empty-step-keyframes`
 - `timeline-inspection-long-step`
 
+The code name describes the specific condition: `invalid-*` is bad input, `not-supported` is a capability gap, `*-failed` is a runtime operation failure, and `timeline-inspection-*` is advisory inspection output.
+
 Use `MotionDiagnosticCodes` and `MotionDiagnosticSources` instead of duplicating literals. The creation helpers are `createMotionDiagnostic`, `createMotionInfoDiagnostic`, `createMotionWarningDiagnostic`, and `createMotionErrorDiagnostic`; playback-specific helpers create invalid-input, invalid-transition, unsupported, and operation-failed diagnostics.
 
+```ts
+const diagnostic = createMotionWarningDiagnostic(
+  'app-motion-budget',
+  'Animation exceeds the application motion budget.',
+  'app-tooling',
+  { duration: 1800 }
+);
+```
+
+`createMotionDiagnostic` accepts `{ level, code, message, source?, metadata? }`. Level helpers take `(code, message, source?, metadata?)`. Playback invalid-input/unsupported/operation helpers take `(code, message, source, metadata?)`; invalid-transition takes `(action, currentStatus, source)`.
+
+A result **reason** summarizes an operation outcome. Diagnostics explain one or more details and carry severity/source/metadata. Do not assume every failed or skipped result contains diagnostics.
+
 Validation may also use descriptive string codes beyond `MotionDiagnosticCodes`. Consumers must therefore handle unknown future/custom strings.
+
+## Related pages
+
+- [Diagnostics guide](../guides/diagnostics.md)
+- [Diagnostics example](../examples/diagnostics.md)
+- [Playback results](./playback-result.md)

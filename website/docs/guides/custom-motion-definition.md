@@ -27,6 +27,7 @@ import {
   createMotionTimeline,
   defineMotionOptions,
   option,
+  validateIncreasing,
   type InferMotionOptions,
   type MotionBuildContext,
   type MotionCategory,
@@ -42,6 +43,22 @@ const options = defineMotionOptions({
     max: 300,
     step: 1,
     unit: 'px'
+  }),
+  fromOpacity: option.range({
+    label: 'From opacity',
+    defaultValue: 0,
+    min: 0,
+    max: 1,
+    step: 0.05,
+    unit: 'none'
+  }),
+  toOpacity: option.range({
+    label: 'To opacity',
+    defaultValue: 1,
+    min: 0,
+    max: 1,
+    step: 0.05,
+    unit: 'none'
   })
 });
 
@@ -55,6 +72,10 @@ export class RiseInMotion extends SchemaMotionDefinition<typeof options.schema> 
 
   protected readonly options = options;
 
+  protected override readonly optionValidators = [
+    validateIncreasing('fromOpacity', 'toOpacity', 'Rise opacity must increase')
+  ];
+
   buildTimeline(context: MotionBuildContext<Options>): MotionTimelineDefinition {
     return createMotionTimeline((timeline) => {
       timeline.track('self', (track) => {
@@ -67,20 +88,31 @@ export class RiseInMotion extends SchemaMotionDefinition<typeof options.schema> 
           },
           (step) => {
             step.from({
-              opacity: 0,
+              opacity: context.options.fromOpacity,
               transform: {
                 y: context.options.distance
               }
             });
 
             step.to({
-              opacity: 1,
+              opacity: context.options.toOpacity,
               transform: {
                 y: 0
               }
             });
           }
         );
+      });
+    });
+  }
+
+  override buildReducedMotionTimeline(context: MotionBuildContext<Options>) {
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step({ duration: Math.min(context.duration, 150), fill: 'both' }, (step) => {
+          step.from({ opacity: context.options.fromOpacity });
+          step.to({ opacity: context.options.toOpacity });
+        });
       });
     });
   }
@@ -101,10 +133,14 @@ await motion.play(element, {
   type: 'rise-in',
   trigger: 'manual',
   options: {
-    distance: 32
+    distance: 32,
+    fromOpacity: 0,
+    toOpacity: 1
   }
 });
 ```
+
+The schema clamps numeric values and supplies defaults before `optionValidators` runs. Validation messages cause planning reason `invalid-motion-options`. The reduced timeline removes spatial movement and caps duration at 150 ms.
 
 ## Best practices
 
@@ -117,3 +153,16 @@ A custom motion definition should:
 - avoid DOM APIs;
 - avoid framework-specific APIs;
 - provide a reduced motion timeline when the animation contains large movement.
+
+## Common mistakes
+
+- Accessing DOM or WAAPI objects from the definition.
+- Returning a timeline with unresolved/invalid labels or empty keyframes.
+- Treating option metadata such as `step` as a validator.
+- Forgetting that reduced timelines are built only for the `simplify` strategy.
+
+## Related pages
+
+- [Motion definition reference](../reference/motion-definition.md)
+- [Motion options](../reference/motion-options.md)
+- [Timeline builder](../reference/timeline-builder.md)
