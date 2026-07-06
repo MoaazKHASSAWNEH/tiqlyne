@@ -16,10 +16,10 @@ Packs provide reusable motion definitions.
 
 ```mermaid
 flowchart TB
-  App[Application] --> Core[@tiqlyne/motion-core]
-  Pack[@tiqlyne/motion-pack-basic] --> Core
-  Core --> Driver[@tiqlyne/motion-web]
-  Driver --> Browser[Browser / Web Animations API]
+  App["Application"] --> Core["@tiqlyne/motion-core"]
+  Pack["@tiqlyne/motion-pack-basic"] --> Core
+  Core --> Driver["@tiqlyne/motion-web"]
+  Driver --> Browser["Browser / Web Animations API"]
 ```
 
 ## Core package
@@ -73,15 +73,15 @@ The current motions are:
 
 ```mermaid
 flowchart LR
-  A[Motion config] --> B[Normalize config]
-  B --> C[Resolve motion definition]
-  C --> D[Build timeline]
-  D --> E[Validate timeline]
-  E --> F[Prepare timeline]
-  F --> G[Create execution plan]
-  G --> H[Schedule timeline]
-  H --> I[Run platform driver]
-  I --> J[Return playback result]
+  A["Motion config"] --> B["Normalize config"]
+  B --> C["Resolve motion definition"]
+  C --> D["Build timeline"]
+  D --> E["Validate timeline"]
+  E --> F["Prepare timeline"]
+  F --> G["Create execution plan"]
+  G --> H["Schedule timeline"]
+  H --> I["Run platform driver"]
+  I --> J["Return playback result"]
 ```
 
 ## Design goal
