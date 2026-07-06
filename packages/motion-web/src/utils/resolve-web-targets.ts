@@ -1,4 +1,4 @@
-import type { MotionTimelineDefinition } from '@structifyx/motion-core';
+import type { MotionTimelineDefinition } from '@tiqlyne/motion-core';
 
 type TimelineTargetReference = MotionTimelineDefinition['tracks'][number]['target'];
 
