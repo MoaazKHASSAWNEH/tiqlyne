@@ -23,8 +23,8 @@ const motion = createMotionEngine<Element>({
   defaults: {
     duration: 300,
     easing: 'ease-out',
-    fill: 'both',
-  },
+    fill: 'both'
+  }
 });
 ```
 
@@ -43,8 +43,8 @@ await motion.play(element, {
   options: {
     direction: 'bottom',
     distance: 24,
-    fade: true,
-  },
+    fade: true
+  }
 });
 ```
 
@@ -59,7 +59,7 @@ const timeline = createMotionTimeline((timeline) => {
   timeline.defaults({
     duration: 500,
     easing: 'ease-out',
-    fill: 'both',
+    fill: 'both'
   });
 
   timeline.track('self', (track) => {
@@ -67,15 +67,15 @@ const timeline = createMotionTimeline((timeline) => {
       step.from({
         opacity: 0,
         transform: {
-          y: 24,
-        },
+          y: 24
+        }
       });
 
       step.to({
         opacity: 1,
         transform: {
-          y: 0,
-        },
+          y: 0
+        }
       });
     });
   });

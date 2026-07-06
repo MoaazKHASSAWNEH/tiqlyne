@@ -41,7 +41,7 @@ import { createMotionEngine } from '@tiqlyne/motion-core';
 import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine<Element>({
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 ```
 
@@ -58,7 +58,7 @@ registerBasicMotions(registry);
 
 const motion = createMotionEngine<Element>({
   registry,
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 
 const element = document.querySelector('.card');
@@ -69,7 +69,7 @@ if (!element) {
 
 await motion.play(element, {
   type: 'fade-in',
-  trigger: 'manual',
+  trigger: 'manual'
 });
 ```
 
@@ -77,12 +77,12 @@ await motion.play(element, {
 
 The Web driver can resolve several target types from a timeline:
 
-| Target type | Description |
-| --- | --- |
-| `self` | Uses the root element passed to the engine. |
-| `child` | Looks for a child using `data-motion-child`. |
-| `selector` | Uses a CSS selector. |
-| `named` | Looks for a document-level element using `data-motion-name`. |
+| Target type | Description                                                  |
+| ----------- | ------------------------------------------------------------ |
+| `self`      | Uses the root element passed to the engine.                  |
+| `child`     | Looks for a child using `data-motion-child`.                 |
+| `selector`  | Uses a CSS selector.                                         |
+| `named`     | Looks for a document-level element using `data-motion-name`. |
 
 Example:
 
@@ -111,8 +111,8 @@ const timeline = createMotionTimeline((timeline) => {
 ```ts
 const motion = createMotionEngine<Element>({
   driver: new WebMotionDriver({
-    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  }),
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  })
 });
 ```
 

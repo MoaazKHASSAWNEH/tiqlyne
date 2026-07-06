@@ -22,11 +22,11 @@ pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
 
 ## Package roles
 
-| Package | Required | Role |
-| --- | --- | --- |
-| `@tiqlyne/motion-core` | Yes | Core engine and platform-independent APIs. |
-| `@tiqlyne/motion-web` | For browser playback | Web Animations API driver. |
-| `@tiqlyne/motion-pack-basic` | Optional | Ready-to-use basic motions. |
+| Package                      | Required             | Role                                       |
+| ---------------------------- | -------------------- | ------------------------------------------ |
+| `@tiqlyne/motion-core`       | Yes                  | Core engine and platform-independent APIs. |
+| `@tiqlyne/motion-web`        | For browser playback | Web Animations API driver.                 |
+| `@tiqlyne/motion-pack-basic` | Optional             | Ready-to-use basic motions.                |
 
 ## Browser usage
 
@@ -37,7 +37,7 @@ import { createMotionEngine } from '@tiqlyne/motion-core';
 import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine<Element>({
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 ```
 

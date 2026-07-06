@@ -14,7 +14,7 @@ It is useful for previews, tests, visual editors, debugging and timeline analysi
 import { sampleMotionTimeline } from '@tiqlyne/motion-core';
 
 const samples = sampleMotionTimeline(timeline, {
-  interval: 100,
+  interval: 100
 });
 
 console.log(samples);

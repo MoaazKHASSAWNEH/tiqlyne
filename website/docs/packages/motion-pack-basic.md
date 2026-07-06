@@ -39,7 +39,7 @@ import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine<Element>({
   registry,
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 ```
 
@@ -47,11 +47,11 @@ const motion = createMotionEngine<Element>({
 
 The current version includes three motions:
 
-| Motion type | Description |
-| --- | --- |
-| `fade-in` | Makes the target appear progressively using opacity. |
-| `fade-out` | Makes the target disappear progressively using opacity. |
-| `slide-in` | Makes the target enter with a directional slide. |
+| Motion type | Description                                             |
+| ----------- | ------------------------------------------------------- |
+| `fade-in`   | Makes the target appear progressively using opacity.    |
+| `fade-out`  | Makes the target disappear progressively using opacity. |
+| `slide-in`  | Makes the target enter with a directional slide.        |
 
 ## fade-in
 
@@ -63,17 +63,17 @@ await motion.play(element, {
   trigger: 'manual',
   options: {
     fromOpacity: 0,
-    toOpacity: 1,
-  },
+    toOpacity: 1
+  }
 });
 ```
 
 Options:
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `fromOpacity` | number | `0` | Initial opacity. |
-| `toOpacity` | number | `1` | Final opacity. |
+| Option        | Type   | Default | Description      |
+| ------------- | ------ | ------- | ---------------- |
+| `fromOpacity` | number | `0`     | Initial opacity. |
+| `toOpacity`   | number | `1`     | Final opacity.   |
 
 ## fade-out
 
@@ -85,17 +85,17 @@ await motion.play(element, {
   trigger: 'manual',
   options: {
     fromOpacity: 1,
-    toOpacity: 0,
-  },
+    toOpacity: 0
+  }
 });
 ```
 
 Options:
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `fromOpacity` | number | `1` | Initial opacity. |
-| `toOpacity` | number | `0` | Final opacity. |
+| Option        | Type   | Default | Description      |
+| ------------- | ------ | ------- | ---------------- |
+| `fromOpacity` | number | `1`     | Initial opacity. |
+| `toOpacity`   | number | `0`     | Final opacity.   |
 
 ## slide-in
 
@@ -108,18 +108,18 @@ await motion.play(element, {
   options: {
     direction: 'bottom',
     distance: 24,
-    fade: true,
-  },
+    fade: true
+  }
 });
 ```
 
 Options:
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
+| Option      | Type                                     | Default    | Description                             |
+| ----------- | ---------------------------------------- | ---------- | --------------------------------------- |
 | `direction` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'bottom'` | Direction from which the target enters. |
-| `distance` | number | `24` | Slide distance in pixels. |
-| `fade` | boolean | `true` | Whether opacity should be animated too. |
+| `distance`  | number                                   | `24`       | Slide distance in pixels.               |
+| `fade`      | boolean                                  | `true`     | Whether opacity should be animated too. |
 
 ## Reduced motion
 

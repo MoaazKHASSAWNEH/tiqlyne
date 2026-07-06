@@ -39,7 +39,7 @@ import { createMotionEngine } from '@tiqlyne/motion-core';
 import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine<Element>({
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 ```
 
@@ -58,7 +58,7 @@ registerBasicMotions(registry);
 
 const motion = createMotionEngine<Element>({
   registry,
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 ```
 
@@ -73,21 +73,21 @@ const motion = createMotionEngine<Element>({
   defaults: {
     duration: 300,
     easing: 'ease-out',
-    fill: 'both',
-  },
+    fill: 'both'
+  }
 });
 ```
 
 Common defaults include:
 
-| Default | Description |
-| --- | --- |
-| `duration` | Default animation duration in milliseconds. |
-| `delay` | Default delay before the animation starts. |
-| `easing` | Default easing function. |
-| `fill` | Default fill mode. |
-| `iterations` | Default iteration count. |
-| `playbackRate` | Default playback speed. |
+| Default        | Description                                 |
+| -------------- | ------------------------------------------- |
+| `duration`     | Default animation duration in milliseconds. |
+| `delay`        | Default delay before the animation starts.  |
+| `easing`       | Default easing function.                    |
+| `fill`         | Default fill mode.                          |
+| `iterations`   | Default iteration count.                    |
+| `playbackRate` | Default playback speed.                     |
 
 ## Reduced motion
 
@@ -98,8 +98,8 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
 const motion = createMotionEngine<Element>({
   driver: new WebMotionDriver({
-    reducedMotion: prefersReducedMotion,
-  }),
+    reducedMotion: prefersReducedMotion
+  })
 });
 ```
 
@@ -110,7 +110,7 @@ await motion.play(element, {
   type: 'slide-in',
   trigger: 'manual',
   respectReducedMotion: true,
-  reducedMotionStrategy: 'simplify',
+  reducedMotionStrategy: 'simplify'
 });
 ```
 
@@ -128,13 +128,13 @@ registerBasicMotions(registry);
 const motion = createMotionEngine<Element>({
   registry,
   driver: new WebMotionDriver({
-    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches
   }),
   defaults: {
     duration: 300,
     easing: 'ease-out',
-    fill: 'both',
-  },
+    fill: 'both'
+  }
 });
 ```
 

@@ -24,11 +24,11 @@ flowchart LR
 
 The engine can start from three authoring formats.
 
-| Input | Engine method |
-| --- | --- |
-| Registered motion config | `play`, `plan`, `createPlayback` |
-| Direct timeline | `playTimeline`, `planTimeline`, `createTimelinePlayback` |
-| Composition | `playComposition`, `planComposition`, `createCompositionPlayback` |
+| Input                    | Engine method                                                     |
+| ------------------------ | ----------------------------------------------------------------- |
+| Registered motion config | `play`, `plan`, `createPlayback`                                  |
+| Direct timeline          | `playTimeline`, `planTimeline`, `createTimelinePlayback`          |
+| Composition              | `playComposition`, `planComposition`, `createCompositionPlayback` |
 
 ## 2. Motion resolution
 
@@ -37,7 +37,7 @@ When a motion config is used, the engine resolves `type` through the registry.
 ```ts
 await motion.play(element, {
   type: 'fade-in',
-  trigger: 'manual',
+  trigger: 'manual'
 });
 ```
 

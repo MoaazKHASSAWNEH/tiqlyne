@@ -29,8 +29,8 @@ const composition = createMotionComposition((composition) => {
     options: {
       direction: 'bottom',
       distance: 24,
-      fade: true,
-    },
+      fade: true
+    }
   });
 });
 ```
@@ -43,7 +43,7 @@ Compositions are compiled with a registry.
 import { compileMotionComposition } from '@tiqlyne/motion-core';
 
 const timeline = compileMotionComposition(composition, {
-  registry,
+  registry
 });
 ```
 
@@ -86,7 +86,7 @@ const composition = createMotionComposition((composition) => {
   composition.defaults({
     duration: 300,
     easing: 'ease-out',
-    fill: 'both',
+    fill: 'both'
   });
 
   composition.motion('fade-in');
@@ -96,8 +96,8 @@ const composition = createMotionComposition((composition) => {
     options: {
       direction: 'bottom',
       distance: 24,
-      fade: true,
-    },
+      fade: true
+    }
   });
 });
 ```
@@ -110,21 +110,21 @@ Each motion in a composition can override timing values.
 const composition = createMotionComposition((composition) => {
   composition.motion('fade-in', {
     defaults: {
-      duration: 200,
-    },
+      duration: 200
+    }
   });
 
   composition.motion('slide-in', {
     at: 200,
     defaults: {
       duration: 400,
-      easing: 'ease-out',
+      easing: 'ease-out'
     },
     options: {
       direction: 'bottom',
       distance: 32,
-      fade: true,
-    },
+      fade: true
+    }
   });
 });
 ```
@@ -135,10 +135,10 @@ Compositions are useful when you want to combine reusable motions.
 
 Timelines are useful when you want to describe low-level animation steps directly.
 
-| Approach | Best for |
-| --- | --- |
-| Composition | Combining registered motions. |
-| Timeline | Low-level custom animation sequences. |
+| Approach    | Best for                              |
+| ----------- | ------------------------------------- |
+| Composition | Combining registered motions.         |
+| Timeline    | Low-level custom animation sequences. |
 
 ## When to use compositions
 

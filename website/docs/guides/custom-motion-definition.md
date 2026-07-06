@@ -30,7 +30,7 @@ import {
   type InferMotionOptions,
   type MotionBuildContext,
   type MotionCategory,
-  type MotionTimelineDefinition,
+  type MotionTimelineDefinition
 } from '@tiqlyne/motion-core';
 
 const options = defineMotionOptions({
@@ -41,8 +41,8 @@ const options = defineMotionOptions({
     min: 0,
     max: 300,
     step: 1,
-    unit: 'px',
-  }),
+    unit: 'px'
+  })
 });
 
 type Options = InferMotionOptions<typeof options.schema>;
@@ -63,21 +63,21 @@ export class RiseInMotion extends SchemaMotionDefinition<typeof options.schema> 
             duration: context.duration,
             delay: context.delay,
             easing: context.easing,
-            fill: 'both',
+            fill: 'both'
           },
           (step) => {
             step.from({
               opacity: 0,
               transform: {
-                y: context.options.distance,
-              },
+                y: context.options.distance
+              }
             });
 
             step.to({
               opacity: 1,
               transform: {
-                y: 0,
-              },
+                y: 0
+              }
             });
           }
         );
@@ -100,8 +100,8 @@ await motion.play(element, {
   type: 'rise-in',
   trigger: 'manual',
   options: {
-    distance: 32,
-  },
+    distance: 32
+  }
 });
 ```
 

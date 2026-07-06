@@ -46,7 +46,7 @@ import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine<Element>({
   registry,
-  driver: new WebMotionDriver(),
+  driver: new WebMotionDriver()
 });
 ```
 
@@ -55,7 +55,7 @@ const motion = createMotionEngine<Element>({
 ```ts
 await motion.play(element, {
   type: 'fade-in',
-  trigger: 'manual',
+  trigger: 'manual'
 });
 ```
 
@@ -70,8 +70,8 @@ await motion.play(element, {
   options: {
     direction: 'bottom',
     distance: 32,
-    fade: true,
-  },
+    fade: true
+  }
 });
 ```
 
@@ -85,7 +85,7 @@ await motion.play(element, {
   trigger: 'manual',
   duration: 500,
   delay: 100,
-  easing: 'ease-out',
+  easing: 'ease-out'
 });
 ```
 
@@ -95,7 +95,7 @@ await motion.play(element, {
 if (registry.has('slide-in')) {
   await motion.play(element, {
     type: 'slide-in',
-    trigger: 'manual',
+    trigger: 'manual'
   });
 }
 ```
@@ -141,7 +141,7 @@ Use a registered motion when the animation is reusable.
 
 Use a direct timeline when the animation is specific to one case.
 
-| Approach | Best for |
-| --- | --- |
-| Registered motion | Reusable animation behaviors. |
-| Direct timeline | One-off custom animation sequences. |
+| Approach          | Best for                            |
+| ----------------- | ----------------------------------- |
+| Registered motion | Reusable animation behaviors.       |
+| Direct timeline   | One-off custom animation sequences. |

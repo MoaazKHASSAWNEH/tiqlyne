@@ -13,18 +13,14 @@ const sidebars: SidebarsConfig = {
       items: [
         'architecture/overview',
         'architecture/package-boundaries',
-        'architecture/execution-pipeline',
-      ],
+        'architecture/execution-pipeline'
+      ]
     },
 
     {
       type: 'category',
       label: 'Packages',
-      items: [
-        'packages/motion-core',
-        'packages/motion-web',
-        'packages/motion-pack-basic',
-      ],
+      items: ['packages/motion-core', 'packages/motion-web', 'packages/motion-pack-basic']
     },
 
     {
@@ -42,8 +38,8 @@ const sidebars: SidebarsConfig = {
         'guides/inspector',
         'guides/reduced-motion',
         'guides/custom-motion-definition',
-        'guides/custom-motion-driver',
-      ],
+        'guides/custom-motion-driver'
+      ]
     },
 
     {
@@ -59,8 +55,8 @@ const sidebars: SidebarsConfig = {
         'reference/playback-controller',
         'reference/playback-result',
         'reference/diagnostics',
-        'reference/public-exports',
-      ],
+        'reference/public-exports'
+      ]
     },
 
     {
@@ -72,16 +68,16 @@ const sidebars: SidebarsConfig = {
         'examples/fade-out',
         'examples/slide-in',
         'examples/direct-timeline',
-        'examples/composition',
-      ],
+        'examples/composition'
+      ]
     },
 
     {
       type: 'category',
       label: 'Release',
-      items: ['release/status', 'release/roadmap', 'release/v0-1-0'],
-    },
-  ],
+      items: ['release/status', 'release/roadmap', 'release/v0-1-0']
+    }
+  ]
 };
 
 export default sidebars;

@@ -26,15 +26,15 @@ const timeline = createMotionTimeline((timeline) => {
       {
         duration: 300,
         easing: 'ease-out',
-        fill: 'both',
+        fill: 'both'
       },
       (step) => {
         step.from({
-          opacity: 0,
+          opacity: 0
         });
 
         step.to({
-          opacity: 1,
+          opacity: 1
         });
       }
     );
@@ -57,7 +57,7 @@ const timeline = createMotionTimeline((timeline) => {
   timeline.defaults({
     duration: 500,
     easing: 'ease-out',
-    fill: 'both',
+    fill: 'both'
   });
 
   timeline.track('self', (track) => {
@@ -78,7 +78,7 @@ const timeline = createMotionTimeline((timeline) => {
   timeline.defaults({
     duration: 300,
     easing: 'ease-out',
-    fill: 'both',
+    fill: 'both'
   });
 
   timeline.track('self', (track) => {
@@ -89,19 +89,19 @@ const timeline = createMotionTimeline((timeline) => {
 
     track.step(
       {
-        at: 300,
+        at: 300
       },
       (step) => {
         step.from({
           transform: {
-            y: 16,
-          },
+            y: 16
+          }
         });
 
         step.to({
           transform: {
-            y: 0,
-          },
+            y: 0
+          }
         });
       }
     );
@@ -126,14 +126,14 @@ const timeline = createMotionTimeline((timeline) => {
     track.step({}, (step) => {
       step.from({
         transform: {
-          y: 12,
-        },
+          y: 12
+        }
       });
 
       step.to({
         transform: {
-          y: 0,
-        },
+          y: 0
+        }
       });
     });
   });
@@ -152,7 +152,7 @@ const timeline = createMotionTimeline((timeline) => {
   timeline.track('self', (track) => {
     track.step(
       {
-        at: 'enter',
+        at: 'enter'
       },
       (step) => {
         step.from({ opacity: 0 });
@@ -181,8 +181,8 @@ step.from({
     x: -24,
     y: 0,
     scale: 0.95,
-    rotate: -4,
-  },
+    rotate: -4
+  }
 });
 
 step.to({
@@ -190,8 +190,8 @@ step.to({
     x: 0,
     y: 0,
     scale: 1,
-    rotate: 0,
-  },
+    rotate: 0
+  }
 });
 ```
 

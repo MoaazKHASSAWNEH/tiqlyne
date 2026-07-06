@@ -24,7 +24,7 @@ Diagnostics can appear in:
 ```ts
 const result = await motion.play(element, {
   type: 'slide-in',
-  trigger: 'manual',
+  trigger: 'manual'
 });
 
 if (result.diagnostics?.length) {
@@ -36,13 +36,13 @@ if (result.diagnostics?.length) {
 
 A diagnostic usually contains:
 
-| Field | Purpose |
-| --- | --- |
-| `level` | Severity level. |
-| `code` | Stable machine-readable code. |
-| `message` | Human-readable explanation. |
-| `source` | Origin of the diagnostic. |
-| `metadata` | Optional additional context. |
+| Field      | Purpose                       |
+| ---------- | ----------------------------- |
+| `level`    | Severity level.               |
+| `code`     | Stable machine-readable code. |
+| `message`  | Human-readable explanation.   |
+| `source`   | Origin of the diagnostic.     |
+| `metadata` | Optional additional context.  |
 
 ## Status and reason
 

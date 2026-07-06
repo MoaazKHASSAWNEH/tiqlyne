@@ -23,12 +23,12 @@ It receives a build context and returns a timeline.
 
 A definition usually exposes:
 
-| Field | Description |
-| --- | --- |
-| `type` | Stable motion identifier. |
-| `label` | Human-readable name. |
-| `description` | Human-readable description. |
-| `category` | Motion category such as `entrance` or `exit`. |
+| Field         | Description                                   |
+| ------------- | --------------------------------------------- |
+| `type`        | Stable motion identifier.                     |
+| `label`       | Human-readable name.                          |
+| `description` | Human-readable description.                   |
+| `category`    | Motion category such as `entrance` or `exit`. |
 
 ## Timeline building
 

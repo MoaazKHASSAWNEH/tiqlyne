@@ -63,8 +63,8 @@ const motion = createMotionEngine({
   defaults: {
     duration: 300,
     easing: 'ease-out',
-    fill: 'both',
-  },
+    fill: 'both'
+  }
 });
 ```
 
@@ -97,17 +97,17 @@ const timeline = createMotionTimeline((timeline) => {
   timeline.defaults({
     duration: 500,
     easing: 'ease-out',
-    fill: 'both',
+    fill: 'both'
   });
 
   timeline.track('self', (track) => {
     track.step({}, (step) => {
       step.from({
-        opacity: 0,
+        opacity: 0
       });
 
       step.to({
-        opacity: 1,
+        opacity: 1
       });
     });
   });
@@ -126,13 +126,13 @@ const composition = createMotionComposition((composition) => {
     options: {
       direction: 'bottom',
       distance: 24,
-      fade: true,
-    },
+      fade: true
+    }
   });
 });
 
 const timeline = compileMotionComposition(composition, {
-  registry,
+  registry
 });
 ```
 
@@ -152,7 +152,7 @@ console.log(inspection);
 import { sampleMotionTimeline } from '@tiqlyne/motion-core';
 
 const samples = sampleMotionTimeline(timeline, {
-  interval: 100,
+  interval: 100
 });
 
 console.log(samples);

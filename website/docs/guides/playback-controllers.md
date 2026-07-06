@@ -13,7 +13,7 @@ Use them for interactive previews, UI controls, timeline editors, demos and adva
 ```ts
 const playback = motion.createPlayback(element, {
   type: 'fade-in',
-  trigger: 'manual',
+  trigger: 'manual'
 });
 ```
 

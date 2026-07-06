@@ -42,10 +42,10 @@ Inspection can help answer questions such as:
 
 ## Inspector vs sampler
 
-| Tool | Purpose |
-| --- | --- |
-| Inspector | Understand timeline structure. |
-| Sampler | Read timeline values at time points. |
+| Tool      | Purpose                              |
+| --------- | ------------------------------------ |
+| Inspector | Understand timeline structure.       |
+| Sampler   | Read timeline values at time points. |
 
 Use the inspector when you need metadata.
 

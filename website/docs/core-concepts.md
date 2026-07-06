@@ -72,8 +72,8 @@ await motion.play(element, {
   options: {
     direction: 'bottom',
     distance: 24,
-    fade: true,
-  },
+    fade: true
+  }
 });
 ```
 
@@ -98,12 +98,12 @@ A track targets something to animate.
 
 Common targets are:
 
-| Target | Meaning |
-| --- | --- |
-| `self` | The root target passed to the engine. |
-| `child` | A child element identified by `data-motion-child`. |
-| `selector` | Elements matching a CSS selector. |
-| `named` | A document-level element identified by `data-motion-name`. |
+| Target     | Meaning                                                    |
+| ---------- | ---------------------------------------------------------- |
+| `self`     | The root target passed to the engine.                      |
+| `child`    | A child element identified by `data-motion-child`.         |
+| `selector` | Elements matching a CSS selector.                          |
+| `named`    | A document-level element identified by `data-motion-name`. |
 
 ## Step
 
@@ -115,7 +115,7 @@ A step usually contains timing options and keyframes.
 track.step(
   {
     duration: 300,
-    easing: 'ease-out',
+    easing: 'ease-out'
   },
   (step) => {
     step.from({ opacity: 0 });

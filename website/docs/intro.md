@@ -42,11 +42,11 @@ It provides:
 
 Tiqlyne Motion Engine is split into focused packages:
 
-| Package | Description |
-| --- | --- |
-| `@tiqlyne/motion-core` | Core engine, timeline model, registry, validation, planning, diagnostics, sampling and inspection. |
-| `@tiqlyne/motion-web` | Web driver based on the Web Animations API. |
-| `@tiqlyne/motion-pack-basic` | Official basic animation pack with ready-to-use motions. |
+| Package                      | Description                                                                                        |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| `@tiqlyne/motion-core`       | Core engine, timeline model, registry, validation, planning, diagnostics, sampling and inspection. |
+| `@tiqlyne/motion-web`        | Web driver based on the Web Animations API.                                                        |
+| `@tiqlyne/motion-pack-basic` | Official basic animation pack with ready-to-use motions.                                           |
 
 ## Current status
 
