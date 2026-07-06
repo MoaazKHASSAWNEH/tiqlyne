@@ -54,4 +54,7 @@ The invalid fade ordering produces reason `invalid-motion-options`; validation m
 
 Assuming every failure includes diagnostics or displaying raw developer messages directly to end users.
 
-Related: [Diagnostics guide](../guides/diagnostics.md) and [playback results](../reference/playback-result.md).
+## Related pages
+
+- [Diagnostics guide](../guides/diagnostics.md)
+- [Playback results](../reference/playback-result.md)

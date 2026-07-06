@@ -53,4 +53,7 @@ Both tracks start at zero and run together. If the child attribute is missing, p
 
 Omitting explicit positions when tracks should align or forgetting the child data attribute.
 
-Related: [Multiple tracks guide](../guides/multiple-tracks-and-steps.md) and [timeline builder](../reference/timeline-builder.md).
+## Related pages
+
+- [Multiple tracks guide](../guides/multiple-tracks-and-steps.md)
+- [Timeline builder](../reference/timeline-builder.md)

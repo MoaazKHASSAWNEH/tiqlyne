@@ -58,4 +58,7 @@ Playback pauses, seeks to the halfway/details position, resumes faster, and reso
 
 Using a fallback controller, controlling terminal playback, or expecting `dispose()` to cancel.
 
-Related: [Controller guide](../guides/playback-controllers.md) and [controller reference](../reference/playback-controller.md).
+## Related pages
+
+- [Controller guide](../guides/playback-controllers.md)
+- [Controller reference](../reference/playback-controller.md)

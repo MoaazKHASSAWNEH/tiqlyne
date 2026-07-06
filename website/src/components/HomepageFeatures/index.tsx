@@ -46,6 +46,11 @@ const paths = [
     to: '/docs/examples'
   },
   {
+    title: 'Explore a guide',
+    text: 'Go deeper on timelines, runtime behavior, tooling, extensibility, and troubleshooting.',
+    to: '/docs/guides'
+  },
+  {
     title: 'Look up an API',
     text: 'Find exact signatures, normalized defaults, reasons, diagnostics, and limitations.',
     to: '/docs/reference'

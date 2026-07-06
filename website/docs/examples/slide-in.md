@@ -53,4 +53,7 @@ The normal animation moves 32 px from the right. Reduced motion uses the pack's 
 
 Assuming the driver observes preference changes or using an unsupported direction.
 
-Related: [Reduced motion](../reference/reduced-motion.md) and [basic pack](../reference/basic-pack.md).
+## Related pages
+
+- [Reduced motion](../reference/reduced-motion.md)
+- [Basic pack](../reference/basic-pack.md)

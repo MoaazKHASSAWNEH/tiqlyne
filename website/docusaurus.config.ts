@@ -45,10 +45,18 @@ const config: Config = {
       items: [
         { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: 'Docs' },
         { type: 'docSidebar', sidebarId: 'tutorials', position: 'left', label: 'Tutorials' },
+        { type: 'docSidebar', sidebarId: 'guides', position: 'left', label: 'Guides' },
         { type: 'docSidebar', sidebarId: 'examples', position: 'left', label: 'Examples' },
         { type: 'docSidebar', sidebarId: 'reference', position: 'left', label: 'API Reference' },
-        { to: '/blog', label: 'Blog', position: 'left' },
-        { type: 'docSidebar', sidebarId: 'project', position: 'left', label: 'Project' },
+        {
+          type: 'dropdown',
+          label: 'More',
+          position: 'left',
+          items: [
+            { to: '/blog', label: 'Blog' },
+            { to: '/docs/project', label: 'Project' }
+          ]
+        },
         { href: repositoryUrl, label: 'GitHub', position: 'right' }
       ]
     },
@@ -60,6 +68,7 @@ const config: Config = {
           items: [
             { label: 'Getting started', to: '/docs/getting-started' },
             { label: 'Tutorials', to: '/docs/tutorials' },
+            { label: 'Guides', to: '/docs/guides' },
             { label: 'Examples', to: '/docs/examples' }
           ]
         },
@@ -68,7 +77,8 @@ const config: Config = {
           items: [
             { label: 'API Reference', to: '/docs/reference' },
             { label: 'MotionEngine', to: '/docs/reference/motion-engine' },
-            { label: 'WebMotionDriver', to: '/docs/reference/web-motion-driver' }
+            { label: 'WebMotionDriver', to: '/docs/reference/web-motion-driver' },
+            { label: 'Basic pack', to: '/docs/reference/basic-pack' }
           ]
         },
         {
@@ -76,6 +86,7 @@ const config: Config = {
           items: [
             { label: 'Architecture', to: '/docs/architecture/overview' },
             { label: 'Roadmap', to: '/docs/release/roadmap' },
+            { label: 'Blog', to: '/blog' },
             { label: 'GitHub', href: repositoryUrl }
           ]
         }

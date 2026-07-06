@@ -52,4 +52,6 @@ With reduced motion off, the panel slides and fades. With it on, `SlideInMotion`
 
 Assuming media-query changes are observed automatically or using `preserve` while expecting simplification.
 
-Related: [Reduced motion reference](../reference/reduced-motion.md).
+## Related pages
+
+- [Reduced motion reference](../reference/reduced-motion.md)

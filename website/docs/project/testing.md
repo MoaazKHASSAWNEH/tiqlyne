@@ -4,6 +4,8 @@ sidebar_position: 4
 
 # Testing
 
+This page is for maintainers and contributors validating repository changes.
+
 Run the complete test suite from the repository root:
 
 ```bash

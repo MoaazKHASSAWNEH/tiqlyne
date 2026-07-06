@@ -47,4 +47,6 @@ The dialog reaches full opacity and the result normally reports `finished`. `fro
 
 Forgetting to register the pack, omitting `id`, or reversing the opacity values.
 
-Related: [Basic pack reference](../reference/basic-pack.md).
+## Related pages
+
+- [Basic pack reference](../reference/basic-pack.md)

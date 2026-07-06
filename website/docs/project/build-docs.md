@@ -4,6 +4,8 @@ sidebar_position: 5
 
 # Build the documentation
 
+This page is for maintainers and contributors working on the official Docusaurus site.
+
 Run the development server:
 
 ```bash

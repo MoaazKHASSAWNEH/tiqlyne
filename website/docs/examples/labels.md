@@ -49,4 +49,7 @@ The controller seeks to 300 ms. Blank or unknown labels return skipped results.
 
 Jumping after playback becomes terminal or referencing a label that was never added to the timeline.
 
-Related: [Labels guide](../guides/labels.md) and [controller reference](../reference/playback-controller.md).
+## Related pages
+
+- [Labels guide](../guides/labels.md)
+- [Controller reference](../reference/playback-controller.md)

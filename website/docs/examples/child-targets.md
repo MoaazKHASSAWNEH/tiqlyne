@@ -49,4 +49,6 @@ The heading is the only animated element. If the attribute is missing or not bel
 
 Placing the attribute outside the playback root or expecting `child` to animate several matches.
 
-Related: [Motion targets](../reference/motion-targets.md).
+## Related pages
+
+- [Motion targets](../reference/motion-targets.md)

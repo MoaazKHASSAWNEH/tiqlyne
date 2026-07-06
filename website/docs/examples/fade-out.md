@@ -47,4 +47,6 @@ The notification becomes transparent. Removing it from the DOM after playback re
 
 Removing the node before awaiting the result or reversing the opacity values.
 
-Related: [Basic pack reference](../reference/basic-pack.md).
+## Related pages
+
+- [Basic pack reference](../reference/basic-pack.md)

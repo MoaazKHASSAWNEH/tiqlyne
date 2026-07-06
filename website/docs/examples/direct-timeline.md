@@ -47,4 +47,7 @@ The element moves upward and becomes opaque. Use a registered definition instead
 
 Creating empty keyframes or putting timeline-only defaults on `MotionConfig`.
 
-Related: [Direct timelines guide](../guides/direct-timelines.md) and [timeline builder](../reference/timeline-builder.md).
+## Related pages
+
+- [Direct timelines guide](../guides/direct-timelines.md)
+- [Timeline builder](../reference/timeline-builder.md)

@@ -7,7 +7,29 @@ slug: /installation
 
 Tiqlyne Motion Engine is organized as a set of npm packages under the `@tiqlyne` scope.
 
-## Packages
+## Package manager examples
+
+Tiqlyne packages are regular npm packages. Documentation examples often use pnpm, but applications can install them with npm, pnpm, Yarn, or another compatible package manager.
+
+### npm
+
+```bash
+npm install @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
+
+### pnpm
+
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
+
+### Yarn
+
+```bash
+yarn add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
+
+## Install packages individually
 
 ```bash
 pnpm add @tiqlyne/motion-core
@@ -15,11 +37,7 @@ pnpm add @tiqlyne/motion-web
 pnpm add @tiqlyne/motion-pack-basic
 ```
 
-Or install everything needed for browser usage:
-
-```bash
-pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
-```
+Install only the packages your application imports. Browser applications commonly need core and Web; the basic pack is optional.
 
 ## Package roles
 
@@ -57,3 +75,9 @@ The current documentation targets:
 ```
 
 This version is intended as the first public pre-release foundation.
+
+## Related pages
+
+- [Getting started](./getting-started.md)
+- [Web engine setup tutorial](../tutorials/web-engine-setup.md)
+- [Package boundaries](../architecture/package-boundaries.md)

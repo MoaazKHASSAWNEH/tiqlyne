@@ -53,4 +53,7 @@ Fade begins immediately and slide begins at 150 ms. Unknown types or invalid opt
 
 Compiling with a registry that lacks the referenced definitions or confusing compositions with nested timelines.
 
-Related: [Compositions guide](../guides/compositions.md) and [composition builder](../reference/composition-builder.md).
+## Related pages
+
+- [Compositions guide](../guides/compositions.md)
+- [Composition builder](../reference/composition-builder.md)

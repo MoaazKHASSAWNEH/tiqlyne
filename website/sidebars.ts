@@ -10,32 +10,25 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Packages',
-      collapsed: true,
+      collapsed: false,
       items: ['packages/motion-core', 'packages/motion-web', 'packages/motion-pack-basic']
     },
     {
       type: 'category',
-      label: 'Guides',
+      label: 'Essential guides',
       collapsed: true,
       items: [
-        'guides/index',
-        'guides/engine-setup',
-        'guides/registered-motions',
-        'guides/basic-motions',
-        'guides/direct-timelines',
-        'guides/multiple-tracks-and-steps',
-        'guides/labels',
-        'guides/compositions',
-        'guides/playback-controllers',
-        'guides/events',
-        'guides/diagnostics',
-        'guides/sampler',
-        'guides/inspector',
-        'guides/reduced-motion',
-        'guides/custom-motion-definition',
-        'guides/custom-motion-driver',
-        'guides/troubleshooting',
-        'guides/recipes'
+        { type: 'link', label: 'Engine setup', href: '/docs/guides/engine-setup' },
+        { type: 'link', label: 'Basic motions', href: '/docs/guides/basic-motions' },
+        { type: 'link', label: 'Direct timelines', href: '/docs/guides/direct-timelines' },
+        { type: 'link', label: 'Compositions', href: '/docs/guides/compositions' },
+        {
+          type: 'link',
+          label: 'Playback controllers',
+          href: '/docs/guides/playback-controllers'
+        },
+        { type: 'link', label: 'Reduced motion', href: '/docs/guides/reduced-motion' },
+        { type: 'link', label: 'Troubleshooting', href: '/docs/guides/troubleshooting' }
       ]
     }
   ],
@@ -66,6 +59,48 @@ const sidebars: SidebarsConfig = {
         'tutorials/custom-motion-definition',
         'tutorials/custom-driver'
       ]
+    }
+  ],
+
+  guides: [
+    'guides/index',
+    {
+      type: 'category',
+      label: 'Core usage',
+      items: [
+        'guides/engine-setup',
+        'guides/registered-motions',
+        'guides/basic-motions',
+        'guides/direct-timelines',
+        'guides/multiple-tracks-and-steps',
+        'guides/labels',
+        'guides/compositions'
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Runtime behavior',
+      items: [
+        'guides/playback-controllers',
+        'guides/events',
+        'guides/diagnostics',
+        'guides/reduced-motion'
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Tooling',
+      items: ['guides/sampler', 'guides/inspector']
+    },
+    {
+      type: 'category',
+      label: 'Extensibility',
+      items: ['guides/custom-motion-definition', 'guides/custom-motion-driver']
+    },
+    {
+      type: 'category',
+      label: 'Help',
+      items: ['guides/troubleshooting', 'guides/recipes']
     }
   ],
 

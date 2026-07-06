@@ -2,10 +2,25 @@
 title: Why Tiqlyne Motion Engine exists
 description: Why typed, inspectable motion deserves its own platform-independent layer.
 slug: why-tiqlyne-motion-engine-exists
+date: 2026-07-07
 ---
 
-Animation code often begins as a small call tied directly to an element. As an application grows, that call becomes harder to reuse, validate, test, or adapt to accessibility preferences.
+## The problem
 
-Tiqlyne Motion Engine separates three concerns: core data and planning, platform execution, and reusable motion definitions. A timeline can be built and inspected without a browser; a driver can translate the same contract to a runtime; a pack can provide a shared motion vocabulary.
+Animation code often begins as a small call tied directly to an element. As an application grows, that call becomes harder to reuse, validate, test, inspect, or adapt to accessibility preferences.
 
-Version 0.1.0 keeps the scope deliberately small. It provides a TypeScript core, a Web Animations API driver, and three basic motions. The goal is a dependable foundation—not a promise that every animation style or framework integration already exists.
+## The approach
+
+Tiqlyne separates core data and planning, platform execution, and reusable definitions. A timeline can be validated and inspected without a browser; a driver translates it to a runtime; a pack provides shared motion vocabulary.
+
+## What exists in 0.1.0
+
+The current scope includes typed timelines, registered definitions, compositions, controllers, diagnostics, sampling, inspection, a Web Animations API driver, and `fade-in`, `fade-out`, and `slide-in`.
+
+## What does not exist yet
+
+Version 0.1.0 does not include official framework adapters, a visual editor, additional production drivers, or a large animation catalogue.
+
+## What comes next
+
+The immediate priority is to validate the public foundation through real usage and evolve it carefully before 1.0. Planned work remains documented in the project roadmap rather than presented as shipped functionality.

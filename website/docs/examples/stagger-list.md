@@ -51,4 +51,6 @@ The selector resolves all three descendants. Their scheduled delays increase by 
 
 Using a selector outside the root or expecting stagger to create elements.
 
-Related: [Multiple tracks and steps](../guides/multiple-tracks-and-steps.md).
+## Related pages
+
+- [Multiple tracks and steps](../guides/multiple-tracks-and-steps.md)

@@ -2,12 +2,21 @@
 title: Reduced motion and accessible animation
 description: Reduced motion as a policy shared by configs, definitions, and drivers.
 slug: reduced-motion-and-accessibility
+date: 2026-07-07
 ---
 
-Reduced motion is not one universal replacement animation. Applications need a policy, reusable motions may know the safest alternative, and the runtime must know the user's platform preference.
+## Why reduced motion matters
 
-Tiqlyne represents those responsibilities explicitly. A config chooses `skip`, `simplify`, or `preserve`. A definition may provide `buildReducedMotionTimeline`. The Web driver receives a reduced-motion preference snapshot and selects the appropriate timeline.
+Motion should support comprehension without causing avoidable discomfort. Reduced motion is not one universal replacement: applications need policy, definitions may know a suitable alternative, and runtimes must know the platform preference.
 
-In 0.1.0 the driver does not monitor `matchMedia` automatically. Applications that support live preference changes must update their wiring. The basic `slide-in` motion provides a short opacity-only fallback; other definitions may use the Web driver's generic simplification.
+## What the engine supports today
 
-Accessible motion also includes restraint: animation should support comprehension, preserve semantic HTML, and never become the only way information is conveyed.
+A config chooses `skip`, `simplify`, or `preserve`. A definition may provide `buildReducedMotionTimeline`. The basic `slide-in` definition supplies a short opacity-only alternative, while the Web driver can produce a generic simplification.
+
+## What the Web driver does not observe automatically
+
+`WebMotionDriver` receives a `reducedMotion` boolean snapshot. It does not call or subscribe to `matchMedia`; applications that support live preference changes must update their engine/driver wiring.
+
+## Best practices
+
+Use motion to reinforce hierarchy, keep alternatives short and calm, preserve semantic HTML, and never make animation the only way information is conveyed. Test all three policies with real interface states.

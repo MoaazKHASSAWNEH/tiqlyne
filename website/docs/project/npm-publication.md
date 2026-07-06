@@ -4,6 +4,8 @@ sidebar_position: 6
 
 # npm publication
 
+This page is for release maintainers. Application users should follow [Installation](../start/installation.md) instead.
+
 The public package names are `@tiqlyne/motion-core`, `@tiqlyne/motion-web`, and `@tiqlyne/motion-pack-basic`, all targeting version `0.1.0`.
 
 Before publishing from this repository, authenticate with npm, confirm access to the `@tiqlyne` scope, and run the repository checks:
