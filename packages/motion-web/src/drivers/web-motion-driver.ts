@@ -9,7 +9,7 @@ import {
   type MotionPlaybackController,
   type MotionPlaybackResult,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import { WebMotionPlaybackController } from '../controllers/web-motion-playback-controller';
 import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
 import {
