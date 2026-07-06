@@ -8,7 +8,7 @@ import {
   type MotionBuildContext,
   type MotionCategory,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 const fadeInMotionOptions = defineMotionOptions({
   fromOpacity: option.range({
