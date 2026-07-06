@@ -1,7 +1,7 @@
 {
-  "name": "@structifyx/motion-web",
+  "name": "@tiqlyne/motion-web",
   "version": "0.1.0",
-  "description": "Web Animation API driver for Structifyx Motion Engine.",
+  "description": "Web Animation API driver for Tiqlyne Motion Engine.",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -19,7 +19,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@structifyx/motion-core": "workspace:*"
+    "@tiqlyne/motion-core": "workspace:*"
   },
   "files": [
     "dist"
