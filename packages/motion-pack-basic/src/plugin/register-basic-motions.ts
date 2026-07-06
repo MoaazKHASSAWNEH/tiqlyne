@@ -1,4 +1,4 @@
-import type { MotionRegistry } from '@structifyx/motion-core';
+import type { MotionRegistry } from '@tiqlyne/motion-core';
 import { FadeInMotion } from '../motions/fade-in-motion';
 import { FadeOutMotion } from '../motions/fade-out-motion';
 import { SlideInMotion } from '../motions/slide-in-motion';
