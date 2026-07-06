@@ -1,4 +1,4 @@
-import type { MotionPlayOptions } from '@structifyx/motion-core';
+import type { MotionPlayOptions } from '@tiqlyne/motion-core';
 import { describe, expect, it, vi } from 'vitest';
 import {
   cancelWebAnimations,

@@ -1,7 +1,7 @@
 # Motion Composition API
 
 > Status: current public API guide.
-> Scope: `@structifyx/motion-core` composition API.
+> Scope: `@tiqlyne/motion-core` composition API.
 > Audience: users creating composed animations from registered motions and direct timelines.
 > Runtime support: a composition is compiled to a timeline, then executed through the existing timeline pipeline.
 
@@ -918,9 +918,9 @@ import {
   createMotionComposition,
   createMotionEngine,
   DefaultMotionRegistry
-} from '@structifyx/motion-core';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
-import { WebMotionDriver } from '@structifyx/motion-web';
+} from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const registry = new DefaultMotionRegistry();
 registerBasicMotions(registry);

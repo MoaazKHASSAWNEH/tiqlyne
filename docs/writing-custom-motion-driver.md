@@ -1,8 +1,8 @@
 # Writing a Custom MotionDriver
 
 > Status: current guide.
-> Scope: `@structifyx/motion-core` driver contract and platform adapter design.
-> Audience: developers who want to execute Structifyx Motion timelines outside the Web driver.
+> Scope: `@tiqlyne/motion-core` driver contract and platform adapter design.
+> Audience: developers who want to execute Tiqlyne Motion timelines outside the Web driver.
 
 ## 1. What a driver is
 
@@ -206,7 +206,7 @@ import type {
   MotionPlayOptions,
   MotionPlaybackResult,
   MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 export class ConsoleMotionDriver<TTarget = unknown> implements MotionDriver<TTarget> {
   readonly name = 'console';
@@ -235,7 +235,7 @@ export class ConsoleMotionDriver<TTarget = unknown> implements MotionDriver<TTar
 Usage:
 
 ```ts
-import { createMotionEngine } from '@structifyx/motion-core';
+import { createMotionEngine } from '@tiqlyne/motion-core';
 
 const motion = createMotionEngine<string>({
   driver: new ConsoleMotionDriver()

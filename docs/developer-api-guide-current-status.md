@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Current API Status
+# Tiqlyne Motion Engine - Current API Status
 
 > Status: documentation addendum.
 > Purpose: keep the developer documentation aligned with the current implementation.
@@ -61,9 +61,9 @@ Current package state:
 ```txt
 root package: private true
 workspace version: 0.1.0
-@structifyx/motion-core: 0.1.0
-@structifyx/motion-web: 0.1.0
-@structifyx/motion-pack-basic: 0.1.0
+@tiqlyne/motion-core: 0.1.0
+@tiqlyne/motion-web: 0.1.0
+@tiqlyne/motion-pack-basic: 0.1.0
 ```
 
 ## 3. Current usage modes
@@ -534,7 +534,7 @@ pnpm format: OK
 pnpm test: OK
 pnpm typecheck: OK
 pnpm build: OK
-pnpm --filter @structifyx/motion-core build: OK
+pnpm --filter @tiqlyne/motion-core build: OK
 motion-core: 29 test files passed / 328 tests passed
 motion-pack-basic: 4 test files passed / 25 tests passed
 motion-web: 12 test files passed / 159 tests passed

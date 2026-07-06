@@ -1,9 +1,9 @@
-# Structifyx Motion Engine - Document de reprise projet
+# Tiqlyne Motion Engine - Document de reprise projet
 
 > Status: document de reprise principal.
 > Objectif: permettre a Moaaz, a un autre agent ChatGPT/LLM ou a un developpeur de reprendre le projet exactement au bon point.
 > Dernier etat verifie: apres `77f3beb docs(core): add tsdoc to engine factory and base definitions`.
-> Derniere validation complete connue: `pnpm format`, `pnpm test`, `pnpm typecheck`, `pnpm build`, puis build cible `@structifyx/motion-core` OK.
+> Derniere validation complete connue: `pnpm format`, `pnpm test`, `pnpm typecheck`, `pnpm build`, puis build cible `@tiqlyne/motion-core` OK.
 
 Ce document doit etre lu avant de modifier le projet.
 
@@ -24,7 +24,7 @@ main
 Package scope:
 
 ```txt
-@structifyx
+@tiqlyne
 ```
 
 Objectif du projet: construire un moteur d'animation TypeScript, framework-agnostic, fortement type, extensible, documente et utilisable dans plusieurs produits ou frameworks.
@@ -32,7 +32,7 @@ Objectif du projet: construire un moteur d'animation TypeScript, framework-agnos
 Le moteur doit servir de base officielle pour:
 
 ```txt
-- Structifyx
+- Tiqlyne
 - Sondatio
 - futurs builders visuels
 - applications Web vanilla
@@ -94,7 +94,7 @@ Ne pas retourner une propriete optionnelle avec `undefined`.
 
 ## 4. Packages du monorepo
 
-### 4.1 `@structifyx/motion-core`
+### 4.1 `@tiqlyne/motion-core`
 
 Role:
 
@@ -127,7 +127,7 @@ Regle absolue:
 motion-core ne doit pas importer DOM, WAAPI, Angular, React, GSAP ou une API navigateur.
 ```
 
-### 4.2 `@structifyx/motion-web`
+### 4.2 `@tiqlyne/motion-web`
 
 Role:
 
@@ -144,7 +144,7 @@ Role:
 - getState() base sur Animation.currentTime, duration, playbackRate et sampler quand possible
 ```
 
-### 4.3 `@structifyx/motion-pack-basic`
+### 4.3 `@tiqlyne/motion-pack-basic`
 
 Motions actuelles:
 
@@ -520,7 +520,7 @@ pnpm format
 pnpm test
 pnpm typecheck
 pnpm build
-pnpm --filter @structifyx/motion-core build
+pnpm --filter @tiqlyne/motion-core build
 ```
 
 Resultat:
@@ -531,7 +531,7 @@ motion-core: 29 test files passed / 328 tests passed
 motion-web: 12 test files passed / 159 tests passed
 motion-pack-basic: 4 test files passed / 25 tests passed
 examples/vanilla build OK
-@structifyx/motion-core build OK
+@tiqlyne/motion-core build OK
 ```
 
 ## 9. Commandes de validation recommandees
@@ -548,17 +548,17 @@ pnpm build
 Validation ciblee:
 
 ```bash
-pnpm --filter @structifyx/motion-core test
-pnpm --filter @structifyx/motion-core typecheck
-pnpm --filter @structifyx/motion-core build
+pnpm --filter @tiqlyne/motion-core test
+pnpm --filter @tiqlyne/motion-core typecheck
+pnpm --filter @tiqlyne/motion-core build
 
-pnpm --filter @structifyx/motion-web test
-pnpm --filter @structifyx/motion-web typecheck
-pnpm --filter @structifyx/motion-web build
+pnpm --filter @tiqlyne/motion-web test
+pnpm --filter @tiqlyne/motion-web typecheck
+pnpm --filter @tiqlyne/motion-web build
 
-pnpm --filter @structifyx/motion-pack-basic test
-pnpm --filter @structifyx/motion-pack-basic typecheck
-pnpm --filter @structifyx/motion-pack-basic build
+pnpm --filter @tiqlyne/motion-pack-basic test
+pnpm --filter @tiqlyne/motion-pack-basic typecheck
+pnpm --filter @tiqlyne/motion-pack-basic build
 ```
 
 Audit exports publics:
@@ -630,5 +630,5 @@ Ne pas commencer maintenant:
 ## 12. Message court a donner a un nouveau ChatGPT
 
 ```txt
-Lis docs/chatgpt-project-resume.md puis docs/project-handoff.md. Le projet est un monorepo TypeScript pnpm nomme motion-engine, avec packages @structifyx/motion-core, @structifyx/motion-web et @structifyx/motion-pack-basic. La phase TSDoc public API est terminee au commit 77f3beb. Ne modifie pas le code sans autorisation. La prochaine etape est Phase V1 Refactor 10: finalisation release V1 package/docs/publication readiness.
+Lis docs/chatgpt-project-resume.md puis docs/project-handoff.md. Le projet est un monorepo TypeScript pnpm nomme motion-engine, avec packages @tiqlyne/motion-core, @tiqlyne/motion-web et @tiqlyne/motion-pack-basic. La phase TSDoc public API est terminee au commit 77f3beb. Ne modifie pas le code sans autorisation. La prochaine etape est Phase V1 Refactor 10: finalisation release V1 package/docs/publication readiness.
 ```

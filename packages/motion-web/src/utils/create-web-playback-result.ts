@@ -2,7 +2,7 @@ import {
   MotionPlaybackResultReasons,
   type MotionPlaybackResult,
   type MotionPlaybackResultReason
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import type { WebPlaybackCreationResult } from '../models/web-playback-creation-result';
 
 export function createResolvedWebPlayback(

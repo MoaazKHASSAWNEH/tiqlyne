@@ -1,4 +1,4 @@
-import type { MotionTimelineDefinition } from '@structifyx/motion-core';
+import type { MotionTimelineDefinition } from '@tiqlyne/motion-core';
 import { describe, expect, it } from 'vitest';
 import { hasInfiniteWebTimeline } from './has-infinite-web-timeline';
 

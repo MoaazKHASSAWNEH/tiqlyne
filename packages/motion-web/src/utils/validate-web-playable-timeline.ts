@@ -3,7 +3,7 @@ import {
   type MotionDiagnostic,
   type MotionPlayOptions,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 export type WebPlayableTimelineValidationResult =
   | {

@@ -3,7 +3,7 @@ import type {
   MotionIterationCount,
   MotionStepDefinition,
   ScheduledMotionTask
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 export function toWebStepTimingOptions(step: MotionStepDefinition): KeyframeAnimationOptions {
   const iterations = toWebIterations(step.iterations);

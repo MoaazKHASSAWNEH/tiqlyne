@@ -1,7 +1,7 @@
 # Playback State API
 
 > Status: current public API guide.
-> Scope: `@structifyx/motion-core` playback state model and controller state API.
+> Scope: `@tiqlyne/motion-core` playback state model and controller state API.
 > Introduced after: `4a7161d feat(core): add playback state model`.
 
 ## 1. Purpose

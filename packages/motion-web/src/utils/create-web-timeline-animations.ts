@@ -3,7 +3,7 @@ import {
   type MotionTimelineDefinition,
   type ScheduledMotionTask,
   type ScheduledMotionTimeline
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import {
   createWebAnimationFromStep,
   createWebAnimationsFromScheduledTask as createWebAnimationsFromScheduledTaskTargets

@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Direct API Design Decisions
+# Tiqlyne Motion Engine - Direct API Design Decisions
 
 > Document de developpement interne.
 > Ce document n'est pas une documentation utilisateur finale.

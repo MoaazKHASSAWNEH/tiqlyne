@@ -5,7 +5,7 @@ import type {
   MotionPlayOptions,
   MotionTimelineDefinition,
   ScheduledMotionTimeline
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 export function createGenericReducedMotionFallbackDiagnostic(source: string): MotionDiagnostic {
   return {

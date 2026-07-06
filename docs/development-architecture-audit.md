@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Development Architecture Audit
+# Tiqlyne Motion Engine - Development Architecture Audit
 
 > Document de travail pour guider le developpement.
 > Ce document n'est pas une documentation utilisateur finale.
@@ -13,7 +13,7 @@ Il doit aider a prendre les prochaines decisions de developpement : API directe,
 
 ## 2. Vision generale du moteur
 
-Structifyx Motion Engine doit etre un moteur de motion TypeScript capable de decrire, valider, preparer, planifier et executer des animations via des drivers.
+Tiqlyne Motion Engine doit etre un moteur de motion TypeScript capable de decrire, valider, preparer, planifier et executer des animations via des drivers.
 
 La vision cible est la suivante :
 
@@ -48,7 +48,7 @@ Le moteur doit permettre deux grands modes d'utilisation :
 
 ### 3.1 Le core reste pur
 
-`@structifyx/motion-core` ne doit pas importer ni utiliser :
+`@tiqlyne/motion-core` ne doit pas importer ni utiliser :
 
 ```txt
 window
@@ -144,7 +144,7 @@ engine.playTimeline(target, {
 
 ## 4. Etat actuel des packages
 
-### 4.1 `@structifyx/motion-core`
+### 4.1 `@tiqlyne/motion-core`
 
 Role actuel :
 
@@ -170,7 +170,7 @@ Evaluation : bonne base.
 
 Risque principal : le core doit continuer a eviter toute logique Web cachee.
 
-### 4.2 `@structifyx/motion-web`
+### 4.2 `@tiqlyne/motion-web`
 
 Role actuel :
 
@@ -190,7 +190,7 @@ Evaluation : bon isolement du Web.
 
 Risque principal : ne pas faire remonter des contraintes WAAPI dans les modeles core sans abstraction.
 
-### 4.3 `@structifyx/motion-pack-basic`
+### 4.3 `@tiqlyne/motion-pack-basic`
 
 Role actuel :
 

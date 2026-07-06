@@ -2,7 +2,7 @@ import type {
   MotionStaggerDefinition,
   MotionStepDefinition,
   ScheduledMotionTask
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import { resolveStaggerOffset } from './resolve-stagger-offset';
 import { toWebKeyframes } from './to-web-keyframes';
 import { toWebScheduledTaskTimingOptions, toWebStepTimingOptions } from './to-web-timing-options';

@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Resume pour nouvelle discussion ChatGPT
+# Tiqlyne Motion Engine - Resume pour nouvelle discussion ChatGPT
 
 > Objectif: fichier court a coller ou faire lire dans une nouvelle discussion ChatGPT pour reprendre le projet sans perdre le contexte.
 > Dernier etat verifie: apres `77f3beb docs(core): add tsdoc to engine factory and base definitions`.
@@ -21,7 +21,7 @@ main
 Projet:
 
 ```txt
-Structifyx Motion Engine
+Tiqlyne Motion Engine
 ```
 
 Objectif:
@@ -33,9 +33,9 @@ Creer un moteur d'animation TypeScript framework-agnostic, fortement type, exten
 Packages:
 
 ```txt
-@structifyx/motion-core
-@structifyx/motion-web
-@structifyx/motion-pack-basic
+@tiqlyne/motion-core
+@tiqlyne/motion-web
+@tiqlyne/motion-pack-basic
 examples/vanilla
 ```
 
@@ -82,7 +82,7 @@ pnpm format: OK
 pnpm test: OK
 pnpm typecheck: OK
 pnpm build: OK
-pnpm --filter @structifyx/motion-core build: OK
+pnpm --filter @tiqlyne/motion-core build: OK
 motion-core: 29 test files / 328 tests passed
 motion-web: 12 test files / 159 tests passed
 motion-pack-basic: 4 test files / 25 tests passed
@@ -227,7 +227,7 @@ pnpm build
 Build cible utile:
 
 ```bash
-pnpm --filter @structifyx/motion-core build
+pnpm --filter @tiqlyne/motion-core build
 ```
 
 Audit Git:

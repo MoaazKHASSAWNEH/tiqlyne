@@ -17,7 +17,7 @@ import {
   type MotionPlaybackState,
   type MotionTimelineDefinition,
   type MotionTimelineLabels
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 type ActivePlaybackIndexes = {
   readonly trackIndexes: ReadonlyArray<number>;

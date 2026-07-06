@@ -1,8 +1,4 @@
-import type {
-  MotionStepDefinition,
-  ScheduledMotionTask,
-  MotionEasing
-} from '@structifyx/motion-core';
+import type { MotionStepDefinition, ScheduledMotionTask, MotionEasing } from '@tiqlyne/motion-core';
 import { describe, expect, it } from 'vitest';
 import { toWebScheduledTaskTimingOptions, toWebStepTimingOptions } from './to-web-timing-options';
 

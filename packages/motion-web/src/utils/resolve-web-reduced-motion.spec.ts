@@ -4,7 +4,7 @@ import type {
   MotionTimelineDefinition,
   ScheduledMotionTimeline,
   MotionEasing
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import { describe, expect, it } from 'vitest';
 import {
   createGenericReducedMotionFallbackDiagnostic,

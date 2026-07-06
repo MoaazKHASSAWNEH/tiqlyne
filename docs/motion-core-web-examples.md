@@ -1,7 +1,7 @@
-# Structifyx Motion Engine - Motion Core + Web Examples
+# Tiqlyne Motion Engine - Motion Core + Web Examples
 
 > Status: developer-facing examples guide.
-> Scope: practical browser examples using `@structifyx/motion-core`, `@structifyx/motion-web`, and optionally `@structifyx/motion-pack-basic`.
+> Scope: practical browser examples using `@tiqlyne/motion-core`, `@tiqlyne/motion-web`, and optionally `@tiqlyne/motion-pack-basic`.
 > Rule: every example in this document is based on APIs and behavior present in the current codebase.
 > Last aligned state: after `5880634 fix(web): skip finish for infinite playback controllers`.
 
@@ -38,9 +38,9 @@ import {
   createMotionEngine,
   createMotionTimeline,
   DefaultMotionRegistry
-} from '@structifyx/motion-core';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
-import { WebMotionDriver } from '@structifyx/motion-web';
+} from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 ```
 
 The Web driver works with DOM `Element` targets.
@@ -68,7 +68,7 @@ HTML:
 ```html
 <section id="demoCard">
   <h2 data-motion-child="title">Motion card</h2>
-  <p class="description">This card is animated by Structifyx Motion Engine.</p>
+  <p class="description">This card is animated by Tiqlyne Motion Engine.</p>
 </section>
 
 <div data-motion-name="globalToast">Saved successfully</div>
@@ -81,9 +81,9 @@ import {
   createMotionEngine,
   createMotionTimeline,
   DefaultMotionRegistry
-} from '@structifyx/motion-core';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
-import { WebMotionDriver } from '@structifyx/motion-web';
+} from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const card = document.getElementById('demoCard');
 
@@ -712,7 +712,7 @@ pnpm -r --workspace-concurrency=1 test
 For local browser testing:
 
 ```bash
-pnpm --filter @structifyx/motion-example-vanilla dev
+pnpm --filter @tiqlyne/motion-example-vanilla dev
 ```
 
 Manual vanilla checks:

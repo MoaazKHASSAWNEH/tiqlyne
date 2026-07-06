@@ -1,4 +1,4 @@
-import type { MotionTimelineDefinition, ScheduledMotionTimeline } from '@structifyx/motion-core';
+import type { MotionTimelineDefinition, ScheduledMotionTimeline } from '@tiqlyne/motion-core';
 import { describe, expect, it } from 'vitest';
 import {
   createWebAnimationsFromScheduledTimeline,

@@ -8,7 +8,7 @@ import {
   type MotionCategory,
   type MotionKeyframe,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 export type SlideInDirection = 'left' | 'right' | 'top' | 'bottom';
 

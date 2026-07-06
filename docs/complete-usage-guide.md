@@ -1,12 +1,12 @@
-# Structifyx Motion Engine - Complete Usage Guide
+# Tiqlyne Motion Engine - Complete Usage Guide
 
 > Status: complete developer usage guide for the current V1 pre-release state.
-> Scope: public usage of `@structifyx/motion-core`, `@structifyx/motion-web` and `@structifyx/motion-pack-basic`.
+> Scope: public usage of `@tiqlyne/motion-core`, `@tiqlyne/motion-web` and `@tiqlyne/motion-pack-basic`.
 > Last verified state: after `77f3beb docs(core): add tsdoc to engine factory and base definitions`.
 
 ## 1. What this engine does
 
-Structifyx Motion Engine lets developers describe, compose, validate, inspect and play animations through a platform-neutral TypeScript API.
+Tiqlyne Motion Engine lets developers describe, compose, validate, inspect and play animations through a platform-neutral TypeScript API.
 
 The core package does not execute DOM animations directly. It creates timelines and execution plans. A driver executes those plans on a specific platform.
 
@@ -23,7 +23,7 @@ The repository is currently a pnpm monorepo. Packages are versioned at `0.1.0` a
 Expected future install shape:
 
 ```bash
-pnpm add @structifyx/motion-core @structifyx/motion-web @structifyx/motion-pack-basic
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
 ```
 
 Until publication, use workspace packages inside the monorepo.
@@ -62,9 +62,9 @@ MotionConfig / MotionCompositionDefinition / MotionTimelineDefinition
 Typical browser usage combines `motion-core`, `motion-web` and optionally `motion-pack-basic`.
 
 ```ts
-import { createMotionEngine } from '@structifyx/motion-core';
-import { WebMotionDriver } from '@structifyx/motion-web';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
+import { createMotionEngine } from '@tiqlyne/motion-core';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
 
 const motion = createMotionEngine({
   driver: new WebMotionDriver(),
@@ -121,7 +121,7 @@ metadata: app-specific metadata
 Use `createMotionTimeline()` when you want explicit control over tracks and steps.
 
 ```ts
-import { createMotionTimeline } from '@structifyx/motion-core';
+import { createMotionTimeline } from '@tiqlyne/motion-core';
 
 const timeline = createMotionTimeline((timeline) => {
   timeline.defaults({
@@ -428,7 +428,7 @@ Use `MotionDiagnosticCodes`, `MotionDiagnosticSources` and `MotionPlaybackResult
 Sampling computes a timeline snapshot without playing it.
 
 ```ts
-import { sampleMotionTimelineAtProgress } from '@structifyx/motion-core';
+import { sampleMotionTimelineAtProgress } from '@tiqlyne/motion-core';
 
 const sample = sampleMotionTimelineAtProgress(timeline, 0.5);
 
@@ -455,7 +455,7 @@ Progress sampling is not supported for infinite timelines.
 Inspection creates a developer-friendly timeline report.
 
 ```ts
-import { inspectMotionTimeline } from '@structifyx/motion-core';
+import { inspectMotionTimeline } from '@tiqlyne/motion-core';
 
 const report = inspectMotionTimeline(timeline);
 
@@ -479,7 +479,7 @@ QA reports
 A composition combines registered motions and direct timelines.
 
 ```ts
-import { createMotionComposition } from '@structifyx/motion-core';
+import { createMotionComposition } from '@tiqlyne/motion-core';
 
 const composition = createMotionComposition((composition) => {
   composition.motion({
@@ -528,7 +528,7 @@ import {
   defineMotionOptions,
   option,
   type InferMotionOptions
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 const cardRevealOptions = defineMotionOptions({
   distance: option.range({
@@ -586,11 +586,7 @@ A driver executes plans on a platform.
 Minimal shape:
 
 ```ts
-import type {
-  MotionDriver,
-  MotionPlayOptions,
-  MotionPlaybackResult
-} from '@structifyx/motion-core';
+import type { MotionDriver, MotionPlayOptions, MotionPlaybackResult } from '@tiqlyne/motion-core';
 
 export class MyDriver implements MotionDriver<MyTarget> {
   readonly name = 'my-driver';
@@ -627,9 +623,9 @@ pnpm build
 Package-specific validation:
 
 ```bash
-pnpm --filter @structifyx/motion-core test
-pnpm --filter @structifyx/motion-core typecheck
-pnpm --filter @structifyx/motion-core build
+pnpm --filter @tiqlyne/motion-core test
+pnpm --filter @tiqlyne/motion-core typecheck
+pnpm --filter @tiqlyne/motion-core build
 ```
 
 ## 22. Common mistakes to avoid

@@ -1,4 +1,4 @@
-import type { MotionDiagnostic } from '@structifyx/motion-core';
+import type { MotionDiagnostic } from '@tiqlyne/motion-core';
 import { describe, expect, it } from 'vitest';
 import {
   createFailedWebPlayback,

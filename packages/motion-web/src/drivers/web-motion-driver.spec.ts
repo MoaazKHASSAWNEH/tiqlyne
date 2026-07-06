@@ -2,7 +2,7 @@ import {
   createMotionExecutionPlan,
   type MotionPlayOptions,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import { describe, expect, it, vi } from 'vitest';
 import { WebMotionDriver } from './web-motion-driver';
 

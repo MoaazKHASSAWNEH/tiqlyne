@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - V1 Release Checklist
+# Tiqlyne Motion Engine - V1 Release Checklist
 
 > Status: release preparation checklist.
 > Scope: documentation, packaging, exports and validation.
@@ -6,7 +6,7 @@
 
 ## 1. Goal
 
-Prepare Structifyx Motion Engine for a clean V1 or pre-V1 package release.
+Prepare Tiqlyne Motion Engine for a clean V1 or pre-V1 package release.
 
 This checklist is intentionally focused on release readiness. It should not introduce new runtime features unless a release-blocking bug is found.
 
@@ -24,9 +24,9 @@ Known current state:
 ```txt
 root package: private true
 root version: 0.1.0
-@structifyx/motion-core: 0.1.0
-@structifyx/motion-web: 0.1.0
-@structifyx/motion-pack-basic: 0.1.0
+@tiqlyne/motion-core: 0.1.0
+@tiqlyne/motion-web: 0.1.0
+@tiqlyne/motion-pack-basic: 0.1.0
 ```
 
 Known packages:
@@ -43,9 +43,9 @@ examples/vanilla
 Decide which packages are publishable:
 
 ```txt
-[ ] @structifyx/motion-core
-[ ] @structifyx/motion-web
-[ ] @structifyx/motion-pack-basic
+[ ] @tiqlyne/motion-core
+[ ] @tiqlyne/motion-web
+[ ] @tiqlyne/motion-pack-basic
 ```
 
 Decide if the first release is:
@@ -140,7 +140,7 @@ Check for:
 
 ## 8. Public exports audit
 
-At minimum, verify these exports from `@structifyx/motion-core`:
+At minimum, verify these exports from `@tiqlyne/motion-core`:
 
 ```txt
 createMotionEngine

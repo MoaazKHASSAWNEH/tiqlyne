@@ -1,7 +1,7 @@
 # Timeline Sampler API
 
 > Status: current public API guide.
-> Scope: `@structifyx/motion-core` timeline sampling API.
+> Scope: `@tiqlyne/motion-core` timeline sampling API.
 > Audience: developers who need to inspect a timeline state without playing it.
 
 ## 1. Purpose
@@ -24,7 +24,7 @@ sampleMotionTimelineAtTime(timeline, time): MotionTimelineSample
 sampleMotionTimelineAtProgress(timeline, progress): MotionTimelineSample
 ```
 
-The API is exported from `@structifyx/motion-core`.
+The API is exported from `@tiqlyne/motion-core`.
 
 ## 3. Why it matters
 
@@ -51,7 +51,7 @@ With sampling, the core can calculate the timeline state once in a platform-neut
 ## 4. Basic usage
 
 ```ts
-import { sampleMotionTimelineAtTime } from '@structifyx/motion-core';
+import { sampleMotionTimelineAtTime } from '@tiqlyne/motion-core';
 
 const sample = sampleMotionTimelineAtTime(timeline, 350);
 ```

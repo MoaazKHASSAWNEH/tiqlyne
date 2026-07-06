@@ -8,10 +8,10 @@ import {
   type MotionPlaybackEvent,
   type MotionPlaybackResult,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import './styles.css';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
-import { WebMotionDriver } from '@structifyx/motion-web';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const target = getElementByIdOrThrow<HTMLElement>('motionTarget');
 const timelineLog = getElementByIdOrThrow<HTMLElement>('timelineLog');

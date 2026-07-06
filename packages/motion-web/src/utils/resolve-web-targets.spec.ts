@@ -1,4 +1,4 @@
-import type { MotionTimelineDefinition } from '@structifyx/motion-core';
+import type { MotionTimelineDefinition } from '@tiqlyne/motion-core';
 import { describe, expect, it, vi } from 'vitest';
 import { resolveWebTarget, resolveWebTargets, resolveWebTrackTargets } from './resolve-web-targets';
 

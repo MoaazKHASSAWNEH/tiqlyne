@@ -1,8 +1,8 @@
-# Structifyx Motion Engine - Architecture V1
+# Tiqlyne Motion Engine - Architecture V1
 
 ## 1. Objectif du moteur
 
-Structifyx Motion Engine est un moteur d'animation TypeScript framework-agnostic.
+Tiqlyne Motion Engine est un moteur d'animation TypeScript framework-agnostic.
 
 Son objectif est de permettre a une application, un builder visuel, un runtime dynamique ou un framework adapter de decrire des animations avec une configuration typee, puis de laisser le moteur :
 
@@ -37,7 +37,7 @@ Les principes principaux sont les suivants :
 
 ## 3. Packages
 
-### 3.1 `@structifyx/motion-core`
+### 3.1 `@tiqlyne/motion-core`
 
 Package central du moteur.
 
@@ -59,7 +59,7 @@ Il contient :
 
 Ce package doit rester independant de toute plateforme.
 
-### 3.2 `@structifyx/motion-web`
+### 3.2 `@tiqlyne/motion-web`
 
 Package d'execution navigateur.
 
@@ -77,7 +77,7 @@ Il contient notamment :
 
 `WebMotionDriver` transforme les timelines abstraites du core en animations reelles via la Web Animations API (`element.animate`).
 
-### 3.3 `@structifyx/motion-pack-basic`
+### 3.3 `@tiqlyne/motion-pack-basic`
 
 Package contenant les premieres motions concretes.
 
@@ -744,7 +744,7 @@ Il manque encore :
 
 - Adapter Angular.
 - Adapter React si necessaire.
-- Integration builder/runtime Structifyx.
+- Integration builder/runtime Tiqlyne.
 
 ### Phase 6 - Documentation publique et release
 

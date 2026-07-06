@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Engine Events API
+# Tiqlyne Motion Engine - Engine Events API
 
 > Status: developer-facing reference.
 > Scope: global engine events exposed through `createMotionEngine({ events })`.

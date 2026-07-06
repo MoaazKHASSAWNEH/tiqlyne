@@ -1,8 +1,8 @@
-# Structifyx Motion Engine - MotionDefinition DX audit
+# Tiqlyne Motion Engine - MotionDefinition DX audit
 
 > Status: architecture RFC.
 >
-> Scope: `@structifyx/motion-core` developer experience for creating reusable registered motions.
+> Scope: `@tiqlyne/motion-core` developer experience for creating reusable registered motions.
 >
 > Goal: make motion creation easier and safer without duplicating existing core models, without weakening the timeline API, and without breaking existing classes.
 

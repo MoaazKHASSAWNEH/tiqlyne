@@ -3,7 +3,7 @@ import {
   DefaultMotionEngine,
   DefaultMotionRegistry,
   TestMotionDriver
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 import { describe, expect, it } from 'vitest';
 import { registerBasicMotions } from './register-basic-motions';
 

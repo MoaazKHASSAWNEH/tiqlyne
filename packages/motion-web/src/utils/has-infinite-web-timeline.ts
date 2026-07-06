@@ -1,4 +1,4 @@
-import type { MotionTimelineDefinition } from '@structifyx/motion-core';
+import type { MotionTimelineDefinition } from '@tiqlyne/motion-core';
 
 export function hasInfiniteWebTimeline(timeline: MotionTimelineDefinition): boolean {
   return timeline.tracks.some((track) =>

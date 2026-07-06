@@ -1,4 +1,4 @@
-import type { MotionStepDefinition, ScheduledMotionTask } from '@structifyx/motion-core';
+import type { MotionStepDefinition, ScheduledMotionTask } from '@tiqlyne/motion-core';
 import { describe, expect, it, vi } from 'vitest';
 import {
   createWebAnimationFromStep,

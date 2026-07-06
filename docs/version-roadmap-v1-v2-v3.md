@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Roadmap V1 / V2 / V3
+# Tiqlyne Motion Engine - Roadmap V1 / V2 / V3
 
 > Status: planning document.
 > Scope: product roadmap, versioning rules and release boundaries.
@@ -7,7 +7,7 @@
 
 ## 1. Why this document exists
 
-Structifyx Motion Engine is becoming a real animation engine, not only a collection of helpers.
+Tiqlyne Motion Engine is becoming a real animation engine, not only a collection of helpers.
 
 Without clear release boundaries, the project can become infinite. This document defines:
 
@@ -142,7 +142,7 @@ with an official Web driver and a documented extension model.
 V1 should be good enough to use in real projects such as:
 
 ```txt
-Structifyx
+Tiqlyne
 Sondatio
 visual builders
 Angular applications through future adapters
@@ -501,7 +501,7 @@ pnpm format: OK
 pnpm test: OK
 pnpm typecheck: OK
 pnpm build: OK
-pnpm --filter @structifyx/motion-core build: OK
+pnpm --filter @tiqlyne/motion-core build: OK
 motion-core: 29 test files / 328 tests passed
 motion-web: 12 test files / 159 tests passed
 motion-pack-basic: 4 test files / 25 tests passed

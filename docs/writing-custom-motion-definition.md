@@ -1,7 +1,7 @@
 # Writing a Custom Motion Definition
 
 > Status: developer guide.
-> Purpose: explain how to create reusable custom motions with the current `@structifyx/motion-core` API.
+> Purpose: explain how to create reusable custom motions with the current `@tiqlyne/motion-core` API.
 > Scope: `MotionDefinition`, `SchemaMotionDefinition`, option schemas, option validators, timelines, tests and registration.
 > Last verified state: after `7f9e6df feat(core): add numeric option validators`.
 
@@ -95,7 +95,7 @@ import {
   type MotionCategory,
   type MotionKeyframe,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 const scaleInMotionOptions = defineMotionOptions({
   fromScale: option.range({
@@ -564,8 +564,8 @@ A motion must be registered before it can be used by `motion.play()` with a `typ
 Example:
 
 ```ts
-import { createMotionEngine } from '@structifyx/motion-core';
-import { WebMotionDriver } from '@structifyx/motion-web';
+import { createMotionEngine } from '@tiqlyne/motion-core';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 import { ScaleInMotion } from './scale-in-motion';
 
 const motion = createMotionEngine({
@@ -903,7 +903,7 @@ import {
   type MotionBuildContext,
   type MotionCategory,
   type MotionTimelineDefinition
-} from '@structifyx/motion-core';
+} from '@tiqlyne/motion-core';
 
 const customMotionOptions = defineMotionOptions({
   intensity: option.range({

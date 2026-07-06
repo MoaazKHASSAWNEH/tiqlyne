@@ -1,7 +1,7 @@
-# Structifyx Motion Engine - Web Driver Quickstart
+# Tiqlyne Motion Engine - Web Driver Quickstart
 
 > Status: developer-facing quickstart.
-> Scope: using `@structifyx/motion-core` with `@structifyx/motion-web` in a browser environment.
+> Scope: using `@tiqlyne/motion-core` with `@tiqlyne/motion-web` in a browser environment.
 > Rule: this document describes only APIs and behavior verified in the current codebase.
 > Last verified state: after `5880634 fix(web): skip finish for infinite playback controllers`.
 
@@ -38,15 +38,15 @@ The current Web driver can:
 A browser integration normally uses:
 
 ```ts
-import { createMotionEngine, createMotionTimeline } from '@structifyx/motion-core';
-import { WebMotionDriver } from '@structifyx/motion-web';
+import { createMotionEngine, createMotionTimeline } from '@tiqlyne/motion-core';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 ```
 
 If reusable basic motions are needed:
 
 ```ts
-import { DefaultMotionRegistry } from '@structifyx/motion-core';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
+import { DefaultMotionRegistry } from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
 ```
 
 ## 3. Minimal direct timeline example
@@ -61,8 +61,8 @@ HTML:
 TypeScript:
 
 ```ts
-import { createMotionEngine, createMotionTimeline } from '@structifyx/motion-core';
-import { WebMotionDriver } from '@structifyx/motion-web';
+import { createMotionEngine, createMotionTimeline } from '@tiqlyne/motion-core';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const target = document.getElementById('box');
 const button = document.getElementById('play');
@@ -191,7 +191,7 @@ onFinish
 
 ## 6. Registered motion example with motion-pack-basic
 
-`@structifyx/motion-pack-basic` exports `registerBasicMotions(registry)`.
+`@tiqlyne/motion-pack-basic` exports `registerBasicMotions(registry)`.
 
 That helper registers the current basic motion definitions:
 
@@ -204,9 +204,9 @@ slide-in
 Because `createMotionEngine()` creates a default registry internally, the pack registration helper needs an explicit registry object.
 
 ```ts
-import { createMotionEngine, DefaultMotionRegistry } from '@structifyx/motion-core';
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
-import { WebMotionDriver } from '@structifyx/motion-web';
+import { createMotionEngine, DefaultMotionRegistry } from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const registry = new DefaultMotionRegistry();
 registerBasicMotions(registry);
@@ -555,7 +555,7 @@ pnpm -r --workspace-concurrency=1 test
 For the vanilla browser example:
 
 ```bash
-pnpm --filter @structifyx/motion-example-vanilla dev
+pnpm --filter @tiqlyne/motion-example-vanilla dev
 ```
 
 Manual vanilla checks:

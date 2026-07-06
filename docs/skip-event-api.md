@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Skip Event API
+# Tiqlyne Motion Engine - Skip Event API
 
 > Status: developer-facing reference.
 > Scope: `onSkip` global engine event.

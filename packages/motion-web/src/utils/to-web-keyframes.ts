@@ -1,8 +1,4 @@
-import type {
-  MotionFilterValue,
-  MotionKeyframe,
-  MotionTransformValue
-} from '@structifyx/motion-core';
+import type { MotionFilterValue, MotionKeyframe, MotionTransformValue } from '@tiqlyne/motion-core';
 
 export function toWebKeyframes(keyframes: ReadonlyArray<MotionKeyframe>): Keyframe[] {
   return keyframes.map((keyframe) => {

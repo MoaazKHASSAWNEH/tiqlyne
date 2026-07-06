@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Developer API Guide
+# Tiqlyne Motion Engine - Developer API Guide
 
 > Status: current developer-facing overview.
 > Purpose: explain the public API and point developers to the detailed guides.
@@ -19,7 +19,7 @@ docs/project-handoff.md
 
 ## 1. Executive summary
 
-Structifyx Motion Engine is a framework-agnostic TypeScript motion engine.
+Tiqlyne Motion Engine is a framework-agnostic TypeScript motion engine.
 
 It lets developers:
 
@@ -56,7 +56,7 @@ browser-only APIs
 
 ## 2. Packages
 
-### 2.1 `@structifyx/motion-core`
+### 2.1 `@tiqlyne/motion-core`
 
 Responsible for platform-independent behavior:
 
@@ -80,7 +80,7 @@ test/noop drivers
 custom motion definition helpers
 ```
 
-### 2.2 `@structifyx/motion-web`
+### 2.2 `@tiqlyne/motion-web`
 
 Responsible for browser execution:
 
@@ -95,7 +95,7 @@ conflict strategy behavior
 WebMotionPlaybackController
 ```
 
-### 2.3 `@structifyx/motion-pack-basic`
+### 2.3 `@tiqlyne/motion-pack-basic`
 
 Contains reusable motion definitions:
 
@@ -132,8 +132,8 @@ The engine supports these usage modes:
 ## 4. Creating an engine
 
 ```ts
-import { createMotionEngine } from '@structifyx/motion-core';
-import { WebMotionDriver } from '@structifyx/motion-web';
+import { createMotionEngine } from '@tiqlyne/motion-core';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine({
   driver: new WebMotionDriver(),
@@ -150,7 +150,7 @@ const motion = createMotionEngine({
 ## 5. Registering and playing reusable motions
 
 ```ts
-import { registerBasicMotions } from '@structifyx/motion-pack-basic';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
 
 registerBasicMotions(motion);
 
@@ -183,7 +183,7 @@ MotionConfig
 ## 6. Direct timeline playback
 
 ```ts
-import { createMotionTimeline } from '@structifyx/motion-core';
+import { createMotionTimeline } from '@tiqlyne/motion-core';
 
 const timeline = createMotionTimeline((timeline) => {
   timeline.track('self', (track) => {
@@ -213,7 +213,7 @@ MotionCompositionDefinition
 Example:
 
 ```ts
-import { createMotionComposition } from '@structifyx/motion-core';
+import { createMotionComposition } from '@tiqlyne/motion-core';
 
 const composition = createMotionComposition((composition) => {
   composition.motion({
@@ -290,7 +290,7 @@ currentLabel
 Sampling reads a timeline at a time or progress without playing it.
 
 ```ts
-import { sampleMotionTimelineAtProgress } from '@structifyx/motion-core';
+import { sampleMotionTimelineAtProgress } from '@tiqlyne/motion-core';
 
 const sample = sampleMotionTimelineAtProgress(timeline, 0.5);
 ```
@@ -310,7 +310,7 @@ controller state support
 Inspection returns a developer-friendly report.
 
 ```ts
-import { inspectMotionTimeline } from '@structifyx/motion-core';
+import { inspectMotionTimeline } from '@tiqlyne/motion-core';
 
 const report = inspectMotionTimeline(timeline);
 ```
@@ -397,7 +397,7 @@ pnpm build
 Targeted build:
 
 ```bash
-pnpm --filter @structifyx/motion-core build
+pnpm --filter @tiqlyne/motion-core build
 ```
 
 ## 15. Current status and next phase

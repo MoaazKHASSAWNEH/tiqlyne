@@ -1,4 +1,4 @@
-import type { MotionStaggerDefinition } from '@structifyx/motion-core';
+import type { MotionStaggerDefinition } from '@tiqlyne/motion-core';
 
 export function resolveStaggerOffset(
   stagger: MotionStaggerDefinition | undefined,

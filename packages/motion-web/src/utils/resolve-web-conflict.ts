@@ -1,4 +1,4 @@
-import type { MotionConflictStrategy, MotionPlayOptions } from '@structifyx/motion-core';
+import type { MotionConflictStrategy, MotionPlayOptions } from '@tiqlyne/motion-core';
 
 export type WebConflictOptions = {
   readonly cancelPreviousAnimations?: boolean;

@@ -22,13 +22,13 @@ importers:
 
   examples/vanilla:
     dependencies:
-      '@structifyx/motion-core':
+      '@tiqlyne/motion-core':
         specifier: workspace:*
         version: link:../../packages/motion-core
-      '@structifyx/motion-pack-basic':
+      '@tiqlyne/motion-pack-basic':
         specifier: workspace:*
         version: link:../../packages/motion-pack-basic
-      '@structifyx/motion-web':
+      '@tiqlyne/motion-web':
         specifier: workspace:*
         version: link:../../packages/motion-web
     devDependencies:
@@ -40,13 +40,13 @@ importers:
 
   packages/motion-pack-basic:
     dependencies:
-      '@structifyx/motion-core':
+      '@tiqlyne/motion-core':
         specifier: workspace:*
         version: link:../motion-core
 
   packages/motion-web:
     dependencies:
-      '@structifyx/motion-core':
+      '@tiqlyne/motion-core':
         specifier: workspace:*
         version: link:../motion-core
 

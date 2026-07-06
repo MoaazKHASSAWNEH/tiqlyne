@@ -1,4 +1,4 @@
-# Structifyx Motion Engine - Playback Controller Behavior
+# Tiqlyne Motion Engine - Playback Controller Behavior
 
 > Status: current implementation reference.
 > Scope: controller behavior shared by the core contract and the Web driver implementation.
@@ -373,7 +373,7 @@ Important test areas:
 Run:
 
 ```bash
-pnpm --filter @structifyx/motion-example-vanilla dev
+pnpm --filter @tiqlyne/motion-example-vanilla dev
 ```
 
 Manual checks:
