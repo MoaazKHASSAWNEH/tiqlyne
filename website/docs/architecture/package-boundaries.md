@@ -8,12 +8,12 @@ Tiqlyne Motion Engine is organized as a small ecosystem of focused packages.
 
 ```mermaid
 flowchart TB
-  App[Application] --> Core[@tiqlyne/motion-core]
-  App --> Web[@tiqlyne/motion-web]
-  App --> Pack[@tiqlyne/motion-pack-basic]
+  App["Application"] --> Core["@tiqlyne/motion-core"]
+  App --> Web["@tiqlyne/motion-web"]
+  App --> Pack["@tiqlyne/motion-pack-basic"]
   Pack --> Core
   Web --> Core
-  Web --> Browser[Browser / Web Animations API]
+  Web --> Browser["Browser / Web Animations API"]
 ```
 
 ## Boundary rule
