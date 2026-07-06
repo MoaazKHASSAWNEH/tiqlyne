@@ -33,3 +33,9 @@ The engine exposes composition-specific methods:
 ## Use cases
 
 Compositions are useful for animation sequences, reusable transitions, higher-level authoring and future visual builder workflows.
+
+## Definition shape
+
+`MotionCompositionDefinition` contains required `items` and optional `defaults` and `labels`. An item is either `{ kind: 'motion', type, ... }` or `{ kind: 'timeline', timeline, ... }`; both may specify `label`, `target`, `at`, and `defaults`, while registered motion items additionally accept `options`.
+
+The builder exposes `defaults`, `label`, `labels`, `motion`, `timeline`, and `build`. `compileMotionComposition(composition, { registry, defaults?, validation? })` resolves motion definitions and returns a `MotionTimelineDefinition`.

@@ -10,12 +10,12 @@ The core describes and prepares motion. Drivers execute motion on a platform. Pa
 
 ```mermaid
 flowchart TB
-  App[Application code] --> Engine[Motion engine]
-  Registry[Motion registry] --> Engine
-  Engine --> Timeline[Motion timeline]
-  Timeline --> Plan[Execution plan]
-  Plan --> Driver[Platform driver]
-  Driver --> Result[Playback result]
+  App["Application code"] --> Engine["Motion engine"]
+  Registry["Motion registry"] --> Engine
+  Engine --> Timeline["Motion timeline"]
+  Timeline --> Plan["Execution plan"]
+  Plan --> Driver["Platform driver"]
+  Driver --> Result["Playback result"]
 ```
 
 ## Motion engine
@@ -65,6 +65,7 @@ A motion config tells the engine which registered motion to play.
 
 ```ts
 await motion.play(element, {
+  id: 'card-enter',
   type: 'slide-in',
   trigger: 'manual',
   duration: 300,
@@ -165,7 +166,7 @@ They are useful for debugging, tests, builder UIs and driver development.
 
 ## Sampler
 
-The sampler reads timeline values at specific time points or intervals.
+The sampler reads timeline values at a specific time or progress ratio.
 
 Use it for previews, tests, visual tooling and timeline analysis.
 

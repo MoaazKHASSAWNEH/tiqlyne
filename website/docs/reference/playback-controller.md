@@ -37,3 +37,9 @@ When supported by the driver, a controller can play forward, play backward and u
 A controller exposes a finished promise that resolves to a playback result.
 
 Use the finished result when you need the final animation outcome.
+
+## Complete contract
+
+Every controller has readonly `id`, `status`, `disposed`, and `finished`, plus `getState()`. Async methods are `seek`, `seekProgress`, `jumpToLabel`, `playForward`, `playBackward`, `setPlaybackRate`, `pause`, `resume`, `cancel`, and `finish`. Event methods are `on` and `once`; `dispose()` synchronously removes listeners.
+
+Controller statuses are `idle`, `running`, `paused`, `finished`, `cancelled`, `failed`, and `skipped`. A driver-backed controller may support all controls; the promise fallback uses the same contract but returns skipped results for unsupported operations.

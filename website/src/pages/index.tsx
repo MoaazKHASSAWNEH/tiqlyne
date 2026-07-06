@@ -1,25 +1,31 @@
 import type { ReactNode } from 'react';
-import clsx from 'clsx';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
-
+import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import styles from './index.module.css';
 
-function HomepageHeader() {
-  const { siteConfig } = useDocusaurusContext();
+function HomepageHeader(): ReactNode {
   return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
+    <header className={styles.heroBanner}>
       <div className="container">
-        <Heading as="h1" className="hero__title">
-          {siteConfig.title}
+        <span className={styles.eyebrow}>Version 0.1.0</span>
+        <Heading as="h1" className={styles.heroTitle}>
+          Motion you can describe, inspect, and run anywhere.
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className={styles.heroSubtitle}>
+          Tiqlyne Motion Engine is a strongly typed, framework-agnostic TypeScript engine with a
+          DOM-independent core and an official Web Animations API driver.
+        </p>
         <div className={styles.buttons}>
-          <Link className="button button--secondary button--lg" to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+          <Link className="button button--primary button--lg" to="/docs/getting-started">
+            Get started
+          </Link>
+          <Link
+            className="button button--secondary button--lg"
+            href="https://github.com/MoaazKHASSAWNEH/motion-engine"
+          >
+            View on GitHub
           </Link>
         </div>
       </div>
@@ -28,11 +34,10 @@ function HomepageHeader() {
 }
 
 export default function Home(): ReactNode {
-  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
+      title="Framework-agnostic TypeScript motion engine"
+      description="Build typed timelines, reusable motions, and accessible browser animations with Tiqlyne Motion Engine."
     >
       <HomepageHeader />
       <main>

@@ -4,41 +4,41 @@ sidebar_position: 2
 
 # Motion config
 
-A motion config describes a registered motion to play.
+`MotionConfig` selects a registered definition and supplies per-playback values. Both `id` and `type` are required.
 
 ```ts
-await motion.play(element, {
+import type { MotionConfig } from '@tiqlyne/motion-core';
+
+const config: MotionConfig = {
+  id: 'hero-enter',
   type: 'slide-in',
   trigger: 'manual',
   duration: 300,
   easing: 'ease-out',
-  options: {
-    direction: 'bottom',
-    distance: 24,
-    fade: true
-  }
-});
+  options: { direction: 'bottom', distance: 24, fade: true }
+};
+
+const result = await motion.play(element, config);
 ```
 
-## Common fields
+## Fields
 
-| Field                   | Description                                         |
-| ----------------------- | --------------------------------------------------- |
-| `type`                  | Registered motion type.                             |
-| `trigger`               | Trigger source.                                     |
-| `options`               | Motion-specific options.                            |
-| `duration`              | Duration in milliseconds.                           |
-| `delay`                 | Delay in milliseconds.                              |
-| `easing`                | Easing function.                                    |
-| `fill`                  | Fill mode.                                          |
-| `iterations`            | Iteration count.                                    |
-| `playbackRate`          | Playback speed.                                     |
-| `respectReducedMotion`  | Whether reduced motion should be considered.        |
-| `reducedMotionStrategy` | Strategy used when reduced motion applies.          |
-| `conflictStrategy`      | Strategy used when active animations already exist. |
+| Field                   | Type                                  | Required | Default after normalization    |
+| ----------------------- | ------------------------------------- | -------- | ------------------------------ |
+| `id`                    | `string`                              | yes      | —                              |
+| `type`                  | `string`                              | yes      | —                              |
+| `trigger`               | `MotionTriggerType`                   | no       | `'onEnter'`                    |
+| `enabled`               | `boolean`                             | no       | `true`                         |
+| `duration`              | `number`                              | no       | `300` ms, clamped to `0..5000` |
+| `delay`                 | `number`                              | no       | `0` ms, clamped to `0..5000`   |
+| `easing`                | `MotionEasing`                        | no       | `'ease'`                       |
+| `options`               | `Record<string, unknown>`             | no       | `{}`                           |
+| `respectReducedMotion`  | `boolean`                             | no       | `true`                         |
+| `reducedMotionStrategy` | `'skip' \| 'simplify' \| 'preserve'`  | no       | `'skip'`                       |
+| `conflictStrategy`      | `'replace' \| 'parallel' \| 'ignore'` | no       | `'replace'`                    |
+| `priority`              | `number`                              | no       | `0`, normalized to an integer  |
+| `metadata`              | `Record<string, unknown>`             | no       | `{}`                           |
 
-## Option typing
+`fill`, `iterations`, and `playbackRate` are timeline/track/step defaults, not `MotionConfig` fields.
 
-Motion-specific options are defined by each motion definition.
-
-For example, `slide-in` accepts `direction`, `distance` and `fade`.
+If `enabled` normalizes to `false`, `play` returns `{ status: 'skipped', reason: 'motion-disabled' }`. Unknown types return the reason `unknown-motion-type`.

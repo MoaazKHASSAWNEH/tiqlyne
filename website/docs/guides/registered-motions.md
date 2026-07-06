@@ -10,10 +10,10 @@ They allow you to play animations by type instead of manually creating timelines
 
 ```mermaid
 flowchart LR
-  Registry[Motion registry] --> Definition[Motion definition]
-  Config[Motion config] --> Engine[Motion engine]
+  Registry["Motion registry"] --> Definition["Motion definition"]
+  Config["Motion config"] --> Engine["Motion engine"]
   Engine --> Registry
-  Definition --> Timeline[Built timeline]
+  Definition --> Timeline["Built timeline"]
 ```
 
 ## Create a registry
@@ -54,6 +54,7 @@ const motion = createMotionEngine<Element>({
 
 ```ts
 await motion.play(element, {
+  id: 'fade-example',
   type: 'fade-in',
   trigger: 'manual'
 });
@@ -65,6 +66,7 @@ Each motion can define its own options.
 
 ```ts
 await motion.play(element, {
+  id: 'slide-example',
   type: 'slide-in',
   trigger: 'manual',
   options: {
@@ -81,6 +83,7 @@ You can override timing values per motion call.
 
 ```ts
 await motion.play(element, {
+  id: 'slow-fade-example',
   type: 'fade-in',
   trigger: 'manual',
   duration: 500,
@@ -94,6 +97,7 @@ await motion.play(element, {
 ```ts
 if (registry.has('slide-in')) {
   await motion.play(element, {
+    id: 'conditional-slide-example',
     type: 'slide-in',
     trigger: 'manual'
   });

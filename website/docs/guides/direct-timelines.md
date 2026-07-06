@@ -10,9 +10,9 @@ They are useful for custom, one-off or advanced animations.
 
 ```mermaid
 flowchart LR
-  TimelineBuilder[Timeline builder] --> Timeline[Motion timeline]
-  Timeline --> Engine[Motion engine]
-  Engine --> Driver[Platform driver]
+  TimelineBuilder["Timeline builder"] --> Timeline["Motion timeline"]
+  Timeline --> Engine["Motion engine"]
+  Engine --> Driver["Platform driver"]
 ```
 
 ## Create a timeline
@@ -168,7 +168,7 @@ Playback controllers can jump to labels when supported by the active driver.
 ```ts
 const playback = motion.createTimelinePlayback(element, timeline);
 
-playback.jumpToLabel('settled');
+await playback.jumpToLabel('settled');
 ```
 
 ## Transform values

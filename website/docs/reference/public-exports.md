@@ -22,7 +22,8 @@ Main exports include:
 - `createMotionComposition`
 - `compileMotionComposition`
 - `sampleMotionTimeline`
-- `sampleMotionTimelineAt`
+- `sampleMotionTimelineAtTime`
+- `sampleMotionTimelineAtProgress`
 - `inspectMotionTimeline`
 - playback controller types
 - diagnostics helpers

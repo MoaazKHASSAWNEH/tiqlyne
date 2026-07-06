@@ -23,6 +23,7 @@ Diagnostics can appear in:
 
 ```ts
 const result = await motion.play(element, {
+  id: 'diagnostic-example',
   type: 'slide-in',
   trigger: 'manual'
 });

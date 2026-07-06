@@ -4,9 +4,28 @@ sidebar_position: 6
 
 # Events
 
-Tiqlyne exposes playback events through playback controllers.
+Tiqlyne exposes synchronous engine hooks and playback-controller events.
 
 Events help applications observe animation lifecycle changes and keep interface state synchronized with animation state.
+
+## Engine events
+
+```ts
+const motion = createMotionEngine<Element>({
+  driver,
+  events: {
+    onBeforePlan: (event) => console.log(event.type),
+    onPlan: (event) => console.log(event.plan.summary),
+    onPlay: (event) => console.log(event.source),
+    onFinish: (event) => console.log(event.result),
+    onCancel: (event) => console.log(event.result),
+    onSkip: (event) => console.log(event.reason),
+    onError: (event) => console.error(event.error)
+  }
+});
+```
+
+The stable engine type values are `before-plan`, `plan`, `play`, `finish`, `cancel`, `skip`, and `error`.
 
 ## Playback events
 
@@ -24,6 +43,8 @@ Common playback events include:
 - `progress`
 - `playbackRateChange`
 - `directionChange`
+
+`progress` is reserved by the contract; the 0.1.0 Web controller does not emit continuous progress notifications.
 
 ## Listen to an event
 

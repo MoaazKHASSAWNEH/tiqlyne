@@ -22,3 +22,13 @@ Use `fade-out` for cards, dialogs, notifications, sections and content that shou
 ## Timing
 
 The motion can use engine defaults or per-call timing values such as duration, delay and easing.
+
+```ts
+const result = await motion.play(element, {
+  id: 'dialog-exit',
+  type: 'fade-out',
+  duration: 180,
+  easing: 'ease-in',
+  options: { fromOpacity: 1, toOpacity: 0 }
+});
+```

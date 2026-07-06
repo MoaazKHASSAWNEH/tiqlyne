@@ -14,12 +14,12 @@ The Web package connects the platform-independent core model to real DOM element
 
 ```mermaid
 flowchart LR
-  Timeline[Motion timeline] --> WebDriver[WebMotionDriver]
-  WebDriver --> ResolveTargets[Resolve DOM targets]
-  ResolveTargets --> Keyframes[Convert keyframes]
-  Keyframes --> Timing[Convert timing options]
-  Timing --> WAAPI[Web Animations API]
-  WAAPI --> Controller[Web playback controller]
+  Timeline["Motion timeline"] --> WebDriver["WebMotionDriver"]
+  WebDriver --> ResolveTargets["Resolve DOM targets"]
+  ResolveTargets --> Keyframes["Convert keyframes"]
+  Keyframes --> Timing["Convert timing options"]
+  Timing --> WAAPI["Web Animations API"]
+  WAAPI --> Controller["Web playback controller"]
 ```
 
 ## Install
@@ -45,6 +45,8 @@ const motion = createMotionEngine<Element>({
 });
 ```
 
+`WebMotionDriverOptions` has two fields: `reducedMotion?: boolean` and `cancelPreviousAnimations?: boolean`. The first is an application-supplied preference snapshot. The second defaults effectively to allowing the requested conflict strategy; when explicitly `false`, a requested `replace` strategy behaves as `parallel`.
+
 ## With registered motions
 
 ```ts
@@ -68,6 +70,7 @@ if (!element) {
 }
 
 await motion.play(element, {
+  id: 'card-fade',
   type: 'fade-in',
   trigger: 'manual'
 });
@@ -77,12 +80,12 @@ await motion.play(element, {
 
 The Web driver can resolve several target types from a timeline:
 
-| Target type | Description                                                  |
-| ----------- | ------------------------------------------------------------ |
-| `self`      | Uses the root element passed to the engine.                  |
-| `child`     | Looks for a child using `data-motion-child`.                 |
-| `selector`  | Uses a CSS selector.                                         |
-| `named`     | Looks for a document-level element using `data-motion-name`. |
+| Target type | Description                                             |
+| ----------- | ------------------------------------------------------- |
+| `self`      | Uses the root element passed to the engine.             |
+| `child`     | First descendant matching `[data-motion-child="name"]`. |
+| `selector`  | All descendants matching the supplied CSS selector.     |
+| `named`     | First document match for `[data-motion-name="name"]`.   |
 
 Example:
 
@@ -126,11 +129,7 @@ The engine can then apply a reduced motion strategy such as:
 
 The Web driver supports conflict strategies to decide what should happen when an element already has active animations.
 
-Typical strategies are:
-
-- ignore the new animation;
-- replace existing animations;
-- allow parallel animations.
+The exact strategies are `replace` (cancel active animations on resolved targets), `parallel` (leave them running), and `ignore` (skip the new playback if any are active).
 
 ## Playback controllers
 
@@ -139,11 +138,17 @@ When a timeline is played through `createTimelinePlayback`, the Web driver retur
 ```ts
 const playback = motion.createTimelinePlayback(element, timeline);
 
-playback.pause();
-playback.resume();
-playback.setPlaybackRate(1.5);
-playback.finish();
+await playback.pause();
+await playback.resume();
+await playback.setPlaybackRate(1.5);
+await playback.finish();
 ```
+
+The Web controller also supports `seek`, `seekProgress`, `jumpToLabel`, `playForward`, `playBackward`, `getState`, `on`, `once`, and `dispose`. Its async operations return results rather than throwing for normal unsupported/invalid cases. `finish` is skipped for infinite animations.
+
+## Public conversion and resolution helpers
+
+The package exports `resolveWebTarget`, `resolveWebTargets`, `resolveWebTrackTargets`, `toWebKeyframes`, `toWebStepTimingOptions`, `toWebScheduledTaskTimingOptions`, reduced-motion helpers, conflict helpers, validation helpers, and Web animation creation helpers. These are low-level building blocks; most applications only need `WebMotionDriver`.
 
 ## What this package does not do
 

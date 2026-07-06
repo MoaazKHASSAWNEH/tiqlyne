@@ -1,11 +1,79 @@
-.features {
-  display: flex;
-  align-items: center;
-  padding: 2rem 0;
-  width: 100%;
+.section {
+  padding: 5rem 0;
 }
 
-.featureSvg {
-  height: 200px;
-  width: 200px;
+.section h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.lead {
+  max-width: 650px;
+  margin-bottom: 2rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.card,
+.reason {
+  padding: 1.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 1rem;
+  background: var(--ifm-background-surface-color);
+}
+
+.card code {
+  font-weight: 700;
+}
+
+.card p,
+.reason p {
+  margin: 1rem 0 0;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.reason h3 {
+  margin-bottom: 0;
+}
+
+.tinted {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.release {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.release h2 {
+  margin-bottom: 0;
+}
+
+.release p {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.1rem;
+}
+
+.kicker {
+  color: var(--ifm-color-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .section {
+    padding: 3.5rem 0;
+  }
+
+  .release {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }

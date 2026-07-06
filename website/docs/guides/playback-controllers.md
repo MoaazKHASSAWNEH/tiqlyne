@@ -12,6 +12,7 @@ Use them for interactive previews, UI controls, timeline editors, demos and adva
 
 ```ts
 const playback = motion.createPlayback(element, {
+  id: 'interactive-fade',
   type: 'fade-in',
   trigger: 'manual'
 });

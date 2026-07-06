@@ -1,45 +1,42 @@
 ---
-sidebar_position: 12
+sidebar_position: 14
 ---
 
 # Custom motion driver
 
-Drivers execute Tiqlyne timelines on a platform.
+A driver translates core timelines to a runtime. Only `name` and async `play` are required.
 
-A custom driver can target a browser runtime, a native runtime, canvas, tests or another animation system.
+```ts
+import type {
+  MotionDriver,
+  MotionPlayOptions,
+  MotionPlaybackResult,
+  MotionTimelineDefinition
+} from '@tiqlyne/motion-core';
 
-## Role
+class CanvasMotionDriver implements MotionDriver<HTMLCanvasElement> {
+  readonly name = 'canvas';
 
-A driver receives a `MotionTimelineDefinition` from the core package and adapts it to a concrete runtime.
+  async play(
+    target: HTMLCanvasElement,
+    timeline: MotionTimelineDefinition,
+    options: MotionPlayOptions
+  ): Promise<MotionPlaybackResult> {
+    // Resolve timeline target references and schedule drawing for this runtime.
+    void target;
+    void timeline;
+    void options;
+    return { status: 'finished' };
+  }
+}
 
-## Required API
+const motion = createMotionEngine<HTMLCanvasElement>({
+  driver: new CanvasMotionDriver()
+});
+```
 
-A driver must provide a name and a `play` method.
+Drivers may implement async `cancel`, `finish`, and `reset`, plus synchronous `createPlayback`. Without `createPlayback`, the engine returns `PromiseMotionPlaybackController`; advanced controls are then reported as unsupported.
 
-The `play` method receives:
+`MotionPlayOptions` contains normalized `trigger`, `respectReducedMotion`, `reducedMotionStrategy`, optional `reducedMotionTimeline`, `conflictStrategy`, optional execution plan, and validation flags. Treat timelines and options as readonly. Return structured results and diagnostics for expected failures instead of leaking platform exceptions.
 
-- a target;
-- a timeline;
-- play options.
-
-It returns a playback result.
-
-## Optional APIs
-
-A driver can also implement target-level operations:
-
-- cancel;
-- finish;
-- reset.
-
-A driver can also expose playback controller support.
-
-## Responsibilities
-
-A driver is responsible for target resolution, keyframe conversion, timing conversion, platform execution and result reporting.
-
-## Boundary
-
-A driver should not redefine the core animation model.
-
-It should adapt Tiqlyne timelines to the target runtime.
+For tests, `NoopMotionDriver` always skips with `noop-driver`. `TestMotionDriver` records play/control calls and returns deterministic results.

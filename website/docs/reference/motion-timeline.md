@@ -43,6 +43,12 @@ Defaults reduce repetition across steps and tracks.
 
 Typical defaults include duration, delay, easing, fill mode, iteration count and playback rate.
 
+The exact `MotionTimelineDefaults` fields are `iterations`, `direction`, `yoyo`, `endDelay`, `duration`, `delay`, `easing`, `fill`, and `playbackRate`. Fill values are `none`, `forwards`, `backwards`, `both`, and `auto`; direction values are `normal`, `reverse`, `alternate`, and `alternate-reverse`; iterations are a number or `infinite`.
+
+Steps add `at`, required `keyframes`, and a low-level `offset`. Tracks contain a target, steps, optional defaults, and optional stagger. A stagger is a millisecond number or `{ each, from? }`, where `from` is `start`, `end`, or `center`.
+
+`MotionStepPosition` accepts an absolute number, label string, `{ label, offset? }`, or `{ anchor, offset? }`. Anchors are `track-start`, `track-end`, `previous-start`, and `previous-end`.
+
 ## When to use direct timelines
 
 Use direct timelines when you need precise control, multiple tracks, custom sequencing, labels or animation logic that is not worth turning into a reusable motion definition.

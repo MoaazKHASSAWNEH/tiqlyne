@@ -10,25 +10,27 @@ An engine connects four main parts:
 
 ```mermaid
 flowchart LR
-  Registry[Motion registry] --> Engine[Motion engine]
-  Driver[Platform driver] --> Engine
-  Defaults[Global defaults] --> Engine
-  Engine --> Playback[Playback APIs]
+  Registry["Motion registry"] --> Engine["Motion engine"]
+  Driver["Platform driver"] --> Engine
+  Defaults["Global defaults"] --> Engine
+  Engine --> Playback["Playback APIs"]
 ```
 
 ## Minimal engine
 
-You can create an engine with the core package only:
+You can create an engine with the core package and its no-op driver:
 
 ```ts
-import { createMotionEngine } from '@tiqlyne/motion-core';
+import { createMotionEngine, NoopMotionDriver } from '@tiqlyne/motion-core';
 
-const motion = createMotionEngine();
+const motion = createMotionEngine({
+  driver: new NoopMotionDriver()
+});
 ```
 
 This is useful for planning, validating, inspecting or sampling timelines.
 
-However, to play animations on a real platform, the engine needs a driver.
+`MotionEngineConfig.driver` is always required. The no-op driver is useful for wiring and deliberately returns skipped results; planning, validation, inspection, and sampling APIs remain available without browser execution.
 
 ## Browser engine
 
@@ -107,6 +109,7 @@ Reduced motion behavior is controlled when playing a motion or timeline.
 
 ```ts
 await motion.play(element, {
+  id: 'accessible-enter',
   type: 'slide-in',
   trigger: 'manual',
   respectReducedMotion: true,

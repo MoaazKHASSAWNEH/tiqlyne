@@ -38,6 +38,7 @@ if (!element) {
 }
 
 await motion.play(element, {
+  id: 'card-enter',
   type: 'slide-in',
   trigger: 'manual',
   options: {
@@ -91,10 +92,10 @@ Playback controllers give you more control over a running animation.
 ```ts
 const playback = motion.createTimelinePlayback(element, timeline);
 
-playback.pause();
-playback.resume();
-playback.setPlaybackRate(1.5);
-playback.finish();
+await playback.pause();
+await playback.resume();
+await playback.setPlaybackRate(1.5);
+await playback.finish();
 ```
 
 ## Next steps

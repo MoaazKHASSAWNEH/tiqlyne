@@ -59,6 +59,7 @@ The current version includes three motions:
 
 ```ts
 await motion.play(element, {
+  id: 'card-fade-in',
   type: 'fade-in',
   trigger: 'manual',
   options: {
@@ -68,12 +69,14 @@ await motion.play(element, {
 });
 ```
 
-Options:
+Export: `FadeInMotion` (`FadeInMotionOptions`). Category: `entrance`. Label: “Fade in”.
 
-| Option        | Type   | Default | Description      |
-| ------------- | ------ | ------- | ---------------- |
-| `fromOpacity` | number | `0`     | Initial opacity. |
-| `toOpacity`   | number | `1`     | Final opacity.   |
+| Option        | Default | Range / step    |
+| ------------- | ------: | --------------- |
+| `fromOpacity` |     `0` | `0..1` / `0.05` |
+| `toOpacity`   |     `1` | `0..1` / `0.05` |
+
+Validation requires `fromOpacity < toOpacity`. The generated `self` track transitions opacity between those values with the config duration, delay and easing, and `fill: 'both'`.
 
 ## fade-out
 
@@ -81,6 +84,7 @@ Options:
 
 ```ts
 await motion.play(element, {
+  id: 'card-fade-out',
   type: 'fade-out',
   trigger: 'manual',
   options: {
@@ -90,12 +94,14 @@ await motion.play(element, {
 });
 ```
 
-Options:
+Export: `FadeOutMotion` (`FadeOutMotionOptions`). Category: `exit`. Label: “Fade out”.
 
-| Option        | Type   | Default | Description      |
-| ------------- | ------ | ------- | ---------------- |
-| `fromOpacity` | number | `1`     | Initial opacity. |
-| `toOpacity`   | number | `0`     | Final opacity.   |
+| Option        | Default | Range / step    |
+| ------------- | ------: | --------------- |
+| `fromOpacity` |     `1` | `0..1` / `0.05` |
+| `toOpacity`   |     `0` | `0..1` / `0.05` |
+
+Validation requires `fromOpacity > toOpacity`. The generated `self` track transitions opacity between those values with the config duration, delay and easing, and `fill: 'both'`.
 
 ## slide-in
 
@@ -103,6 +109,7 @@ Options:
 
 ```ts
 await motion.play(element, {
+  id: 'card-slide-in',
   type: 'slide-in',
   trigger: 'manual',
   options: {
@@ -113,17 +120,19 @@ await motion.play(element, {
 });
 ```
 
-Options:
+Export: `SlideInMotion` (`SlideInMotionOptions`, `SlideInDirection`). Category: `entrance`. Label: “Slide in”.
 
 | Option      | Type                                     | Default    | Description                             |
 | ----------- | ---------------------------------------- | ---------- | --------------------------------------- |
 | `direction` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'bottom'` | Direction from which the target enters. |
-| `distance`  | number                                   | `24`       | Slide distance in pixels.               |
+| `distance`  | number                                   | `24`       | Pixels; range `0..300`, step `1`.       |
 | `fade`      | boolean                                  | `true`     | Whether opacity should be animated too. |
 
 ## Reduced motion
 
-`slide-in` provides a reduced motion timeline that simplifies the movement and focuses on opacity.
+`slide-in` moves from the selected axis and distance to `translate3d(0, 0, 0)`, optionally fading from `0` to `1`. It uses the config timing and `fill: 'both'`.
+
+`slide-in` provides a reduced timeline: opacity `0` to `1`, no movement, no delay, `ease-out`, and a duration capped at `150` ms. `fade-in` and `fade-out` do not define motion-specific reduced timelines in 0.1.0; the Web driver may use its generic fallback when strategy is `simplify`.
 
 This helps reduce potentially uncomfortable motion while preserving visual feedback.
 

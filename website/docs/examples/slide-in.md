@@ -32,3 +32,14 @@ Use `slide-in` for entrance transitions, cards, panels, dialogs and sections.
 ## Reduced motion
 
 The motion includes simplified behavior for reduced motion.
+
+```ts
+const result = await motion.play(element, {
+  id: 'panel-enter',
+  type: 'slide-in',
+  duration: 300,
+  easing: 'ease-out',
+  reducedMotionStrategy: 'simplify',
+  options: { direction: 'right', distance: 32, fade: true }
+});
+```

@@ -18,6 +18,8 @@ const inspection = inspectMotionTimeline(timeline);
 console.log(inspection);
 ```
 
+The report contains `totalDuration`, `trackCount`, `stepCount`, `labelCount`, sorted `labels`, unique `targets`, unique `animatedProperties`, per-track/per-step details, and `diagnostics`.
+
 ## What inspection is for
 
 Inspection is useful for:
@@ -39,6 +41,8 @@ Inspection can help answer questions such as:
 - what is the timeline duration?
 - does the timeline contain infinite playback?
 - which targets are used?
+
+The inspector emits an info diagnostic for infinite playback, warnings when a timeline exceeds 3000 ms or a step exceeds 1500 ms, and a warning for empty step keyframes. These are inspection recommendations, not playback errors.
 
 ## Inspector vs sampler
 

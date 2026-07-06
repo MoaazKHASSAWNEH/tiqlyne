@@ -1,41 +1,29 @@
 ---
-sidebar_position: 8
+sidebar_position: 10
 ---
 
 # Timeline sampler
 
-The timeline sampler reads timeline values at specific time points.
-
-It is useful for previews, tests, visual editors, debugging and timeline analysis.
-
-## Sample a timeline
+The sampler prepares a timeline and returns its state at one absolute time or progress ratio. It does not play anything.
 
 ```ts
-import { sampleMotionTimeline } from '@tiqlyne/motion-core';
+import {
+  sampleMotionTimeline,
+  sampleMotionTimelineAtProgress,
+  sampleMotionTimelineAtTime
+} from '@tiqlyne/motion-core';
 
-const samples = sampleMotionTimeline(timeline, {
-  interval: 100
-});
-
-console.log(samples);
+const at250ms = sampleMotionTimelineAtTime(timeline, 250);
+const halfway = sampleMotionTimelineAtProgress(timeline, 0.5);
+const sameSample = sampleMotionTimeline(timeline, { time: 250 });
 ```
 
-## Sample at a specific time
+`MotionTimelineSampleInput` is exactly `{ time: number } | { progress: number }`; there is no interval option.
 
-```ts
-import { sampleMotionTimelineAt } from '@tiqlyne/motion-core';
+## Returned snapshot
 
-const sample = sampleMotionTimelineAt(timeline, 250);
+The sample contains `time`, `progress`, `duration`, `tracks`, and flattened `activeSteps`, `completedSteps`, and `pendingSteps` arrays. Each step sample reports its indexes, status, absolute bounds, local time, progress, and sampled keyframe.
 
-console.log(sample);
-```
+Times and progress values are clamped. Non-finite inputs throw `MotionPlanningError`. Progress sampling is unsupported for infinite timelines; sample those with an absolute time instead.
 
-## What sampling is for
-
-Sampling is useful when you need to preview timeline values, test generated timelines, inspect keyframes, build timeline visualizers or debug timing.
-
-## Sampler vs playback
-
-The sampler does not execute animations on a platform. It analyzes timeline data.
-
-Use a platform driver, such as `WebMotionDriver`, for real playback.
+The sampler interpolates numeric opacity and numeric custom properties. Other values, including transforms, are resolved discretely rather than fully interpolated, so it is intended for inspection and tests—not as a rendering engine.

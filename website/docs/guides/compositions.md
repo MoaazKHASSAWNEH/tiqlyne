@@ -10,10 +10,10 @@ They are an authoring layer that compiles to a timeline.
 
 ```mermaid
 flowchart LR
-  Composition[Motion composition] --> Compiler[Composition compiler]
-  Registry[Motion registry] --> Compiler
-  Compiler --> Timeline[Motion timeline]
-  Timeline --> Engine[Motion engine]
+  Composition["Motion composition"] --> Compiler["Composition compiler"]
+  Registry["Motion registry"] --> Compiler
+  Compiler --> Timeline["Motion timeline"]
+  Timeline --> Engine["Motion engine"]
 ```
 
 ## Create a composition
@@ -74,9 +74,9 @@ console.log(plan);
 ```ts
 const playback = motion.createCompositionPlayback(element, composition);
 
-playback.pause();
-playback.resume();
-playback.finish();
+await playback.pause();
+await playback.resume();
+await playback.finish();
 ```
 
 ## Composition defaults

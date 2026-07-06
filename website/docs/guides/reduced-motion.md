@@ -1,23 +1,32 @@
 ---
-sidebar_position: 10
+sidebar_position: 11
 ---
 
 # Reduced motion
 
-Tiqlyne can adapt animations for users who prefer reduced motion.
+The Web driver does not read media queries itself. Pass the current preference and opt in per playback (enabled by default after config normalization).
 
-The browser preference can be connected to `WebMotionDriver` through its `reducedMotion` option.
+```ts
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-When playing a motion, the engine can receive `respectReducedMotion` and a strategy.
+const motion = createMotionEngine<Element>({
+  driver: new WebMotionDriver({ reducedMotion: prefersReducedMotion })
+});
 
-Available strategies are:
+await motion.play(element, {
+  id: 'panel-enter',
+  type: 'slide-in',
+  respectReducedMotion: true,
+  reducedMotionStrategy: 'simplify'
+});
+```
 
-- `skip`
-- `simplify`
-- `preserve`
+| Strategy   | Web behavior when reduced motion applies                                                     |
+| ---------- | -------------------------------------------------------------------------------------------- |
+| `skip`     | Returns `skipped` with reason `reduced-motion`.                                              |
+| `simplify` | Uses the definition's reduced timeline, or a generic opacity-only fallback capped at 150 ms. |
+| `preserve` | Plays the original timeline.                                                                 |
 
-A reusable motion definition can also provide a dedicated simplified timeline.
+In the basic pack, only `slide-in` supplies its own reduced timeline. The generic fallback emits a `reduced-motion-fallback-used` warning diagnostic. If `respectReducedMotion` is `false`, the preference and strategy do not change playback.
 
-In the current basic pack, `slide-in` includes simplified behavior for reduced motion.
-
-Use this feature for large movements, rotations, repeated animations and fast transitions.
+If preferences can change while the app is open, create/update driver wiring from a `matchMedia` change listener; 0.1.0 does not subscribe automatically.

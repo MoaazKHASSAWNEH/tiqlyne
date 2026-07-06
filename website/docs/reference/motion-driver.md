@@ -24,6 +24,10 @@ A driver can support target-level operations such as cancel, finish and reset.
 
 A driver can also expose playback controller support.
 
+The required signature is `play(target, timeline, options): Promise<MotionPlaybackResult>`. Optional methods are async `cancel`, `finish`, and `reset`, plus synchronous `createPlayback(target, timeline, options): MotionPlaybackController`.
+
+`MotionPlayOptions` contains required `trigger`, `respectReducedMotion`, `reducedMotionStrategy`, and `conflictStrategy`, plus optional reduced timeline, execution plan, and timeline-validation flags. The engine supplies these normalized values.
+
 ## Boundaries
 
 A driver should not redefine the core motion model.

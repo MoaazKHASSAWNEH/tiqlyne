@@ -97,6 +97,7 @@ registry.register(new RiseInMotion());
 
 ```ts
 await motion.play(element, {
+  id: 'hero-rise',
   type: 'rise-in',
   trigger: 'manual',
   options: {

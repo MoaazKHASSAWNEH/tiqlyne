@@ -16,12 +16,12 @@ The core package is responsible for describing, validating, planning and control
 
 ```mermaid
 flowchart LR
-  Config[Motion config] --> Engine[Motion engine]
-  Engine --> Definition[Motion definition]
-  Definition --> Timeline[Motion timeline]
-  Timeline --> Validation[Validation]
-  Validation --> Plan[Execution plan]
-  Plan --> DriverContract[Motion driver contract]
+  Config["Motion config"] --> Engine["Motion engine"]
+  Engine --> Definition["Motion definition"]
+  Definition --> Timeline["Motion timeline"]
+  Timeline --> Validation["Validation"]
+  Validation --> Plan["Execution plan"]
+  Plan --> DriverContract["Motion driver contract"]
 ```
 
 ## Install
@@ -149,13 +149,11 @@ console.log(inspection);
 ## Sample a timeline
 
 ```ts
-import { sampleMotionTimeline } from '@tiqlyne/motion-core';
+import { sampleMotionTimelineAtTime } from '@tiqlyne/motion-core';
 
-const samples = sampleMotionTimeline(timeline, {
-  interval: 100
-});
+const sample = sampleMotionTimelineAtTime(timeline, 100);
 
-console.log(samples);
+console.log(sample.activeSteps);
 ```
 
 ## What this package does not do

@@ -8,16 +8,16 @@ The execution pipeline explains how Tiqlyne turns a motion request into a platfo
 
 ```mermaid
 flowchart LR
-  Config[Motion config or timeline] --> Normalize[Normalize options]
-  Normalize --> Resolve[Resolve motion definition]
-  Resolve --> Build[Build timeline]
-  Build --> Defaults[Apply defaults]
-  Defaults --> Validate[Validate]
-  Validate --> Prepare[Prepare]
-  Prepare --> Plan[Create execution plan]
-  Plan --> Schedule[Schedule]
-  Schedule --> Driver[Driver execution]
-  Driver --> Result[Playback result]
+  Config["Motion config or timeline"] --> Normalize["Normalize options"]
+  Normalize --> Resolve["Resolve motion definition"]
+  Resolve --> Build["Build timeline"]
+  Build --> Defaults["Apply defaults"]
+  Defaults --> Validate["Validate"]
+  Validate --> Prepare["Prepare"]
+  Prepare --> Plan["Create execution plan"]
+  Plan --> Schedule["Schedule"]
+  Schedule --> Driver["Driver execution"]
+  Driver --> Result["Playback result"]
 ```
 
 ## 1. Input
@@ -36,6 +36,7 @@ When a motion config is used, the engine resolves `type` through the registry.
 
 ```ts
 await motion.play(element, {
+  id: 'welcome-fade',
   type: 'fade-in',
   trigger: 'manual'
 });

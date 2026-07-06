@@ -13,7 +13,8 @@ const sidebars: SidebarsConfig = {
       items: [
         'architecture/overview',
         'architecture/package-boundaries',
-        'architecture/execution-pipeline'
+        'architecture/execution-pipeline',
+        'architecture/v0-1-0-boundaries'
       ]
     },
 
@@ -29,7 +30,10 @@ const sidebars: SidebarsConfig = {
       items: [
         'guides/engine-setup',
         'guides/registered-motions',
+        'guides/basic-motions',
         'guides/direct-timelines',
+        'guides/multiple-tracks-and-steps',
+        'guides/labels',
         'guides/compositions',
         'guides/playback-controllers',
         'guides/events',
@@ -55,6 +59,7 @@ const sidebars: SidebarsConfig = {
         'reference/playback-controller',
         'reference/playback-result',
         'reference/diagnostics',
+        'reference/events',
         'reference/public-exports'
       ]
     },
@@ -68,14 +73,21 @@ const sidebars: SidebarsConfig = {
         'examples/fade-out',
         'examples/slide-in',
         'examples/direct-timeline',
-        'examples/composition'
+        'examples/composition',
+        'examples/playback-controller'
       ]
     },
 
     {
       type: 'category',
       label: 'Release',
-      items: ['release/status', 'release/roadmap', 'release/v0-1-0']
+      items: [
+        'release/status',
+        'release/v0-1-0',
+        'release/limitations',
+        'release/roadmap',
+        'release/npm-publication'
+      ]
     }
   ]
 };

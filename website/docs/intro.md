@@ -10,13 +10,13 @@ It separates animation logic from platform execution, so the same motion model c
 
 ```mermaid
 flowchart LR
-  Config[Motion config] --> Engine[Motion engine]
-  Engine --> Registry[Motion registry]
-  Registry --> Definition[Motion definition]
-  Definition --> Timeline[Motion timeline]
-  Timeline --> Plan[Execution plan]
-  Plan --> Driver[Platform driver]
-  Driver --> Result[Playback result]
+  Config["Motion config"] --> Engine["Motion engine"]
+  Engine --> Registry["Motion registry"]
+  Registry --> Definition["Motion definition"]
+  Definition --> Timeline["Motion timeline"]
+  Timeline --> Plan["Execution plan"]
+  Plan --> Driver["Platform driver"]
+  Driver --> Result["Playback result"]
 ```
 
 ## Why Tiqlyne Motion Engine?

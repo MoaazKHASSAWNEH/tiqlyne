@@ -23,3 +23,19 @@ The timeline uses:
 Use direct timelines when you need precise one-off animation control.
 
 For reusable animations, prefer a registered motion definition.
+
+```ts
+import { createMotionTimeline } from '@tiqlyne/motion-core';
+
+const timeline = createMotionTimeline((timeline) => {
+  timeline.defaults({ duration: 300, easing: 'ease-out', fill: 'both' });
+  timeline.track('self', (track) => {
+    track.step((step) => {
+      step.from({ opacity: 0, transform: { y: 20 } });
+      step.to({ opacity: 1, transform: { y: 0 } });
+    });
+  });
+});
+
+const result = await motion.playTimeline(element, timeline);
+```
