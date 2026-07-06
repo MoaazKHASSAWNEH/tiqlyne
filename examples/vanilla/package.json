@@ -1,5 +1,5 @@
 {
-  "name": "@structifyx/motion-example-vanilla",
+  "name": "@tiqlyne/motion-example-vanilla",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
-    "@structifyx/motion-core": "workspace:*",
-    "@structifyx/motion-pack-basic": "workspace:*",
-    "@structifyx/motion-web": "workspace:*"
+    "@tiqlyne/motion-core": "workspace:*",
+    "@tiqlyne/motion-pack-basic": "workspace:*",
+    "@tiqlyne/motion-web": "workspace:*"
   },
   "devDependencies": {
     "vite": "^7.0.0"
