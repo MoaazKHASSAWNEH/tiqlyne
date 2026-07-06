@@ -3,6 +3,7 @@ title: Designing a framework-agnostic motion engine
 description: How symbolic targets and driver boundaries keep the core independent.
 slug: framework-agnostic-motion-engine
 date: 2026-07-07
+tags: [architecture, drivers, framework-agnostic]
 ---
 
 ## Why framework-agnostic matters
@@ -22,3 +23,5 @@ Version 0.1.0 includes `WebMotionDriver`, which resolves symbolic targets and cr
 ## Future adapters later
 
 The driver contract makes other runtimes possible, but no other official production driver ships in 0.1.0. Future adapters remain roadmap work.
+
+Read the [architecture overview](/docs/architecture/overview), [motion definition reference](/docs/reference/motion-definition), and [driver reference](/docs/reference/motion-driver) for the current contracts.

@@ -39,12 +39,13 @@ A motion registry stores reusable motion definitions by type.
 
 ```ts
 registry.register(myMotionDefinition);
-registry.registerMany([motionA, motionB]);
 registry.has('slide-in');
 registry.get('fade-in');
 registry.getAll();
 registry.getByCategory('entrance');
 ```
+
+The registry registers one definition at a time. Once an engine exists, `motion.registerMany([motionA, motionB])` can register a collection.
 
 Use a registry when animations should be reusable, discoverable or configurable from an interface.
 

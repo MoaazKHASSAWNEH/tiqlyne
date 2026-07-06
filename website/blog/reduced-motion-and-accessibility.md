@@ -3,6 +3,7 @@ title: Reduced motion and accessible animation
 description: Reduced motion as a policy shared by configs, definitions, and drivers.
 slug: reduced-motion-and-accessibility
 date: 2026-07-07
+tags: [accessibility, reduced-motion, web]
 ---
 
 ## Why reduced motion matters
@@ -20,3 +21,5 @@ A config chooses `skip`, `simplify`, or `preserve`. A definition may provide `bu
 ## Best practices
 
 Use motion to reinforce hierarchy, keep alternatives short and calm, preserve semantic HTML, and never make animation the only way information is conveyed. Test all three policies with real interface states.
+
+The [reduced-motion guide](/docs/guides/reduced-motion) explains application policy, and the [reference](/docs/reference/reduced-motion) records the exact current behavior.

@@ -23,7 +23,7 @@ Start by logging the complete result, including `status`, `reason`, `error`, and
 | Infinite `finish` is skipped      | WAAPI cannot meaningfully finish an infinite effect               | Cancel it or change its iterations first.                                                                 |
 | Package import fails              | Import is internal or package was not installed/built             | Import only from package roots and install all direct dependencies.                                       |
 
-For workspace installs, run `pnpm install` from the repository root. For npm consumers, use matching published versions of core, Web, and the basic pack.
+Applications should use matching published versions of core, Web, and the basic pack. Repository contributors can follow [Local development](../project/local-development.md) for workspace setup.
 
 ## Related pages
 

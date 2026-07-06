@@ -38,6 +38,42 @@ The basic pack registers:
 - `fade-out`
 - `slide-in`
 
+## Register a custom motion
+
+Register a definition directly when assembling the registry:
+
+```ts
+import { RiseInMotion } from '../motions/rise-in.motion';
+
+registry.register(new RiseInMotion());
+```
+
+The type must be unique. `DefaultMotionRegistry` throws when the same type is registered twice.
+
+## Register an application pack
+
+Keep a growing application catalogue behind one helper:
+
+```ts
+import type { MotionRegistry } from '@tiqlyne/motion-core';
+import { RiseInMotion } from './rise-in.motion';
+
+export function registerAppMotions(registry: MotionRegistry): void {
+  registry.register(new RiseInMotion());
+}
+```
+
+Then compose official and application definitions in one startup location:
+
+```ts
+const registry = new DefaultMotionRegistry();
+
+registerBasicMotions(registry);
+registerAppMotions(registry);
+```
+
+`MotionRegistry` registers one definition at a time. If the engine already exists, use `motion.register(...)` or `motion.registerMany(...)` instead.
+
 ## Create an engine with a registry
 
 ```ts
@@ -76,6 +112,8 @@ await motion.play(element, {
   }
 });
 ```
+
+Options are normalized and validated by the matched definition before its timeline reaches the driver.
 
 ## Override timing
 
@@ -152,6 +190,8 @@ Use a direct timeline when the animation is specific to one case.
 
 ## Related pages
 
+- [Create and use a custom motion end to end](../tutorials/custom-motion-end-to-end.md)
+- [Custom motion definition guide](./custom-motion-definition.md)
 - [Motion registry reference](../reference/motion-registry.md)
 - [Motion config](../reference/motion-config.md)
 - [Basic motions](./basic-motions.md)

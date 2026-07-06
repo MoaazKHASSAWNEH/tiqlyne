@@ -12,4 +12,8 @@ Guides explain how to apply Tiqlyne APIs to real design and runtime decisions.
 - Use [diagnostics](./diagnostics.md), [sampler](./sampler.md), [inspector](./inspector.md), and [troubleshooting](./troubleshooting.md) when building tools or debugging.
 - Extend the engine with [custom definitions](./custom-motion-definition.md) and [custom drivers](./custom-motion-driver.md).
 
+## Custom motion path
+
+Start with [Create and use a custom motion end to end](../tutorials/custom-motion-end-to-end.md), then use [custom motion definitions](./custom-motion-definition.md) for production patterns and [registered motions](./registered-motions.md) for registry assembly. Exact contracts live in [Motion definition](../reference/motion-definition.md), [Motion registry](../reference/motion-registry.md), [Motion options](../reference/motion-options.md), and [Timeline builder](../reference/timeline-builder.md).
+
 For exact signatures, use the [API Reference](../reference/index.md).

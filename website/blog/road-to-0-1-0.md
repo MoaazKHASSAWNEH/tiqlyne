@@ -3,6 +3,7 @@ title: The road to 0.1.0
 description: What the first Tiqlyne Motion Engine release establishes—and what it leaves for later.
 slug: road-to-0-1-0
 date: 2026-07-07
+tags: [release, roadmap, versioning]
 ---
 
 ## Current scope
@@ -24,3 +25,5 @@ The official site separates getting-started docs, progressive tutorials, practic
 ## After 0.1.0
 
 Later work will be considered from real integration feedback. High-level engine and builder APIs are preferred today; lower-level planner, scheduler, conversion, and validation helpers may evolve more readily.
+
+See the [0.1.0 boundaries](/docs/architecture/v0-1-0-boundaries), [current limitations](/docs/release/limitations), and [roadmap](/docs/release/roadmap). Roadmap items are proposals, not available APIs.

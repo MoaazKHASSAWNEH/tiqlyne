@@ -3,6 +3,7 @@ title: Why Tiqlyne Motion Engine exists
 description: Why typed, inspectable motion deserves its own platform-independent layer.
 slug: why-tiqlyne-motion-engine-exists
 date: 2026-07-07
+tags: [motion, architecture, product]
 ---
 
 ## The problem
@@ -24,3 +25,5 @@ Version 0.1.0 does not include official framework adapters, a visual editor, add
 ## What comes next
 
 The immediate priority is to validate the public foundation through real usage and evolve it carefully before 1.0. Planned work remains documented in the project roadmap rather than presented as shipped functionality.
+
+Start with [What is Tiqlyne Motion Engine?](/docs/intro), then follow the [learning path](/docs/start/learning-path) for practical documentation.

@@ -24,4 +24,7 @@ Tutorials build knowledge progressively. Begin with one browser animation, then 
 
 9. [Diagnostics debugging](./diagnostics-debugging.md)
 10. [Custom motion definition](./custom-motion-definition.md)
-11. [Custom driver](./custom-driver.md)
+11. [Create and use a custom motion end to end](./custom-motion-end-to-end.md)
+12. [Custom driver](./custom-driver.md)
+
+For the complete custom-motion path, continue from the end-to-end tutorial to the [production guide](../guides/custom-motion-definition.md), [registry guide](../guides/registered-motions.md), and exact [definition](../reference/motion-definition.md), [registry](../reference/motion-registry.md), [option](../reference/motion-options.md), and [timeline builder](../reference/timeline-builder.md) contracts.

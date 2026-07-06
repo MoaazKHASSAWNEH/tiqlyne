@@ -82,11 +82,13 @@ const registry = new DefaultMotionRegistry();
 registry.register(myMotionDefinition);
 ```
 
-You can also register several definitions at once:
+Once an engine exists, you can register several definitions at once:
 
 ```ts
-registry.registerMany([motionA, motionB, motionC]);
+motion.registerMany([motionA, motionB, motionC]);
 ```
+
+`MotionRegistry` itself exposes only `register` for registration.
 
 ## Create a direct timeline
 

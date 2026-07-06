@@ -57,6 +57,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'tutorials/diagnostics-debugging',
         'tutorials/custom-motion-definition',
+        'tutorials/custom-motion-end-to-end',
         'tutorials/custom-driver'
       ]
     }
