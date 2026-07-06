@@ -4,6 +4,20 @@ sidebar_position: 11
 
 # Diagnostics example
 
+## Goal
+
+Display the outcome of an invalid registered-motion request.
+
+## Install
+
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
+
+```html
+<div id="preview">Diagnostic preview</div>
+```
+
 ```ts
 import { createMotionEngine, DefaultMotionRegistry } from '@tiqlyne/motion-core';
 import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
@@ -32,6 +46,12 @@ for (const diagnostic of result.diagnostics ?? []) {
 }
 ```
 
+## Expected result
+
 The invalid fade ordering produces reason `invalid-motion-options`; validation messages may also be exposed through the result's `error`. Always branch on `status`/`reason` first, then use diagnostics for structured detail.
+
+## Common mistakes
+
+Assuming every failure includes diagnostics or displaying raw developer messages directly to end users.
 
 Related: [Diagnostics guide](../guides/diagnostics.md) and [playback results](../reference/playback-result.md).

@@ -2,28 +2,34 @@
 sidebar_position: 2
 ---
 
-# Fade in example
+# Fade in
 
-The `fade-in` motion makes the target appear progressively using opacity.
+## Goal
 
-## Main behavior
+Fade a dialog from opacity `0` to `1`.
 
-It animates opacity from a lower value to a higher value.
+## Install
 
-Default values:
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
 
-- fromOpacity: 0
-- toOpacity: 1
-
-## Use cases
-
-Use `fade-in` for cards, dialogs, notifications, sections and content that should appear softly.
-
-## Timing
-
-The motion can use engine defaults or per-call timing values such as duration, delay and easing.
+```html
+<section id="dialog" role="dialog" aria-label="Welcome">Welcome</section>
+```
 
 ```ts
+import { createMotionEngine, DefaultMotionRegistry } from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
+
+const element = document.querySelector('#dialog');
+if (!element) throw new Error('Dialog not found');
+
+const registry = new DefaultMotionRegistry();
+registerBasicMotions(registry);
+const motion = createMotionEngine<Element>({ registry, driver: new WebMotionDriver() });
+
 const result = await motion.play(element, {
   id: 'dialog-enter',
   type: 'fade-in',
@@ -32,3 +38,13 @@ const result = await motion.play(element, {
   options: { fromOpacity: 0, toOpacity: 1 }
 });
 ```
+
+## Expected result
+
+The dialog reaches full opacity and the result normally reports `finished`. `fromOpacity` must be lower than `toOpacity`.
+
+## Common mistakes
+
+Forgetting to register the pack, omitting `id`, or reversing the opacity values.
+
+Related: [Basic pack reference](../reference/basic-pack.md).

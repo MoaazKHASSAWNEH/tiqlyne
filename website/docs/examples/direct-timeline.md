@@ -1,31 +1,29 @@
 ---
-sidebar_position: 5
+sidebar_position: 7
 ---
 
-# Direct timeline example
+# Direct timeline
 
-A direct timeline is useful when an animation is specific to one use case and does not need a reusable motion definition.
+## Goal
 
-## What this example demonstrates
+Create a one-off opacity and vertical-motion entrance without registering a definition.
 
-This example demonstrates a custom entrance animation with opacity and vertical movement.
+## Install
 
-The timeline uses:
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web
+```
 
-- timeline defaults;
-- a `self` track;
-- one animation step;
-- opacity keyframes;
-- transform keyframes.
-
-## When to use it
-
-Use direct timelines when you need precise one-off animation control.
-
-For reusable animations, prefer a registered motion definition.
+```html
+<div id="message">Timeline playback</div>
+```
 
 ```ts
-import { createMotionTimeline } from '@tiqlyne/motion-core';
+import { createMotionEngine, createMotionTimeline } from '@tiqlyne/motion-core';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
+
+const element = document.querySelector('#message');
+if (!element) throw new Error('Message not found');
 
 const timeline = createMotionTimeline((timeline) => {
   timeline.defaults({ duration: 300, easing: 'ease-out', fill: 'both' });
@@ -37,5 +35,16 @@ const timeline = createMotionTimeline((timeline) => {
   });
 });
 
+const motion = createMotionEngine<Element>({ driver: new WebMotionDriver() });
 const result = await motion.playTimeline(element, timeline);
 ```
+
+## Expected result
+
+The element moves upward and becomes opaque. Use a registered definition instead when this behavior must be reused or configured by type.
+
+## Common mistakes
+
+Creating empty keyframes or putting timeline-only defaults on `MotionConfig`.
+
+Related: [Direct timelines guide](../guides/direct-timelines.md) and [timeline builder](../reference/timeline-builder.md).

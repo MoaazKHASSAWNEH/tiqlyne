@@ -1,5 +1,6 @@
 ---
 sidebar_position: 2
+slug: /getting-started
 ---
 
 # Getting started
@@ -102,9 +103,9 @@ await playback.finish();
 
 Continue with:
 
-- Installation
-- Core concepts
-- Architecture overview
-- Registered motions
-- Direct timelines
-- Playback controllers
+- [Installation](./installation.md)
+- [Core concepts](./core-concepts.md)
+- [Learning path](./learning-path.md)
+- [Registered motions](../guides/registered-motions.md)
+- [Direct timelines](../guides/direct-timelines.md)
+- [Playback controllers](../guides/playback-controllers.md)

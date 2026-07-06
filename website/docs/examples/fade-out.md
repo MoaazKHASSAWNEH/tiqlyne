@@ -2,33 +2,49 @@
 sidebar_position: 3
 ---
 
-# Fade out example
+# Fade out
 
-The `fade-out` motion makes the target disappear progressively using opacity.
+## Goal
 
-## Main behavior
+Fade a notification from opacity `1` to `0`.
 
-It animates opacity from a higher value to a lower value.
+## Install
 
-Default values:
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
 
-- fromOpacity: 1
-- toOpacity: 0
-
-## Use cases
-
-Use `fade-out` for cards, dialogs, notifications, sections and content that should disappear softly.
-
-## Timing
-
-The motion can use engine defaults or per-call timing values such as duration, delay and easing.
+```html
+<div id="notification" role="status">Saved</div>
+```
 
 ```ts
+import { createMotionEngine, DefaultMotionRegistry } from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
+
+const element = document.querySelector('#notification');
+if (!element) throw new Error('Notification not found');
+
+const registry = new DefaultMotionRegistry();
+registerBasicMotions(registry);
+const motion = createMotionEngine<Element>({ registry, driver: new WebMotionDriver() });
+
 const result = await motion.play(element, {
-  id: 'dialog-exit',
+  id: 'notification-exit',
   type: 'fade-out',
   duration: 180,
   easing: 'ease-in',
   options: { fromOpacity: 1, toOpacity: 0 }
 });
 ```
+
+## Expected result
+
+The notification becomes transparent. Removing it from the DOM after playback remains application responsibility. `fromOpacity` must exceed `toOpacity`.
+
+## Common mistakes
+
+Removing the node before awaiting the result or reversing the opacity values.
+
+Related: [Basic pack reference](../reference/basic-pack.md).

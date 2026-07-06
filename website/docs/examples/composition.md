@@ -1,30 +1,37 @@
 ---
-sidebar_position: 6
+sidebar_position: 10
 ---
 
-# Composition example
+# Composition
 
-A composition combines registered motions into a sequence.
+## Goal
 
-## What this example demonstrates
+Combine `fade-in` and `slide-in` into one reusable entrance sequence.
 
-This example combines an appearance motion with an entrance motion.
+## Install
 
-It uses:
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
 
-- composition defaults;
-- the `fade-in` motion;
-- the `slide-in` motion;
-- a delayed start for the second motion.
-
-## When to use it
-
-Use compositions when you want to combine reusable motion definitions without writing low-level timeline steps manually.
-
-For very custom keyframes, use a direct timeline instead.
+```html
+<main id="page">Composed entrance</main>
+```
 
 ```ts
-import { createMotionComposition } from '@tiqlyne/motion-core';
+import {
+  createMotionComposition,
+  createMotionEngine,
+  DefaultMotionRegistry
+} from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
+import { WebMotionDriver } from '@tiqlyne/motion-web';
+
+const element = document.querySelector('#page');
+if (!element) throw new Error('Page not found');
+const registry = new DefaultMotionRegistry();
+registerBasicMotions(registry);
+const motion = createMotionEngine<Element>({ registry, driver: new WebMotionDriver() });
 
 const composition = createMotionComposition((composition) => {
   composition.motion('fade-in', { defaults: { duration: 200 } });
@@ -37,3 +44,13 @@ const composition = createMotionComposition((composition) => {
 
 const result = await motion.playComposition(element, composition);
 ```
+
+## Expected result
+
+Fade begins immediately and slide begins at 150 ms. Unknown types or invalid options produce composition planning failures.
+
+## Common mistakes
+
+Compiling with a registry that lacks the referenced definitions or confusing compositions with nested timelines.
+
+Related: [Compositions guide](../guides/compositions.md) and [composition builder](../reference/composition-builder.md).

@@ -1,22 +1,16 @@
 ---
-sidebar_position: 11
+sidebar_position: 8
 ---
 
-# Playback controller
+# Add playback controls
 
 ## Goal
 
-Create a finite labelled timeline and control it through the Web controller.
+Pause, seek, resume, finish, and cancel a Web timeline.
 
-## Install
+## Prerequisites
 
-```bash
-pnpm add @tiqlyne/motion-core @tiqlyne/motion-web
-```
-
-```html
-<div id="preview">Controlled preview</div>
-```
+Install core and Web packages.
 
 ```ts
 import { createMotionEngine, createMotionTimeline } from '@tiqlyne/motion-core';
@@ -24,7 +18,6 @@ import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const element = document.querySelector('#preview');
 if (!element) throw new Error('Preview not found');
-
 const timeline = createMotionTimeline((timeline) => {
   timeline.label('details', 300);
   timeline.track('self', (track) => {
@@ -34,28 +27,36 @@ const timeline = createMotionTimeline((timeline) => {
     });
   });
 });
-
 const motion = createMotionEngine<Element>({ driver: new WebMotionDriver() });
 const playback = motion.createTimelinePlayback(element, timeline);
-const unsubscribe = playback.on('pause', ({ status }) => console.log(status));
+
+const unsubscribe = playback.on('statusChange', ({ status }) => {
+  console.log(status);
+});
 
 await playback.pause();
+await playback.seek(150);
 await playback.seekProgress(0.5);
 await playback.jumpToLabel('details');
-await playback.setPlaybackRate(1.5);
+await playback.setPlaybackRate(1.25);
 await playback.resume();
-const finalResult = await playback.finished;
+
+const finishResult = await playback.finish();
+console.log(finishResult);
+
+// Use cancel instead when playback should be abandoned:
+// await playback.cancel();
 
 unsubscribe();
 playback.dispose();
 ```
 
-## Expected result
+Check each operation result. Unsupported controls and invalid transitions normally return `skipped` rather than throwing.
 
-Playback pauses, seeks to the halfway/details position, resumes faster, and resolves when finished. Check every operation result in production code.
+## What you learned
 
-## Common mistakes
+Disposal removes listeners; it does not cancel the animation.
 
-Using a fallback controller, controlling terminal playback, or expecting `dispose()` to cancel.
+## Next steps
 
-Related: [Controller guide](../guides/playback-controllers.md) and [controller reference](../reference/playback-controller.md).
+Handle [reduced motion](./reduced-motion.md). See the [complete controller UI](../guides/playback-controllers.md).

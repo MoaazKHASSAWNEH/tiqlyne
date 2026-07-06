@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# Vanilla example
+# Internal vanilla example
 
-The repository includes a vanilla browser example.
+The repository includes a vanilla browser demo for maintainers and contributors. It is not required to use Tiqlyne Motion Engine in an application.
 
 It demonstrates how to use Tiqlyne without a framework.
 
@@ -25,6 +25,7 @@ The example covers:
 From the repository root:
 
 ```bash
+pnpm install
 pnpm --filter @tiqlyne/motion-example-vanilla dev
 ```
 
@@ -43,4 +44,4 @@ pnpm --filter @tiqlyne/motion-example-vanilla build
 
 ## Usage
 
-Use this example to understand the minimum browser integration before adding a framework.
+Use this demo to verify repository packages together and inspect controller/event behavior. Consumer-facing copy-paste samples live in [Examples](../examples/index.md).

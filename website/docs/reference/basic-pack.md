@@ -25,7 +25,7 @@ await motion.play(element, {
 });
 ```
 
-Invalid fade ordering fails planning with `invalid-motion-options`. Direction values are `left`, `right`, `top`, and `bottom`; invalid raw values normalize to `bottom`. Motions such as slide-out, zoom, shake, bounce, and pulse are roadmap ideas, not available exports.
+Invalid fade ordering fails planning with `invalid-motion-options`. Direction values are `left`, `right`, `top`, and `bottom`; invalid raw values normalize to `bottom`. No motion beyond the three listed above is available from this package in 0.1.0.
 
 ## Related pages
 

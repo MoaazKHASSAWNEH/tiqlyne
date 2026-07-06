@@ -17,5 +17,5 @@ The intended policy is semantic versioning. Before 1.0, a minor version may cont
 ## Related pages
 
 - [API stability](./api-stability.md)
-- [npm publication](./npm-publication.md)
+- [npm publication](../project/npm-publication.md)
 - [Release status](./status.md)

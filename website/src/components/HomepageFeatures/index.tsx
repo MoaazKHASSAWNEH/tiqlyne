@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
@@ -33,9 +34,47 @@ const reasons = [
   ]
 ] as const;
 
+const paths = [
+  {
+    title: 'Learn step by step',
+    text: 'Build your first animation, then progress through targets, controls, and extension points.',
+    to: '/docs/tutorials'
+  },
+  {
+    title: 'Copy an example',
+    text: 'Start from complete browser examples for common animations and runtime behavior.',
+    to: '/docs/examples'
+  },
+  {
+    title: 'Look up an API',
+    text: 'Find exact signatures, normalized defaults, reasons, diagnostics, and limitations.',
+    to: '/docs/reference'
+  },
+  {
+    title: 'Contribute',
+    text: 'Use repository-specific development, testing, documentation, and release instructions.',
+    to: '/docs/project'
+  }
+] as const;
+
 export default function HomepageFeatures(): ReactNode {
   return (
     <>
+      <section className={`${styles.section} ${styles.tinted}`}>
+        <div className="container">
+          <Heading as="h2">Choose your path</Heading>
+          <p className={styles.lead}>Go directly to the kind of help you need.</p>
+          <div className={styles.grid}>
+            {paths.map((item) => (
+              <Link className={styles.pathCard} to={item.to} key={item.title}>
+                <Heading as="h3">{item.title}</Heading>
+                <p>{item.text}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className={styles.section}>
         <div className="container">
           <Heading as="h2">Core, Web, and a focused basic pack</Heading>

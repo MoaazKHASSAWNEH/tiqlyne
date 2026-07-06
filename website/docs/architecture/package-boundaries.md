@@ -93,7 +93,7 @@ The pack depends on `@tiqlyne/motion-core` because every motion definition build
 
 Examples are not public packages.
 
-`examples/vanilla` demonstrates how to use the official packages together in a browser without a framework.
+`examples/vanilla` is an internal repository demo showing the official packages together without a framework. Contributor commands live in [Project: internal vanilla example](../project/internal-vanilla-example.md), not in user-facing Examples.
 
 ## Why package boundaries matter
 

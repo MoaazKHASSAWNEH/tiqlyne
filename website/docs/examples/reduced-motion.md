@@ -4,6 +4,20 @@ sidebar_position: 10
 
 # Reduced-motion example
 
+## Goal
+
+Simplify `slide-in` when the current browser preference requests reduced motion.
+
+## Install
+
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
+```
+
+```html
+<aside id="settings-panel">Settings</aside>
+```
+
 ```ts
 import { createMotionEngine, DefaultMotionRegistry } from '@tiqlyne/motion-core';
 import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
@@ -30,6 +44,12 @@ const result = await motion.play(element, {
 });
 ```
 
+## Expected result
+
 With reduced motion off, the panel slides and fades. With it on, `SlideInMotion` supplies a short opacity-only timeline. Recreate the driver/engine when `media.matches` changes if live preference updates matter.
+
+## Common mistakes
+
+Assuming media-query changes are observed automatically or using `preserve` while expecting simplification.
 
 Related: [Reduced motion reference](../reference/reduced-motion.md).

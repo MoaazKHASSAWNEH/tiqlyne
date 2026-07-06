@@ -4,6 +4,16 @@ sidebar_position: 9
 
 # Staggered list example
 
+## Goal
+
+Animate every matching list item with a 60 ms offset.
+
+## Install
+
+```bash
+pnpm add @tiqlyne/motion-core @tiqlyne/motion-web
+```
+
 ```html
 <ul id="results">
   <li class="result">Core</li>
@@ -33,6 +43,12 @@ const motion = createMotionEngine<Element>({ driver: new WebMotionDriver() });
 await motion.playTimeline(root, timeline);
 ```
 
+## Expected result
+
 The selector resolves all three descendants. Their scheduled delays increase by 60 ms. Use `from: 'end'` or `center` for a different order.
+
+## Common mistakes
+
+Using a selector outside the root or expecting stagger to create elements.
 
 Related: [Multiple tracks and steps](../guides/multiple-tracks-and-steps.md).

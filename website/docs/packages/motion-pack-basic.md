@@ -138,19 +138,7 @@ This helps reduce potentially uncomfortable motion while preserving visual feedb
 
 ## What this package does not include
 
-The current version does not include:
-
-- `slide-out`
-- `zoom-in`
-- `zoom-out`
-- `scale`
-- `rotate`
-- `shake`
-- `bounce`
-- `pulse`
-- `flip`
-
-Only the motions documented on this page are part of `@tiqlyne/motion-pack-basic` in version `0.1.0`.
+Only the three motions documented on this page are part of `@tiqlyne/motion-pack-basic` in version `0.1.0`. See [Limitations](../release/limitations.md) and [Roadmap](../release/roadmap.md) for work that is not currently available.
 
 ## When to use it
 

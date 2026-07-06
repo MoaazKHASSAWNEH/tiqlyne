@@ -27,7 +27,11 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl: `${repositoryUrl}/edit/main/website/`
         },
-        blog: false,
+        blog: {
+          showReadingTime: true,
+          onUntruncatedBlogPosts: 'ignore',
+          editUrl: `${repositoryUrl}/edit/main/website/`
+        },
         theme: { customCss: './src/css/custom.css' }
       } satisfies Preset.Options
     ]
@@ -40,6 +44,11 @@ const config: Config = {
       logo: { alt: 'Tiqlyne Motion Engine logo', src: 'img/logo.svg' },
       items: [
         { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: 'Docs' },
+        { type: 'docSidebar', sidebarId: 'tutorials', position: 'left', label: 'Tutorials' },
+        { type: 'docSidebar', sidebarId: 'examples', position: 'left', label: 'Examples' },
+        { type: 'docSidebar', sidebarId: 'reference', position: 'left', label: 'API Reference' },
+        { to: '/blog', label: 'Blog', position: 'left' },
+        { type: 'docSidebar', sidebarId: 'project', position: 'left', label: 'Project' },
         { href: repositoryUrl, label: 'GitHub', position: 'right' }
       ]
     },
@@ -47,27 +56,27 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Learn',
           items: [
             { label: 'Getting started', to: '/docs/getting-started' },
-            { label: 'API reference', to: '/docs/reference/public-exports' },
-            { label: 'Release status', to: '/docs/release/status' }
+            { label: 'Tutorials', to: '/docs/tutorials' },
+            { label: 'Examples', to: '/docs/examples' }
           ]
         },
         {
-          title: 'Packages',
+          title: 'API',
           items: [
-            { label: 'motion-core', to: '/docs/packages/motion-core' },
-            { label: 'motion-web', to: '/docs/packages/motion-web' },
-            { label: 'motion-pack-basic', to: '/docs/packages/motion-pack-basic' }
+            { label: 'API Reference', to: '/docs/reference' },
+            { label: 'MotionEngine', to: '/docs/reference/motion-engine' },
+            { label: 'WebMotionDriver', to: '/docs/reference/web-motion-driver' }
           ]
         },
         {
           title: 'Project',
           items: [
-            { label: 'GitHub', href: repositoryUrl },
+            { label: 'Architecture', to: '/docs/architecture/overview' },
             { label: 'Roadmap', to: '/docs/release/roadmap' },
-            { label: 'Limitations', to: '/docs/release/limitations' }
+            { label: 'GitHub', href: repositoryUrl }
           ]
         }
       ],

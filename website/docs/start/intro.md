@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /intro
 ---
 
 # Tiqlyne Motion Engine
@@ -57,3 +58,11 @@ The first public target version is:
 ```
 
 This version focuses on a stable, documented foundation for defining, planning and playing animations.
+
+## Choose your next step
+
+- New to Tiqlyne? Follow [Getting started](./getting-started.md).
+- Unsure which package to install? See [Installation](./installation.md).
+- Prefer a guided build? Open [Tutorials](../tutorials/index.md).
+- Need working code? Browse [Examples](../examples/index.md).
+- Looking for an exact contract? Use the [API Reference](../reference/index.md).
