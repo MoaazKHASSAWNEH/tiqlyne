@@ -43,11 +43,14 @@ function rewrite(filePath) {
   const original = readFileSync(filePath, 'utf8');
   let output = original;
 
-  output = output.replace(new RegExp('(from\\s+[\"\\\'])(\\.{1,2}\\/[^\"\\\']+)([\"\\\'])', 'g'), (match, before, specifier, after) => {
+  const fromPattern = new RegExp(`(from\\s+['"])(\\.{1,2}\\/[^'"]+)(['"])`, 'g');
+  const importPattern = new RegExp(`(import\\s*['"])(\\.{1,2}\\/[^'"]+)(['"])`, 'g');
+
+  output = output.replace(fromPattern, (_match, before, specifier, after) => {
     return before + addExtension(filePath, specifier) + after;
   });
 
-  output = output.replace(new RegExp('(import\\s*[\"\\\'])(\\.{1,2}\\/[^\"\\\']+)([\"\\\'])', 'g'), (match, before, specifier, after) => {
+  output = output.replace(importPattern, (_match, before, specifier, after) => {
     return before + addExtension(filePath, specifier) + after;
   });
 
