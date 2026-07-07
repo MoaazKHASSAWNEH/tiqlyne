@@ -35,7 +35,21 @@ await motion.play(element, {
 });
 ```
 
-Invalid fade ordering fails during planning with reason `invalid-motion-options`. Option values are normalized by their schemas; consult the [basic package page](../packages/motion-pack-basic.md) for exact ranges and generated timelines.
+Invalid fade ordering fails during planning with reason `invalid-motion-options`. Option values are normalized by their schemas; see the [basic pack reference](../reference/basic-pack.md) for exact ranges and generated timelines.
+
+## Available motion types in 0.1.0
+
+| Type       | Category   | Key options                                            |
+| ---------- | ---------- | ------------------------------------------------------ |
+| `fade-in`  | `entrance` | `fromOpacity` (0), `toOpacity` (1)                     |
+| `fade-out` | `exit`     | `fromOpacity` (1), `toOpacity` (0)                     |
+| `slide-in` | `entrance` | `direction` (bottom), `distance` (24px), `fade` (true) |
+
+## slide-in direction
+
+The `direction` option on `slide-in` controls which side the element enters from: `left`, `right`, `top`, or `bottom`.
+
+This is **not** the same as the timeline step `direction` field (which controls playback direction: `normal`, `reverse`, `alternate`, `alternate-reverse`). See [Basic pack reference](../reference/basic-pack.md#direction-disambiguation) for details.
 
 ## Related pages
 

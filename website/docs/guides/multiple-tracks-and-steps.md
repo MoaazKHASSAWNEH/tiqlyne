@@ -4,7 +4,17 @@ sidebar_position: 5
 
 # Multiple tracks and steps
 
-Tracks run on a shared timeline. Steps in one track are sequential unless `at` positions them explicitly.
+## What you need to know
+
+- Tracks run in parallel on a shared timeline.
+- Steps inside one track are sequential by default.
+- `at` overrides sequencing and places a step at an explicit position.
+- Labels and anchors are forms of `at` that reference positions by name or relative anchor.
+- Selector tracks may resolve to multiple targets; `stagger` adds delay between them.
+
+For the complete guide on `at`, labels, and anchors, see [Timeline positions and labels](./timeline-positions-and-labels.md). For timing options (duration, fill, yoyo, direction, etc.), see [Timeline timing options](./timeline-timing-options.md).
+
+---
 
 ```ts
 import { createMotionTimeline } from '@tiqlyne/motion-core';
@@ -41,6 +51,8 @@ await motion.playTimeline(root, timeline);
 
 ## Related pages
 
+- [Timeline positions and labels](./timeline-positions-and-labels.md) — complete guide on `at`, labels, and anchors
+- [Timeline timing options](./timeline-timing-options.md) — duration, fill, iterations, yoyo, direction
 - [Timeline model](../reference/motion-timeline.md)
 - [Timeline builder](../reference/timeline-builder.md)
 - [Staggered list example](../examples/stagger-list.md)

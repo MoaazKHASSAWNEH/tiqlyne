@@ -7,6 +7,8 @@ sidebar_position: 9
 `createMotionComposition(callback)` builds an ordered list of registered-motion and direct-timeline items. Compilation resolves all items into one timeline.
 
 ```ts
+import { createMotionComposition, compileMotionComposition } from '@tiqlyne/motion-core';
+
 const composition = createMotionComposition((composition) => {
   composition.defaults({ easing: 'ease-out', fill: 'both' });
   composition.label('content', 200);
@@ -43,14 +45,44 @@ const timeline = compileMotionComposition(composition, { registry });
 | `timeline(timeline, input?)` | Append a direct timeline item.             |
 | `build()`                    | Return a snapshot definition.              |
 
-Motion inputs accept `label`, `target`, `options`, `at`, and `defaults`; timeline inputs accept the same fields except `options`. Item labels are exposed during compilation, and `at` uses the normal `MotionStepPosition` forms.
+Motion inputs accept `label`, `target`, `options`, `at`, and `defaults`; timeline inputs accept the same fields except `options`.
 
-Compilation requires a registry. Unknown motion types, invalid motion options, and invalid compiled timelines throw `MotionPlanningError`; engine composition methods translate planning failures into failed playback results. A labelled item cannot use an anchor-based `at` position in 0.1.0 because the compiler cannot resolve that item's absolute label time, although anchors can still shift unlabelled item steps.
+## Item `at` — positioning
 
-Use a composition for a reusable page entrance or sequence assembled from known motions. Use a direct timeline for tightly coupled keyframes, and a single registered definition for one reusable semantic motion.
+Item `at` uses the same `MotionStepPosition` forms as step `at`:
+
+| Form | Example | Meaning |
+| --- | --- | --- |
+| `number` | `at: 200` | Start item at 200 ms |
+| `string` | `at: 'content'` | Start at the named label |
+| `{ label, offset? }` | `at: { label: 'content', offset: 50 }` | Label time plus offset |
+| `{ anchor, offset? }` | `at: { anchor: 'previous-end', offset: 100 }` | Anchor (unlabelled items only) |
+
+:::warning Labelled items cannot use anchor-based `at`
+In 0.1.0, a composition item with a `label` **cannot** use `{ anchor: ... }` as its `at` value. The compiler resolves label positions before processing anchors. Use an absolute time instead.
+:::
+
+## Item `label` — exposing positions
+
+When an item has a `label`, the compiler adds that label to the compiled timeline at the item's resolved start position. This label can then be used with `jumpToLabel`.
+
+Compilation requires a registry. Unknown motion types, invalid motion options, and invalid compiled timelines throw `MotionPlanningError`; engine composition methods translate planning failures into failed playback results.
+
+## Compilation error codes
+
+| Code | Cause |
+| --- | --- |
+| `composition-empty` | Composition has no items |
+| `composition-duplicate-label` | Two items share the same label |
+| `composition-item-label-anchor-position-unsupported` | Labelled item uses anchor-based `at` |
+| `composition-item-label-reference-missing` | Item `at` references unknown label |
+| `composition-item-unknown-motion-type` | Motion type not in registry |
+| `composition-item-invalid-options` | Motion options failed validation |
+| `composition-invalid-timeline` | Compiled timeline is invalid |
 
 ## Related pages
 
 - [Compositions guide](../guides/compositions.md)
+- [Timeline positions and labels](../guides/timeline-positions-and-labels.md)
 - [Composition example](../examples/composition.md)
 - [Motion composition model](./motion-composition.md)

@@ -25,7 +25,7 @@ const sidebars: SidebarsConfig = {
         {
           type: 'doc',
           id: 'guides/playback-controllers',
-          label: 'Playback controllers',
+          label: 'Playback controllers'
         },
         { type: 'doc', id: 'guides/reduced-motion', label: 'Reduced motion' },
         { type: 'doc', id: 'guides/troubleshooting', label: 'Troubleshooting' }
@@ -74,6 +74,8 @@ const sidebars: SidebarsConfig = {
         'guides/basic-motions',
         'guides/direct-timelines',
         'guides/multiple-tracks-and-steps',
+        'guides/timeline-positions-and-labels',
+        'guides/timeline-timing-options',
         'guides/labels',
         'guides/compositions'
       ]

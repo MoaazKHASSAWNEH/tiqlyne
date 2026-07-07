@@ -19,14 +19,14 @@ const playback = motion.createPlayback(element, {
 
 Controllers can also come from `createTimelinePlayback` and `createCompositionPlayback`.
 
-| Need | Method or property |
-| --- | --- |
-| Start in either direction | `playForward()`, `playBackward()` |
-| Temporarily stop and continue | `pause()`, `resume()` |
-| Scrub | `seek()`, `seekProgress()`, `jumpToLabel()` |
-| Observe completion | `finished` |
-| Render current controller state | `getState()` |
-| Release listeners | `dispose()` |
+| Need                            | Method or property                          |
+| ------------------------------- | ------------------------------------------- |
+| Start in either direction       | `playForward()`, `playBackward()`           |
+| Temporarily stop and continue   | `pause()`, `resume()`                       |
+| Scrub                           | `seek()`, `seekProgress()`, `jumpToLabel()` |
+| Observe completion              | `finished`                                  |
+| Render current controller state | `getState()`                                |
+| Release listeners               | `dispose()`                                 |
 
 ## Complete UI example
 

@@ -4,9 +4,17 @@ sidebar_position: 4
 
 # Compositions
 
-Compositions let you combine registered motions into a larger sequence.
+## What you need to know
 
-They are an authoring layer that compiles to a timeline.
+- Compositions are an **authoring layer** that compiles to a timeline.
+- They combine registered motions and direct timelines into a single sequence.
+- They require a **registry** to resolve motion types at compile time.
+- Item `at` shifts when the item's tracks start in the compiled timeline.
+- Item `label` exposes the item's start position as a named timeline label.
+- A labelled item **cannot use an anchor-based `at`** in 0.1.0.
+
+Compositions are useful when you want to combine reusable motions.
+Timelines are useful when you want to describe low-level animation steps directly.
 
 ```mermaid
 flowchart LR
@@ -15,6 +23,8 @@ flowchart LR
   Timeline --> Plan["Execution plan"]
   Plan --> Driver["Playback driver"]
 ```
+
+---
 
 ## Create a composition
 
@@ -35,9 +45,11 @@ const composition = createMotionComposition((composition) => {
 });
 ```
 
+---
+
 ## Compile a composition
 
-Compositions are compiled with a registry.
+Compositions are compiled with a registry. The registry resolves each motion type to its registered definition.
 
 ```ts
 import { compileMotionComposition } from '@tiqlyne/motion-core';
@@ -47,7 +59,7 @@ const timeline = compileMotionComposition(composition, {
 });
 ```
 
-The registry is required because each motion type must be resolved to a registered motion definition.
+---
 
 ## Play a composition
 
@@ -59,15 +71,17 @@ await motion.playComposition(element, composition);
 
 The engine compiles the composition internally before playing it.
 
-## Plan a composition
+---
 
-You can also create an execution plan without playing it.
+## Plan a composition
 
 ```ts
 const plan = motion.planComposition(composition);
 
 console.log(plan);
 ```
+
+---
 
 ## Create a composition playback controller
 
@@ -79,7 +93,11 @@ await playback.resume();
 await playback.finish();
 ```
 
+---
+
 ## Composition defaults
+
+Defaults apply to all items in the composition unless overridden at the item level.
 
 ```ts
 const composition = createMotionComposition((composition) => {
@@ -102,9 +120,11 @@ const composition = createMotionComposition((composition) => {
 });
 ```
 
-## Per-motion timing
+---
 
-Each motion in a composition can override timing values.
+## Per-item timing
+
+Each item can override defaults individually.
 
 ```ts
 const composition = createMotionComposition((composition) => {
@@ -129,37 +149,138 @@ const composition = createMotionComposition((composition) => {
 });
 ```
 
+---
+
+## Item `at` — positioning items
+
+`at` shifts the position of all tracks produced by that item in the compiled timeline. It accepts the same forms as step `at`:
+
+| Form                  | Example                                       | Meaning                                               |
+| --------------------- | --------------------------------------------- | ----------------------------------------------------- |
+| `number`              | `at: 200`                                     | Start item at 200 ms                                  |
+| `string`              | `at: 'details'`                               | Start at the named label                              |
+| `{ label, offset? }`  | `at: { label: 'details', offset: 50 }`        | Label time plus offset                                |
+| `{ anchor, offset? }` | `at: { anchor: 'previous-end', offset: 100 }` | Relative to previous item end (unlabelled items only) |
+
+```ts
+const composition = createMotionComposition((composition) => {
+  composition.label('content', 200);
+
+  composition.motion('fade-in'); // starts at 0
+
+  composition.motion('slide-in', {
+    at: 'content', // starts at 200 ms (the label)
+    options: { direction: 'bottom', fade: false }
+  });
+});
+```
+
+---
+
+## Item `label` — exposing positions
+
+When an item has a `label`, the compiler adds that label to the compiled timeline at the item's resolved start position. You can then use `jumpToLabel` on the compiled playback.
+
+```ts
+const composition = createMotionComposition((composition) => {
+  composition.motion('fade-in', {
+    label: 'entrance' // compiled timeline will have label 'entrance' at 0 ms
+  });
+
+  composition.motion('slide-in', {
+    at: 300,
+    label: 'slide' // compiled timeline will have label 'slide' at 300 ms
+  });
+});
+
+const playback = motion.createCompositionPlayback(element, composition);
+await playback.jumpToLabel('slide');
+```
+
+### Difference between timeline labels and composition item labels
+
+| Type               | Declared with                             | Purpose                                                                              |
+| ------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Timeline label** | `composition.label(name, ms)`             | Absolute named position in the composition, directly included in compiled timeline   |
+| **Item label**     | `item.label` in `composition.motion(...)` | Exposes the item's resolved start position as a named label in the compiled timeline |
+
+Both end up as labels on the compiled timeline. The difference is in how their positions are determined.
+
+---
+
+## Limitation in 0.1.0: labelled items cannot use anchor-based `at`
+
+When an item has a `label`, the compiler resolves its position to an absolute millisecond value during compilation. Anchor-based `at` positions (`{ anchor: ... }`) are resolved in a later phase, so the compiler cannot determine the absolute position for a labelled item that uses an anchor.
+
+```ts
+// ❌ Invalid in 0.1.0
+composition.motion('fade-in', {
+  label: 'entrance',
+  at: { anchor: 'previous-end' } // throws composition-item-label-anchor-position-unsupported
+});
+
+// ✅ Valid — labelled item with absolute at
+composition.motion('fade-in', {
+  label: 'entrance',
+  at: 0
+});
+
+// ✅ Valid — anchor-based at on an unlabelled item
+composition.motion('slide-in', {
+  at: { anchor: 'previous-end', offset: 50 }
+});
+```
+
+---
+
+## Nested timeline labels
+
+When a `composition.timeline(...)` item contains a timeline that has its own labels, those labels are **not automatically preserved** in the compiled output. If you need them, declare them explicitly on the composition:
+
+```ts
+const innerTimeline = createMotionTimeline((timeline) => {
+  timeline.label('inner-point', 150);
+  timeline.track('self', (track) => {
+    track.step({ duration: 300 }, (step) => {
+      step.from({ opacity: 0 });
+      step.to({ opacity: 1 });
+    });
+  });
+});
+
+const composition = createMotionComposition((composition) => {
+  // Explicitly declare the label if you need it in the compiled timeline
+  composition.label('inner-point', 150);
+
+  composition.timeline(innerTimeline);
+});
+```
+
+---
+
 ## Composition vs timeline
 
-Compositions are useful when you want to combine reusable motions.
+| Approach    | Best for                                         |
+| ----------- | ------------------------------------------------ |
+| Composition | Combining registered motions, reusable sequences |
+| Timeline    | Low-level custom animation steps                 |
 
-Timelines are useful when you want to describe low-level animation steps directly.
-
-| Approach    | Best for                              |
-| ----------- | ------------------------------------- |
-| Composition | Combining registered motions.         |
-| Timeline    | Low-level custom animation sequences. |
-
-## When to use compositions
-
-Use compositions when you need to:
-
-- combine several registered motions;
-- create reusable animation sequences;
-- keep authoring simple;
-- compile higher-level definitions into timelines;
-- keep sequencing expressed through registered motion vocabulary.
+---
 
 ## Common mistakes
 
 - Compiling before the referenced motion types are registered.
-- Using duplicate composition/item labels.
-- Giving a labelled item an anchor-based `at` value; absolute item-label resolution does not support anchors in 0.1.0.
-- Expecting a composition to preserve nested timeline labels automatically; define the labels needed by the compiled composition explicitly.
+- Using duplicate composition item labels (fails with `composition-duplicate-label`).
+- Giving a labelled item an anchor-based `at` (fails with `composition-item-label-anchor-position-unsupported`).
+- Expecting a composition to preserve nested timeline labels automatically.
+- Confusing `composition.label(name, ms)` (absolute timeline label) with item `label` (exposes item start).
+
+---
 
 ## Related pages
 
 - [Composition model](../reference/motion-composition.md)
 - [Composition builder](../reference/composition-builder.md)
+- [Timeline positions and labels](./timeline-positions-and-labels.md)
 - [Composition example](../examples/composition.md)
 - [Playback controllers](./playback-controllers.md)

@@ -12,6 +12,17 @@ The reference documents public version 0.1.0 contracts exactly. Use it to look u
 - Debugging and policies: diagnostics, events, sampling, inspection, reduced motion, and conflicts.
 - Packs: the exact basic-pack catalogue.
 
+## Key reference pages
+
+| Topic                                          | Reference page                                  | Related guide                                                               |
+| ---------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
+| Timeline types, valid values, validation rules | [Motion timeline](./motion-timeline.md)         | [Timeline timing options](../guides/timeline-timing-options.md)             |
+| Builder API: createMotionTimeline, track, step | [Timeline builder](./timeline-builder.md)       | [Timeline positions and labels](../guides/timeline-positions-and-labels.md) |
+| Composition API                                | [Composition builder](./composition-builder.md) | [Compositions](../guides/compositions.md)                                   |
+| Web driver, reset, matchMedia                  | [Web motion driver](./web-motion-driver.md)     | [Engine setup](../guides/engine-setup.md)                                   |
+| Controller API: seek, jump, pause              | [Playback controller](./playback-controller.md) | [Playback controllers](../guides/playback-controllers.md)                   |
+| Basic pack motions and options                 | [Basic pack](./basic-pack.md)                   | [Basic motions](../guides/basic-motions.md)                                 |
+
 ## Custom motion reference path
 
 - [Motion definition](./motion-definition.md): definition metadata, build context, base classes, and lifecycle.

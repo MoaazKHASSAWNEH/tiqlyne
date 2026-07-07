@@ -51,5 +51,6 @@ Jumping after playback becomes terminal or referencing a label that was never ad
 
 ## Related pages
 
+- [Timeline positions and labels](../guides/timeline-positions-and-labels.md) — complete canonical guide
 - [Labels guide](../guides/labels.md)
 - [Controller reference](../reference/playback-controller.md)

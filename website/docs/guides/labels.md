@@ -4,9 +4,15 @@ sidebar_position: 6
 
 # Timeline labels
 
+:::tip Canonical reference
+This page introduces labels. For the complete guide covering labels, `at` positioning, anchors, step sequencing, and compositions, see [Timeline positions and labels](./timeline-positions-and-labels.md).
+:::
+
 Labels map names to absolute milliseconds. They position steps and let Web playback controllers seek to meaningful points.
 
 ```ts
+import { createMotionTimeline } from '@tiqlyne/motion-core';
+
 const timeline = createMotionTimeline((timeline) => {
   timeline.label('start', 0);
   timeline.label('details', 300);
@@ -31,6 +37,7 @@ Label names must be non-empty, label times must be finite and non-negative, and 
 
 ## Related pages
 
+- [Timeline positions and labels](./timeline-positions-and-labels.md) — complete canonical guide
 - [Timeline builder](../reference/timeline-builder.md)
 - [Playback controllers](./playback-controllers.md)
 - [Compositions](./compositions.md)
