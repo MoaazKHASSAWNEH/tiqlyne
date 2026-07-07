@@ -207,22 +207,29 @@ A number means a fixed delay in milliseconds between each resolved target. The o
 
 ## Validation rules
 
-| Rule                                                 | Error code                         |
-| ---------------------------------------------------- | ---------------------------------- |
-| Timeline must have at least one track                | `timeline-empty-tracks`            |
-| Track must have at least one step                    | `timeline-empty-steps`             |
-| Step must have at least one keyframe                 | `timeline-empty-keyframes`         |
-| `duration` must be finite and ≥ 0                    | `timeline-invalid-duration`        |
-| `delay` must be finite and ≥ 0                       | `timeline-invalid-delay`           |
-| `endDelay` must be finite and ≥ 0                    | `timeline-invalid-end-delay`       |
-| `playbackRate` must be finite and > 0                | `timeline-invalid-playback-rate`   |
-| `iterations` must be positive finite or `'infinite'` | `timeline-invalid-iterations`      |
-| `direction` must be a valid value                    | `timeline-invalid-direction`       |
-| `fill` must be a valid value                         | `timeline-invalid-fill`            |
-| `yoyo: true` cannot be combined with `direction`     | `timeline-yoyo-direction-conflict` |
-| Step `offset` must be in 0–1                         | `timeline-invalid-step-offset`     |
-| Label references must point to existing labels       | `timeline-missing-label-reference` |
-| Label times must be finite and non-negative          | `timeline-invalid-label`           |
+| Rule                                                 | Error code                              |
+| ---------------------------------------------------- | --------------------------------------- |
+| Timeline must have at least one track                | `timeline-empty-tracks`                 |
+| Track must have at least one step                    | `timeline-empty-steps`                  |
+| Step must have at least one keyframe                 | `timeline-empty-keyframes`              |
+| `duration` must be finite and ≥ 0                    | `timeline-invalid-duration`             |
+| `delay` must be finite and ≥ 0                       | `timeline-invalid-delay`                |
+| `endDelay` must be finite and ≥ 0                    | `timeline-invalid-end-delay`            |
+| `playbackRate` must be finite and > 0                | `timeline-invalid-playback-rate`        |
+| `iterations` must be positive finite or `'infinite'` | `timeline-invalid-iterations`           |
+| `direction` must be a valid value                    | `timeline-invalid-direction`            |
+| `fill` must be a valid value                         | `timeline-invalid-fill`                 |
+| `yoyo: true` cannot be combined with `direction`     | `timeline-yoyo-direction-conflict`      |
+| Step `offset` field must be in 0–1                   | `timeline-invalid-step-offset`          |
+| Step label reference must not be empty               | `timeline-invalid-step-label`           |
+| Step label reference must point to an existing label | `timeline-unknown-step-label`           |
+| Step `at` number must be finite and non-negative     | `timeline-invalid-step-position`        |
+| Step position `offset` must be finite                | `timeline-invalid-step-position-offset` |
+| Step anchor must be a valid `MotionStepAnchor`       | `timeline-invalid-step-anchor`          |
+| `previous-start`/`previous-end` on first step        | `timeline-invalid-step-anchor`          |
+| `track-start` with negative offset                   | `timeline-invalid-step-position`        |
+| Label name must not be empty                         | `timeline-invalid-label-name`           |
+| Label position must be finite and non-negative       | `timeline-invalid-label-position`       |
 
 ---
 

@@ -19,19 +19,23 @@ sidebar_position: 7
 
 ## The timing fields
 
-| Field          | Type                      | Where applicable                        | Default if omitted               |
-| -------------- | ------------------------- | --------------------------------------- | -------------------------------- |
-| `duration`     | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | **required** on step or defaults |
-| `delay`        | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | `0`                              |
-| `easing`       | `MotionEasing`            | step, track defaults, timeline defaults | `'linear'`                       |
-| `fill`         | `MotionFillMode`          | step, track defaults, timeline defaults | `'none'`                         |
-| `iterations`   | `number \| 'infinite'`    | step, track defaults, timeline defaults | `1`                              |
-| `direction`    | `MotionPlaybackDirection` | step, track defaults, timeline defaults | `'normal'`                       |
-| `yoyo`         | `boolean`                 | step, track defaults, timeline defaults | `false`                          |
-| `endDelay`     | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | `0`                              |
-| `playbackRate` | `number` (> 0)            | step, track defaults, timeline defaults | `1`                              |
+| Field          | Type                      | Where applicable                        | Effective value when omitted                          |
+| -------------- | ------------------------- | --------------------------------------- | ----------------------------------------------------- |
+| `duration`     | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | **required** — must be set via step or defaults chain |
+| `delay`        | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | `0` (Web driver applies `0`)                          |
+| `easing`       | `MotionEasing`            | step, track defaults, timeline defaults | `'ease'` (Web driver applies `'ease'` when undefined) |
+| `fill`         | `MotionFillMode`          | step, track defaults, timeline defaults | `'both'` (Web driver applies `'both'` when undefined) |
+| `iterations`   | `number \| 'infinite'`    | step, track defaults, timeline defaults | `1` (WAAPI default)                                   |
+| `direction`    | `MotionPlaybackDirection` | step, track defaults, timeline defaults | `'normal'` (WAAPI default)                            |
+| `yoyo`         | `boolean`                 | step, track defaults, timeline defaults | no alternate (yoyo off by default)                    |
+| `endDelay`     | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | `0` (WAAPI default)                                   |
+| `playbackRate` | `number` (> 0)            | step, track defaults, timeline defaults | `1` (WAAPI default)                                   |
 
-`duration` must be defined somewhere in the defaults chain (step, track, or timeline). It is always required to produce a valid step.
+:::note Core vs Web defaults
+All timing fields are **optional** in the core model. The core applies defaults only from the cascade (step → track → timeline). If a value is still undefined after the cascade, the **Web driver** applies its own defaults: `easing` becomes `'ease'`, `fill` becomes `'both'`, and `delay` becomes `0`. Other fields fall back to Web Animations API defaults.
+
+For `duration`: the core requires it to be set somewhere in the defaults chain. If it remains undefined, validation fails with `timeline-invalid-duration`.
+:::
 
 ---
 
@@ -63,7 +67,7 @@ const timeline = createMotionTimeline((timeline) => {
 });
 ```
 
-In this example, the step uses `duration: 150` (step wins), `easing: 'ease-in'` (step wins), `fill: 'both'` (falls through to timeline), `delay: 0` (engine default).
+In this example, the step uses `duration: 150` (step wins), `easing: 'ease-in'` (step wins), `fill: 'both'` (falls through to timeline). Without those defaults, the Web driver would apply `easing: 'ease'` and `fill: 'both'`.
 
 ---
 

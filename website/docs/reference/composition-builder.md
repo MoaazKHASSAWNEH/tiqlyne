@@ -49,17 +49,19 @@ Motion inputs accept `label`, `target`, `options`, `at`, and `defaults`; timelin
 
 ## Item `at` — positioning
 
-Item `at` uses the same `MotionStepPosition` forms as step `at`:
+Item `at` uses the same `MotionStepPosition` forms as step `at`. It is applied to every step produced by that item in the compiled timeline:
 
-| Form | Example | Meaning |
-| --- | --- | --- |
-| `number` | `at: 200` | Start item at 200 ms |
-| `string` | `at: 'content'` | Start at the named label |
-| `{ label, offset? }` | `at: { label: 'content', offset: 50 }` | Label time plus offset |
-| `{ anchor, offset? }` | `at: { anchor: 'previous-end', offset: 100 }` | Anchor (unlabelled items only) |
+| Form                  | Example                                   | Meaning                                                                                      |
+| --------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `number`              | `at: 200`                                 | Item steps start at 200 ms                                                                   |
+| `string`              | `at: 'content'`                           | Item steps start at the named label                                                          |
+| `{ label, offset? }`  | `at: { label: 'content', offset: 50 }`    | Label time plus offset                                                                       |
+| `{ anchor, offset? }` | `at: { anchor: 'track-end', offset: 50 }` | Anchor applied to compiled steps within their track (unlabelled items only — see note below) |
+
+Anchor-based `at` on composition items applies the anchor to each step within the item's compiled tracks individually. Anchors resolve according to normal track scheduling rules — relative to steps already scheduled in the same track, not relative to other composition items.
 
 :::warning Labelled items cannot use anchor-based `at`
-In 0.1.0, a composition item with a `label` **cannot** use `{ anchor: ... }` as its `at` value. The compiler resolves label positions before processing anchors. Use an absolute time instead.
+In 0.1.0, a composition item with a `label` **cannot** use `{ anchor: ... }` as its `at` value. The compiler resolves label positions before anchor resolution. Use an absolute time instead.
 :::
 
 ## Item `label` — exposing positions
@@ -70,15 +72,15 @@ Compilation requires a registry. Unknown motion types, invalid motion options, a
 
 ## Compilation error codes
 
-| Code | Cause |
-| --- | --- |
-| `composition-empty` | Composition has no items |
-| `composition-duplicate-label` | Two items share the same label |
+| Code                                                 | Cause                                |
+| ---------------------------------------------------- | ------------------------------------ |
+| `composition-empty`                                  | Composition has no items             |
+| `composition-duplicate-label`                        | Two items share the same label       |
 | `composition-item-label-anchor-position-unsupported` | Labelled item uses anchor-based `at` |
-| `composition-item-label-reference-missing` | Item `at` references unknown label |
-| `composition-item-unknown-motion-type` | Motion type not in registry |
-| `composition-item-invalid-options` | Motion options failed validation |
-| `composition-invalid-timeline` | Compiled timeline is invalid |
+| `composition-item-label-reference-missing`           | Item `at` references unknown label   |
+| `composition-item-unknown-motion-type`               | Motion type not in registry          |
+| `composition-item-invalid-options`                   | Motion options failed validation     |
+| `composition-invalid-timeline`                       | Compiled timeline is invalid         |
 
 ## Related pages
 

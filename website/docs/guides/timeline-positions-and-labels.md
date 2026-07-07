@@ -166,10 +166,17 @@ const timeline = createMotionTimeline((timeline) => {
 
 ### Label rules
 
-- Label names must be non-empty strings.
-- Label times must be finite and non-negative numbers (in milliseconds).
-- A step that references a label must use a name that exists on the timeline.
-- Unknown label references fail validation with `timeline-missing-label-reference`.
+- Label names must be non-empty strings. Empty label names fail with `timeline-invalid-label-name`.
+- Label times must be finite and non-negative numbers (in milliseconds). Invalid positions fail with `timeline-invalid-label-position`.
+- A step that uses a label name must reference a declared label. Unknown names fail with `timeline-unknown-step-label`.
+- A step that uses an empty string as a label reference fails with `timeline-invalid-step-label`.
+
+### Anchor rules
+
+- Valid anchors: `track-start`, `track-end`, `previous-start`, `previous-end`. Invalid anchor values fail with `timeline-invalid-step-anchor`.
+- `previous-start` and `previous-end` **cannot be used on the first step** of a track. Validation fails with `timeline-invalid-step-anchor`.
+- `track-start` with a negative offset fails with `timeline-invalid-step-position`.
+- The `offset` in `{ label, offset }` and `{ anchor, offset }` must be a finite number. Non-finite offsets fail with `timeline-invalid-step-position-offset`.
 
 ---
 
@@ -296,15 +303,17 @@ const timeline = createMotionTimeline((timeline) => {
 
 ## Common mistakes
 
-| Mistake                                                   | Fix                                                                                           |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Referencing a label that was not declared                 | Declare the label with `timeline.label(name, ms)` before referencing it                       |
-| Using `jumpToLabel` after a terminal state                | Check `playback.status` first; reset the playback if needed                                   |
-| Expecting label times to be in seconds                    | Label times are always in **milliseconds**                                                    |
-| Using an anchor-based `at` on a labelled composition item | Not supported in 0.1.0; use an absolute time instead                                          |
-| Expecting tracks to be sequential                         | Tracks always run in parallel                                                                 |
-| Setting `at: 0` without realizing it overrides sequencing | This is intentional; steps without `at` are sequential                                        |
-| Confusing composition labels with timeline labels         | See [timeline labels vs composition item labels](#timeline-labels-vs-composition-item-labels) |
+| Mistake                                                    | Fix                                                                                           |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Referencing a label that was not declared                  | Declare the label with `timeline.label(name, ms)` before referencing it                       |
+| Using `previous-start` or `previous-end` on the first step | These anchors require a previous step; move them to step 2+                                   |
+| Using `jumpToLabel` after a terminal state                 | Check `playback.status` first; reset the playback if needed                                   |
+| Expecting label times to be in seconds                     | Label times are always in **milliseconds**                                                    |
+| Using an anchor-based `at` on a labelled composition item  | Not supported in 0.1.0; use an absolute time instead                                          |
+| Expecting tracks to be sequential                          | Tracks always run in parallel                                                                 |
+| Setting `at: 0` without realizing it overrides sequencing  | This is intentional; steps without `at` are sequential                                        |
+| Using a non-finite number as position offset               | Offset must be a finite number                                                                |
+| Confusing composition labels with timeline labels          | See [timeline labels vs composition item labels](#timeline-labels-vs-composition-item-labels) |
 
 ---
 
