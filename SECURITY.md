@@ -4,9 +4,9 @@
 
 Tiqlyne Motion Engine is currently preparing its first public pre-release.
 
-| Version | Supported |
-| --- | --- |
-| 0.1.x | Yes, after publication |
+| Version | Supported              |
+| ------- | ---------------------- |
+| 0.1.x   | Yes, after publication |
 
 ## Reporting a vulnerability
 
