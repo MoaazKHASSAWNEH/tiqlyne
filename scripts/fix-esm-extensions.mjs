@@ -1,22 +1,63 @@
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, extname, join, resolve } from 'node:path';
 
-const dir = process.argv[2] || 'dist';
+const targetDir = process.argv[2] || 'dist';
+const files = [];
 
 function walk(folder) {
-  const files = [];
   for (const item of readdirSync(folder)) {
-    const path = join(folder, item);
-    if (statSync(path).isDirectory()) files.push(...walk(path));
-    else if (path.endsWith('.js')) files.push(path);
+    const filePath = join(folder, item);
+    const stats = statSync(filePath);
+
+    if (stats.isDirectory()) {
+      walk(filePath);
+    } else if (filePath.endsWith('.js')) {
+      files.push(filePath);
+    }
   }
-  return files;
 }
 
-for (const file of walk(dir)) {
-  let text = readFileSync(file, 'utf8');
-  text = text.replaceAll("from './", "from './__LOCAL__");
-  text = text.replaceAll("from '../", "from '../__LOCAL__");
-  text = text.replaceAll("__LOCAL__", "");
-  writeFileSync(file, text);
+function addExtension(filePath, specifier) {
+  if (!specifier.startsWith('./') && !specifier.startsWith('../')) {
+    return specifier;
+  }
+
+  if (extname(specifier)) {
+    return specifier;
+  }
+
+  const absolutePath = resolve(dirname(filePath), specifier);
+
+  if (existsSync(`${absolutePath}.js`)) {
+    return `${specifier}.js`;
+  }
+
+  if (existsSync(join(absolutePath, 'index.js'))) {
+    return `${specifier}/index.js`;
+  }
+
+  return specifier;
+}
+
+function rewrite(filePath) {
+  const original = readFileSync(filePath, 'utf8');
+  let output = original;
+
+  output = output.replace(new RegExp('(from\\s+[\"\\\'])(\\.{1,2}\\/[^\"\\\']+)([\"\\\'])', 'g'), (match, before, specifier, after) => {
+    return before + addExtension(filePath, specifier) + after;
+  });
+
+  output = output.replace(new RegExp('(import\\s*[\"\\\'])(\\.{1,2}\\/[^\"\\\']+)([\"\\\'])', 'g'), (match, before, specifier, after) => {
+    return before + addExtension(filePath, specifier) + after;
+  });
+
+  if (output !== original) {
+    writeFileSync(filePath, output);
+  }
+}
+
+walk(targetDir);
+
+for (const filePath of files) {
+  rewrite(filePath);
 }
