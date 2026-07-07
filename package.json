@@ -10,7 +10,8 @@
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "release:check": "pnpm build"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
