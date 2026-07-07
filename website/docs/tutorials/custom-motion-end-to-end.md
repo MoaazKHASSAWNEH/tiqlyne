@@ -4,6 +4,16 @@ sidebar_position: 11
 
 # Create and use a custom motion end to end
 
+This tutorial follows one motion from its option schema to browser playback and diagnostics. Work through it in order the first time; each stage becomes a reusable boundary in an application motion library.
+
+## Quick map
+
+1. Define options.
+2. Build the definition.
+3. Register it.
+4. Play it.
+5. Debug it.
+
 ## 1. Goal
 
 Create a typed `rise-in` motion, validate its options, provide an accessible reduced-motion alternative, register it, and play it in a browser.

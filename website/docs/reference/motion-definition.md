@@ -6,6 +6,12 @@ sidebar_position: 4
 
 `MotionDefinition<TOptions>` is the public contract for a reusable, platform-independent motion.
 
+:::note Quick summary
+
+A definition owns metadata, option normalization and validation, and timeline construction. It never owns a DOM target or starts playback; the engine coordinates it and the configured driver executes its symbolic timeline.
+
+:::
+
 ## MotionDefinition\<TOptions\>
 
 ```ts

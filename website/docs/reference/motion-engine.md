@@ -6,6 +6,18 @@ sidebar_position: 1
 
 `MotionEngine<TTarget>` is the high-level registry, planning, playback, and controller API. `TTarget` must match the configured driver (`Element` for Web).
 
+## Choose a method
+
+| Need | Start with |
+| --- | --- |
+| Play one registered semantic motion | `play` |
+| Play a hand-authored timeline | `playTimeline` |
+| Combine registered motions | `playComposition` |
+| Validate and inspect work without playback | `plan`, `planTimeline`, or `planComposition` |
+| Pause, seek, reverse, or observe playback | A `create*Playback` method |
+
+All `play*` and target-operation methods are asynchronous. Planning methods are synchronous and throw `MotionPlanningError` for invalid input.
+
 ```ts
 const motion = createMotionEngine<Element>({
   registry,

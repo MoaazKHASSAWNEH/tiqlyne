@@ -10,10 +10,10 @@ They are an authoring layer that compiles to a timeline.
 
 ```mermaid
 flowchart LR
-  Composition["Motion composition"] --> Compiler["Composition compiler"]
-  Registry["Motion registry"] --> Compiler
+  Composition["Motion composition"] --> Compiler["compileMotionComposition"]
   Compiler --> Timeline["Motion timeline"]
-  Timeline --> Engine["Motion engine"]
+  Timeline --> Plan["Execution plan"]
+  Plan --> Driver["Playback driver"]
 ```
 
 ## Create a composition
@@ -148,7 +148,7 @@ Use compositions when you need to:
 - create reusable animation sequences;
 - keep authoring simple;
 - compile higher-level definitions into timelines;
-- expose animation composition in a future builder UI.
+- keep sequencing expressed through registered motion vocabulary.
 
 ## Common mistakes
 

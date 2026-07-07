@@ -8,17 +8,17 @@ The execution pipeline explains how Tiqlyne turns a motion request into a platfo
 
 ```mermaid
 flowchart LR
-  Config["Motion config or timeline"] --> Normalize["Normalize options"]
-  Normalize --> Resolve["Resolve motion definition"]
-  Resolve --> Build["Build timeline"]
-  Build --> Defaults["Apply defaults"]
-  Defaults --> Validate["Validate"]
-  Validate --> Prepare["Prepare"]
-  Prepare --> Plan["Create execution plan"]
-  Plan --> Schedule["Schedule"]
-  Schedule --> Driver["Driver execution"]
+  Config["MotionConfig"] --> Normalize["Normalize config"]
+  Normalize --> Resolve["Find definition"]
+  Resolve --> Options["Normalize and validate options"]
+  Options --> Build["Build timeline"]
+  Build --> Validate["Validate timeline"]
+  Validate --> Plan["Create execution plan"]
+  Plan --> Driver["Driver playback"]
   Driver --> Result["Playback result"]
 ```
+
+Direct timelines enter at timeline validation, while compositions compile to a timeline before that point. Preparation and scheduling are part of execution-plan creation.
 
 ## 1. Input
 

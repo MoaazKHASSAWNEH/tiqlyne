@@ -6,6 +6,12 @@ sidebar_position: 16
 
 These snippets assume a configured browser `motion` engine, an `element` root, and the basic pack where registered types are used.
 
+:::tip How to use this page
+
+Pick the recipe closest to your task, then follow its link for the full contract and edge cases. These fragments are reminders, not a replacement for engine setup or the focused copy-paste [Examples](../examples/index.md).
+
+:::
+
 ## Registered motions
 
 ```ts

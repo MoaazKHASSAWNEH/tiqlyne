@@ -18,17 +18,17 @@ const sidebars: SidebarsConfig = {
       label: 'Essential guides',
       collapsed: true,
       items: [
-        { type: 'link', label: 'Engine setup', href: '/docs/guides/engine-setup' },
-        { type: 'link', label: 'Basic motions', href: '/docs/guides/basic-motions' },
-        { type: 'link', label: 'Direct timelines', href: '/docs/guides/direct-timelines' },
-        { type: 'link', label: 'Compositions', href: '/docs/guides/compositions' },
+        { type: 'doc', id: 'guides/engine-setup', label: 'Engine setup' },
+        { type: 'doc', id: 'guides/basic-motions', label: 'Basic motions' },
+        { type: 'doc', id: 'guides/direct-timelines', label: 'Direct timelines' },
+        { type: 'doc', id: 'guides/compositions', label: 'Compositions' },
         {
-          type: 'link',
+          type: 'doc',
+          id: 'guides/playback-controllers',
           label: 'Playback controllers',
-          href: '/docs/guides/playback-controllers'
         },
-        { type: 'link', label: 'Reduced motion', href: '/docs/guides/reduced-motion' },
-        { type: 'link', label: 'Troubleshooting', href: '/docs/guides/troubleshooting' }
+        { type: 'doc', id: 'guides/reduced-motion', label: 'Reduced motion' },
+        { type: 'doc', id: 'guides/troubleshooting', label: 'Troubleshooting' }
       ]
     }
   ],

@@ -6,6 +6,10 @@ sidebar_position: 8
 
 Use a controller when UI must pause, scrub, reverse, cancel, or observe playback. For fire-and-wait behavior, `play`/`playTimeline` is simpler.
 
+## Before you start
+
+Controllers represent stateful playback. Keep one controller per active UI interaction, inspect the result of every async operation, and dispose listeners when the owning view is torn down. If you only need a final result, prefer `await motion.play(...)`.
+
 ```ts
 const playback = motion.createPlayback(element, {
   id: 'interactive-fade',
@@ -14,6 +18,15 @@ const playback = motion.createPlayback(element, {
 ```
 
 Controllers can also come from `createTimelinePlayback` and `createCompositionPlayback`.
+
+| Need | Method or property |
+| --- | --- |
+| Start in either direction | `playForward()`, `playBackward()` |
+| Temporarily stop and continue | `pause()`, `resume()` |
+| Scrub | `seek()`, `seekProgress()`, `jumpToLabel()` |
+| Observe completion | `finished` |
+| Render current controller state | `getState()` |
+| Release listeners | `dispose()` |
 
 ## Complete UI example
 
