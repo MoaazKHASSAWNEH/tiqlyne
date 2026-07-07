@@ -29,6 +29,8 @@ Use these for standard entrance/exit behavior. See [basic motions](./basic-motio
 
 ```ts
 const targets = createMotionTimeline((timeline) => {
+  timeline.defaults({ duration: 240, easing: 'ease-out', fill: 'both' });
+
   timeline.track({ type: 'child', name: 'title' }, (track) => {
     track.step((step) => step.to({ opacity: 1 }));
   });

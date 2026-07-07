@@ -239,13 +239,22 @@ A number means a fixed delay in milliseconds between each resolved target. The o
 
 ```ts
 // ❌ Invalid
-track.step({ duration: 400, yoyo: true, direction: 'alternate' }, ...);
+track.step({ duration: 400, yoyo: true, direction: 'alternate' }, (step) => {
+  step.from({ opacity: 0 });
+  step.to({ opacity: 1 });
+});
 
 // ✅ Use direction when you need precise control
-track.step({ duration: 400, direction: 'alternate' }, ...);
+track.step({ duration: 400, direction: 'alternate' }, (step) => {
+  step.from({ opacity: 0 });
+  step.to({ opacity: 1 });
+});
 
 // ✅ Use yoyo for simple back-and-forth
-track.step({ duration: 400, yoyo: true }, ...);
+track.step({ duration: 400, yoyo: true }, (step) => {
+  step.from({ opacity: 0 });
+  step.to({ opacity: 1 });
+});
 ```
 
 ---

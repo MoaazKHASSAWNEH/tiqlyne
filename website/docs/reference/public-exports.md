@@ -50,7 +50,7 @@ Diagnostics and tooling:
 - `sampleMotionTimeline`, `sampleMotionTimelineAtTime`, `sampleMotionTimelineAtProgress`, and sample types
 - `inspectMotionTimeline` and inspection types
 
-Core also exports focused normalization/type-guard utilities such as `clamp`, `isRecord`, `normalizeBoolean`, `normalizeNumber`, `normalizeString`, trigger/conflict guards and value arrays, and keyframe performance-tier helpers.
+Core utility exports are `clamp`, `isRecord`, `isTerminalPlaybackStatus`, `normalizeBoolean`, `normalizeNumber`, `normalizeString`, `isMotionTriggerType`, `motionTriggerTypes`, `isMotionConflictStrategy`, `motionConflictStrategies`, and `getMotionKeyframePropertyPerformanceTier`.
 
 ## @tiqlyne/motion-web
 
@@ -59,9 +59,9 @@ Core also exports focused normalization/type-guard utilities such as `clamp`, `i
 - `resolveWebTarget`, `resolveWebTargets`, `resolveWebTrackTargets`, `resolveStaggerOffset`
 - `createWebAnimationFromStep`, `createWebAnimationsFromScheduledTask`, timeline animation helpers and result types
 - Web playback-result helpers: `createFailedWebPlayback`, `createFinishedWebPlayback`, `createResolvedWebPlayback`, `createSkippedWebPlayback`
-- reduced-motion helpers: generic fallback diagnostic, simplify/resolve timeline, diagnostics, plan, and schedule helpers
+- reduced-motion helpers: `createGenericReducedMotionFallbackDiagnostic`, `simplifyWebTimeline`, `resolveWebPlayableTimeline`, `resolveWebReducedMotionDiagnostics`, `resolveWebActiveExecutionPlan`, and `resolveWebScheduledTimeline`
 - conflict helpers: `cancelWebAnimations`, `getEffectiveWebConflictStrategy`, `hasActiveWebAnimations`, `isActiveWebAnimation`
-- `shouldValidateWebPlayableTimeline`, `validateWebPlayableTimeline`, and its result type
+- `shouldValidateWebPlayableTimeline`, `validateWebPlayableTimeline`, `WebPlayableTimelineValidationResult`, `WebPlaybackCreationResult`, and `WebTimelineAnimationCreationResult`
 
 ## @tiqlyne/motion-pack-basic
 

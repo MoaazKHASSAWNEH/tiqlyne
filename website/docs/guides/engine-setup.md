@@ -82,14 +82,14 @@ const motion = createMotionEngine<Element>({
 
 Common defaults include:
 
-| Default        | Description                                 |
-| -------------- | ------------------------------------------- |
-| `duration`     | Default animation duration in milliseconds. |
-| `delay`        | Default delay before the animation starts.  |
-| `easing`       | Default easing function.                    |
-| `fill`         | Default fill mode.                          |
-| `iterations`   | Default iteration count.                    |
-| `playbackRate` | Default playback speed.                     |
+| Default        | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `duration`     | Default animation duration in milliseconds.    |
+| `delay`        | Default delay before the animation starts.     |
+| `easing`       | Default easing function.                       |
+| `fill`         | Default fill mode.                             |
+| `iterations`   | Default iteration count.                       |
+| `playbackRate` | Requested default step speed; driver-specific. |
 
 ## Reduced motion
 

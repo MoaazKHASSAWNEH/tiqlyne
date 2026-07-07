@@ -29,7 +29,7 @@ sidebar_position: 7
 | `direction`    | `MotionPlaybackDirection` | step, track defaults, timeline defaults | `'normal'` (WAAPI default)                            |
 | `yoyo`         | `boolean`                 | step, track defaults, timeline defaults | no alternate (yoyo off by default)                    |
 | `endDelay`     | `number` (ms, ≥ 0)        | step, track defaults, timeline defaults | `0` (WAAPI default)                                   |
-| `playbackRate` | `number` (> 0)            | step, track defaults, timeline defaults | `1` (WAAPI default)                                   |
+| `playbackRate` | `number` (> 0)            | step, track defaults, timeline defaults | driver-specific; see the Web limitation below         |
 
 :::note Core vs Web defaults
 All timing fields are **optional** in the core model. The core applies defaults only from the cascade (step → track → timeline). If a value is still undefined after the cascade, the **Web driver** applies its own defaults: `easing` becomes `'ease'`, `fill` becomes `'both'`, and `delay` becomes `0`. Other fields fall back to Web Animations API defaults.
@@ -212,9 +212,9 @@ track.step({ duration: 300 }, (step) => {
 
 ---
 
-## `playbackRate` — scale speed
+## `playbackRate` — request a step speed
 
-`playbackRate` scales the timing of a step. `1` is normal speed, `2` is double speed, `0.5` is half speed.
+`playbackRate` expresses a requested step speed. `1` is normal speed, `2` is double speed, and `0.5` is half speed for drivers that apply this field.
 
 ```ts
 track.step({ duration: 600, playbackRate: 2 }, (step) => {
@@ -224,6 +224,10 @@ track.step({ duration: 600, playbackRate: 2 }, (step) => {
 ```
 
 `playbackRate` must be a finite positive number.
+
+:::warning Web driver limitation in 0.1.0
+The current Web driver forwards step `playbackRate` with the keyframe-animation options but does not assign it to the created `Animation`. Browsers ignore that unknown timing member, so do not rely on step `playbackRate` changing Web playback speed in 0.1.0. For controllable browser playback, create a playback controller and `await playback.setPlaybackRate(rate)`.
+:::
 
 :::warning Invalid playback rates
 
@@ -268,11 +272,11 @@ There are two distinct uses of the word "direction" in this engine:
 
 1. **Timeline playback direction** (`MotionPlaybackDirection`): controls how a step plays back.
    - Valid values: `normal`, `reverse`, `alternate`, `alternate-reverse`
-   - Used as: `track.step({ direction: 'reverse' }, ...)`
+   - Used as: `track.step({ duration: 300, direction: 'reverse' }, callback)`
 
 2. **Slide-in motion direction** (`SlideInDirection`): controls which side a slide-in enters from.
    - Valid values: `left`, `right`, `top`, `bottom`
-   - Used as: `motion.play(el, { type: 'slide-in', options: { direction: 'left' } })`
+   - Used as: `motion.play(el, { id: 'panel-enter', type: 'slide-in', options: { direction: 'left' } })`
 
 These are completely separate options. Do not confuse them.
 

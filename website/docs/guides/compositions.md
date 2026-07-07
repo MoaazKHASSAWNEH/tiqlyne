@@ -163,9 +163,9 @@ const composition = createMotionComposition((composition) => {
 | `{ anchor, offset? }` | `at: { anchor: 'track-end', offset: 50 }` | Anchor applied to compiled steps within their track (unlabelled items only — see note below) |
 
 :::note How anchor-based `at` works on composition items
-When an item has an anchor-based `at`, the anchor is applied to each of the item's compiled steps individually within their respective tracks in the compiled timeline. Anchors resolve according to the standard track scheduling rules — they are relative to the steps already scheduled in that same track, not relative to other composition items.
+When an item has an anchor-based `at`, the anchor is applied to each of the item's compiled steps individually within that item's source tracks. Composition items are compiled as separate tracks, even when they use the same target, so anchors never refer to steps from another item.
 
-Use absolute positions (`number`, label, or `{ label, offset? }`) when you want to position items relative to each other. Use anchors only when you want the item's steps to position themselves relative to the track's existing step state at the point they are inserted.
+Use absolute positions (`number`, label, or `{ label, offset? }`) when you want to position items relative to each other. `track-start` and `track-end` can position steps within an item's own tracks. `previous-start` and `previous-end` are invalid whenever they reach the first step of a compiled track, which is normally the case for a registered motion.
 
 A **labelled** item cannot use anchor-based `at` in 0.1.0. See [the limitation below](#limitation-in-010-labelled-items-cannot-use-anchor-based-at).
 :::
@@ -233,9 +233,9 @@ composition.motion('fade-in', {
   at: 0
 });
 
-// ✅ Valid — anchor-based at on an unlabelled item
+// ✅ Valid — unlabelled item, relative to its own compiled track
 composition.motion('slide-in', {
-  at: { anchor: 'previous-end', offset: 50 }
+  at: { anchor: 'track-start', offset: 50 }
 });
 ```
 

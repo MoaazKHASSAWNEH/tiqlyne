@@ -54,12 +54,13 @@ pnpm add @tiqlyne/motion-core
 ## Create an engine
 
 ```ts
-import { createMotionEngine, DefaultMotionRegistry } from '@tiqlyne/motion-core';
+import { createMotionEngine, DefaultMotionRegistry, NoopMotionDriver } from '@tiqlyne/motion-core';
 
 const registry = new DefaultMotionRegistry();
 
 const motion = createMotionEngine({
   registry,
+  driver: new NoopMotionDriver(),
   defaults: {
     duration: 300,
     easing: 'ease-out',
@@ -68,9 +69,8 @@ const motion = createMotionEngine({
 });
 ```
 
-A driver is required when you want to execute animations on a real platform.
-
-For browser playback, use `@tiqlyne/motion-web`.
+Use `NoopMotionDriver` for planning, validation, inspection and tests. Use
+`WebMotionDriver` from `@tiqlyne/motion-web` for browser playback.
 
 ## Register motions
 

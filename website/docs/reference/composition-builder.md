@@ -58,7 +58,7 @@ Item `at` uses the same `MotionStepPosition` forms as step `at`. It is applied t
 | `{ label, offset? }`  | `at: { label: 'content', offset: 50 }`    | Label time plus offset                                                                       |
 | `{ anchor, offset? }` | `at: { anchor: 'track-end', offset: 50 }` | Anchor applied to compiled steps within their track (unlabelled items only — see note below) |
 
-Anchor-based `at` on composition items applies the anchor to each step within the item's compiled tracks individually. Anchors resolve according to normal track scheduling rules — relative to steps already scheduled in the same track, not relative to other composition items.
+Anchor-based `at` applies to each step within that item's compiled source tracks. Items remain separate tracks, so anchors never schedule one composition item after another. `previous-start` and `previous-end` are invalid when applied to the first step of a compiled track; this is normally true for registered motions. Use a number or label to position items relative to each other.
 
 :::warning Labelled items cannot use anchor-based `at`
 In 0.1.0, a composition item with a `label` **cannot** use `{ anchor: ... }` as its `at` value. The compiler resolves label positions before anchor resolution. Use an absolute time instead.

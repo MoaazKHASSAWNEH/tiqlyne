@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 slug: /getting-started
 ---
 
@@ -103,7 +103,8 @@ await playback.finish();
 
 Continue with:
 
-- [Installation](./installation.md)
+- [First animation tutorial](../tutorials/first-animation.md)
+- [Fade-in example](../examples/fade-in.md)
 - [Core concepts](./core-concepts.md)
 - [Learning path](./learning-path.md)
 - [Registered motions](../guides/registered-motions.md)

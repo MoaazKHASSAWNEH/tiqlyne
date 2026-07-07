@@ -14,6 +14,7 @@ Version 0.1.0 has these intentional boundaries:
 - Web target `reset()` removes the root element's entire inline `style` attribute;
 - finishing an infinite Web animation is unsupported;
 - the promise-based fallback controller cannot provide native seeking, direction, rate, pause, or resume controls;
+- step-level `playbackRate` is validated but is not applied to created Web `Animation` objects in 0.1.0; use a Web playback controller's `setPlaybackRate()` for runtime speed changes;
 - sampler interpolation is deliberately limited and progress sampling cannot sample infinite timelines;
 - the `progress` playback event exists but is not continuously emitted by the Web controller;
 - labelled composition items cannot use anchor-based placement, and nested direct-timeline labels are not merged automatically;

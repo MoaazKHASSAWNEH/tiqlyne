@@ -149,9 +149,12 @@ The definition receives normalized options and resolved timing values through `M
 Opacity must increase for this entrance motion. Add a cross-field validator inside the class:
 
 ```ts
-protected override readonly optionValidators = [
-  validateIncreasing('fromOpacity', 'toOpacity', 'Rise opacity must increase')
-];
+// Excerpt: add this member to RiseInMotion.
+abstract class RiseInMotionExcerpt extends SchemaMotionDefinition<typeof riseInOptions.schema> {
+  protected override readonly optionValidators = [
+    validateIncreasing('fromOpacity', 'toOpacity', 'Rise opacity must increase')
+  ];
+}
 ```
 
 Schema normalization runs before these validators. If a validator returns a message, engine planning fails with reason `invalid-motion-options`; `play` returns that failure and its diagnostics instead of asking the driver to animate.
@@ -161,25 +164,28 @@ Schema normalization runs before these validators. If a validator returns a mess
 Add an opacity-only alternative to the class:
 
 ```ts
-override buildReducedMotionTimeline(
-  context: MotionBuildContext<RiseInOptions>
-): MotionTimelineDefinition {
-  return createMotionTimeline((timeline) => {
-    timeline.track('self', (track) => {
-      track.step(
-        {
-          duration: Math.min(context.duration, 150),
-          delay: context.delay,
-          easing: context.easing,
-          fill: 'both'
-        },
-        (step) => {
-          step.from({ opacity: context.options.fromOpacity });
-          step.to({ opacity: context.options.toOpacity });
-        }
-      );
+// Excerpt: add this member to RiseInMotion.
+abstract class RiseInMotionExcerpt extends SchemaMotionDefinition<typeof riseInOptions.schema> {
+  override buildReducedMotionTimeline(
+    context: MotionBuildContext<RiseInOptions>
+  ): MotionTimelineDefinition {
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step(
+          {
+            duration: Math.min(context.duration, 150),
+            delay: context.delay,
+            easing: context.easing,
+            fill: 'both'
+          },
+          (step) => {
+            step.from({ opacity: context.options.fromOpacity });
+            step.to({ opacity: context.options.toOpacity });
+          }
+        );
+      });
     });
-  });
+  }
 }
 ```
 

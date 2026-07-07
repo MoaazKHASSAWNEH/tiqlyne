@@ -94,9 +94,12 @@ Use definition validators for relationships between normalized values:
 ```ts
 import { validateIncreasing } from '@tiqlyne/motion-core';
 
-protected override readonly optionValidators = [
-  validateIncreasing('fromOpacity', 'toOpacity', 'Rise opacity must increase')
-];
+// Excerpt: add this member to RiseInMotion.
+abstract class RiseInMotionExcerpt extends SchemaMotionDefinition<typeof riseInOptions.schema> {
+  protected override readonly optionValidators = [
+    validateIncreasing('fromOpacity', 'toOpacity', 'Rise opacity must increase')
+  ];
+}
 ```
 
 The engine treats returned validation messages as `invalid-motion-options`. Other public helpers cover decreasing, different, greater-than, greater-than-or-equal, less-than, and less-than-or-equal relationships.
@@ -156,25 +159,28 @@ export class RiseInMotion extends SchemaMotionDefinition<typeof riseInOptions.sc
 Spatial motion should usually provide a non-spatial alternative:
 
 ```ts
-override buildReducedMotionTimeline(
-  context: MotionBuildContext<RiseInOptions>
-): MotionTimelineDefinition {
-  return createMotionTimeline((timeline) => {
-    timeline.track('self', (track) => {
-      track.step(
-        {
-          duration: Math.min(context.duration, 150),
-          delay: context.delay,
-          easing: context.easing,
-          fill: 'both'
-        },
-        (step) => {
-          step.from({ opacity: context.options.fromOpacity });
-          step.to({ opacity: context.options.toOpacity });
-        }
-      );
+// Excerpt: add this member to RiseInMotion.
+abstract class RiseInMotionExcerpt extends SchemaMotionDefinition<typeof riseInOptions.schema> {
+  override buildReducedMotionTimeline(
+    context: MotionBuildContext<RiseInOptions>
+  ): MotionTimelineDefinition {
+    return createMotionTimeline((timeline) => {
+      timeline.track('self', (track) => {
+        track.step(
+          {
+            duration: Math.min(context.duration, 150),
+            delay: context.delay,
+            easing: context.easing,
+            fill: 'both'
+          },
+          (step) => {
+            step.from({ opacity: context.options.fromOpacity });
+            step.to({ opacity: context.options.toOpacity });
+          }
+        );
+      });
     });
-  });
+  }
 }
 ```
 

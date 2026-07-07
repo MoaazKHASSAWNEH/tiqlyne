@@ -252,11 +252,13 @@ composition.motion('fade-in', {
   at: 0
 });
 
-// ✅ Valid — anchor-based at on an unlabelled item
+// ✅ Valid — unlabelled item, relative to its own compiled track
 composition.motion('slide-in', {
-  at: { anchor: 'previous-end', offset: 50 } // no label, so anchor is fine
+  at: { anchor: 'track-start', offset: 50 }
 });
 ```
+
+Composition items remain separate tracks. An item anchor does not refer to a previous composition item, and `previous-start` or `previous-end` is invalid when it reaches the first step of a compiled track. Use an absolute time or a label to sequence items relative to each other.
 
 Nested timeline labels from a composed timeline item are **not automatically preserved** in the compiled output unless they are explicitly declared on the composition.
 

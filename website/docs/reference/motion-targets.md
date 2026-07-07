@@ -26,6 +26,8 @@ Core timelines store symbolic `MotionTargetReference` values. The active driver 
 
 ```ts
 const timeline = createMotionTimeline((timeline) => {
+  timeline.defaults({ duration: 240, easing: 'ease-out', fill: 'both' });
+
   timeline.track({ type: 'child', name: 'title' }, (track) => {
     track.step((step) => {
       step.from({ opacity: 0 });

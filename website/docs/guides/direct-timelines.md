@@ -115,6 +115,8 @@ A timeline can animate several targets.
 
 ```ts
 const timeline = createMotionTimeline((timeline) => {
+  timeline.defaults({ duration: 300, easing: 'ease-out', fill: 'both' });
+
   timeline.track('self', (track) => {
     track.step({}, (step) => {
       step.from({ opacity: 0 });
@@ -152,7 +154,8 @@ const timeline = createMotionTimeline((timeline) => {
   timeline.track('self', (track) => {
     track.step(
       {
-        at: 'enter'
+        at: 'enter',
+        duration: 300
       },
       (step) => {
         step.from({ opacity: 0 });

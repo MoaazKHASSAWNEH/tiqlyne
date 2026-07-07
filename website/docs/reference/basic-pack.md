@@ -53,7 +53,7 @@ await motion.play(element, {
 
 ```ts
 // timeline playback direction — completely separate concept
-track.step({ direction: 'reverse' }, (step) => {
+track.step({ duration: 300, direction: 'reverse' }, (step) => {
   step.from({ opacity: 0 });
   step.to({ opacity: 1 });
 });

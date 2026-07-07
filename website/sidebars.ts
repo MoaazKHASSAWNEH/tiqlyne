@@ -3,8 +3,8 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   docs: [
     'start/intro',
-    'start/getting-started',
     'start/installation',
+    'start/getting-started',
     'start/core-concepts',
     'start/learning-path',
     {

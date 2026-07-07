@@ -78,6 +78,8 @@ class CanvasMotionDriver implements MotionDriver<HTMLCanvasElement> {
 
 This controller supports completion/cancel/finish paths but deliberately reports seek, direction, rate, pause, and resume as unsupported. A fully native controller must implement `MotionPlaybackController` (usually by extending `BaseMotionPlaybackController`) and keep its status, events, and results synchronized with the runtime.
 
+The calls passed to `PromiseMotionPlaybackController` intentionally return their promises directly: the controller awaits the playback promise and invokes the cancel/finish callbacks when those operations are requested.
+
 ## Driver inputs
 
 `MotionPlayOptions` contains required normalized `trigger`, `respectReducedMotion`, `reducedMotionStrategy`, and `conflictStrategy`; optional reduced timeline, execution plan, and validation flags may also be present. Treat all inputs as readonly.

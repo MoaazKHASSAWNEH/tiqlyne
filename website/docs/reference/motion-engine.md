@@ -50,17 +50,19 @@ console.log(motion.getByCategory('entrance'));
 ## Playback methods
 
 ```ts
-play(target: TTarget, config: MotionConfig): Promise<MotionPlaybackResult>;
-playTimeline(
-  target: TTarget,
-  timeline: MotionTimelineDefinition,
-  options?: MotionTimelinePlayOptions
-): Promise<MotionPlaybackResult>;
-playComposition(
-  target: TTarget,
-  composition: MotionCompositionDefinition,
-  options?: MotionTimelinePlayOptions
-): Promise<MotionPlaybackResult>;
+interface MotionEnginePlayback<TTarget> {
+  play(target: TTarget, config: MotionConfig): Promise<MotionPlaybackResult>;
+  playTimeline(
+    target: TTarget,
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): Promise<MotionPlaybackResult>;
+  playComposition(
+    target: TTarget,
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): Promise<MotionPlaybackResult>;
+}
 ```
 
 `play` normalizes the config, skips disabled/unknown motions, validates definition options and timelines, creates an execution plan, and delegates to the driver. Expected planning errors become failed results (`invalid-motion-options`, `invalid-timeline`, or `invalid-reduced-motion-timeline`); unexpected errors become `motion-engine-error`.
@@ -76,15 +78,17 @@ const combined = await motion.playComposition(element, composition);
 ## Planning methods
 
 ```ts
-plan(config: MotionConfig): MotionExecutionPlan;
-planTimeline(
-  timeline: MotionTimelineDefinition,
-  options?: MotionTimelinePlayOptions
-): MotionExecutionPlan;
-planComposition(
-  composition: MotionCompositionDefinition,
-  options?: MotionTimelinePlayOptions
-): MotionExecutionPlan;
+interface MotionEnginePlanning {
+  plan(config: MotionConfig): MotionExecutionPlan;
+  planTimeline(
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionExecutionPlan;
+  planComposition(
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionExecutionPlan;
+}
 ```
 
 Planning is synchronous and does not call the driver. Unlike `play`, invalid input throws `MotionPlanningError`. The error contains a machine-readable code, diagnostics, and validation errors. Use planning for previews, build-time checks, debugging, and advanced tooling.
@@ -101,17 +105,19 @@ try {
 ## Controller creation
 
 ```ts
-createPlayback(target: TTarget, config: MotionConfig): MotionPlaybackController;
-createTimelinePlayback(
-  target: TTarget,
-  timeline: MotionTimelineDefinition,
-  options?: MotionTimelinePlayOptions
-): MotionPlaybackController;
-createCompositionPlayback(
-  target: TTarget,
-  composition: MotionCompositionDefinition,
-  options?: MotionTimelinePlayOptions
-): MotionPlaybackController;
+interface MotionEngineControllers<TTarget> {
+  createPlayback(target: TTarget, config: MotionConfig): MotionPlaybackController;
+  createTimelinePlayback(
+    target: TTarget,
+    timeline: MotionTimelineDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionPlaybackController;
+  createCompositionPlayback(
+    target: TTarget,
+    composition: MotionCompositionDefinition,
+    options?: MotionTimelinePlayOptions
+  ): MotionPlaybackController;
+}
 ```
 
 The engine uses the driver's native controller when available. Disabled/unknown/invalid input or missing driver support falls back to `PromiseMotionPlaybackController`; its `finished`, cancel, and finish paths work, while advanced controls report unsupported results.
@@ -125,9 +131,11 @@ const finalResult = await playback.finished;
 ## Target operations
 
 ```ts
-cancel(target: TTarget): Promise<MotionPlaybackResult>;
-finish(target: TTarget): Promise<MotionPlaybackResult>;
-reset(target: TTarget): Promise<MotionPlaybackResult>;
+interface MotionEngineTargetOperations<TTarget> {
+  cancel(target: TTarget): Promise<MotionPlaybackResult>;
+  finish(target: TTarget): Promise<MotionPlaybackResult>;
+  reset(target: TTarget): Promise<MotionPlaybackResult>;
+}
 ```
 
 These delegate to optional driver methods. Missing capabilities return skipped reasons `driver-cancel-not-supported`, `driver-finish-not-supported`, or `driver-reset-not-supported`. Web implementations can additionally return their operation-specific success/failure reasons.
