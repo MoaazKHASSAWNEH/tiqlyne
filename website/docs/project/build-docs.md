@@ -26,4 +26,4 @@ pnpm format
 pnpm typecheck
 ```
 
-The production base path is `/motion-engine/` for GitHub Pages. Use Docusaurus links instead of hard-coding deployment hosts.
+The production base path is `/tiqlyne/` for GitHub Pages. Use Docusaurus links instead of hard-coding deployment hosts.

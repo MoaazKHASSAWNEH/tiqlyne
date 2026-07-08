@@ -1,5 +1,5 @@
 {
-  "name": "motion-engine",
+  "name": "tiqlyne",
   "version": "0.1.0",
   "private": true,
   "description": "Framework-agnostic TypeScript motion engine for Tiqlyne and dynamic runtimes.",
