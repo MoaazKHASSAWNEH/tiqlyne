@@ -4,6 +4,10 @@ Basic motion pack for Tiqlyne Motion Engine.
 
 This package provides the first built-in motion definitions for common UI animation needs.
 
+## Install
+
+Install this package with the core package.
+
 ## Included motions
 
 - `fade-in`
