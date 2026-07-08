@@ -41,7 +41,7 @@ const config: Config = {
     colorMode: { respectPrefersColorScheme: true },
     navbar: {
       title: 'Tiqlyne Motion Engine',
-      logo: { alt: 'Tiqlyne Motion Engine logo', src: 'img/logo.svg' },
+      logo: { alt: 'Tiqlyne Motion Engine logo', src: 'img/logo.png' },
       items: [
         { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: 'Docs' },
         { type: 'docSidebar', sidebarId: 'tutorials', position: 'left', label: 'Tutorials' },

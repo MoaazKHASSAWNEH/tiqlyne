@@ -7,6 +7,13 @@
   color: #f6f7ff;
 }
 
+.heroLogo {
+  width: min(180px, 42vw);
+  height: auto;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 1.5rem 2.5rem rgb(0 0 0 / 28%));
+}
+
 .eyebrow {
   display: inline-block;
   margin-bottom: 1rem;
