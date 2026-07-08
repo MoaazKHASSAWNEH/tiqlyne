@@ -10,7 +10,15 @@
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:packages": "pnpm --filter @tiqlyne/motion-core --filter @tiqlyne/motion-web --filter @tiqlyne/motion-pack-basic build",
+    "typecheck:packages": "pnpm --filter @tiqlyne/motion-core --filter @tiqlyne/motion-web --filter @tiqlyne/motion-pack-basic typecheck",
+    "test:packages": "pnpm --filter @tiqlyne/motion-core --filter @tiqlyne/motion-web --filter @tiqlyne/motion-pack-basic test",
+    "pack:core": "cd packages/motion-core && pnpm pack",
+    "pack:web": "cd packages/motion-web && pnpm pack",
+    "pack:basic": "cd packages/motion-pack-basic && pnpm pack",
+    "pack:packages": "pnpm pack:core && pnpm pack:web && pnpm pack:basic",
+    "release:check": "pnpm format:check && pnpm typecheck && pnpm test && pnpm build"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

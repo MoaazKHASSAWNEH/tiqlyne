@@ -1,7 +1,7 @@
 {
   "name": "@tiqlyne/motion-web",
   "version": "0.1.0",
-  "description": "Web Animation API driver for Tiqlyne Motion Engine.",
+  "description": "Browser driver for Tiqlyne Motion Engine.",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -9,11 +9,14 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
+  "license": "MIT",
+  "author": "Moaaz KHASSAWNEH",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json && node ../../scripts/fix-esm-extensions.mjs dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "clean": "rm -rf dist"
@@ -22,6 +25,26 @@
     "@tiqlyne/motion-core": "workspace:*"
   },
   "files": [
-    "dist"
-  ]
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "animation",
+    "motion",
+    "typescript",
+    "browser",
+    "dom"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoaazKHASSAWNEH/motion-engine.git",
+    "directory": "packages/motion-web"
+  },
+  "homepage": "https://github.com/MoaazKHASSAWNEH/motion-engine#readme",
+  "bugs": {
+    "url": "https://github.com/MoaazKHASSAWNEH/motion-engine/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
