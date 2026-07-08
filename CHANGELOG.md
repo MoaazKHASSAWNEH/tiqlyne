@@ -4,7 +4,7 @@ All notable changes to Tiqlyne Motion Engine will be documented in this file.
 
 The project follows semantic versioning once the public API is stable. Before `1.0.0`, APIs may still evolve between minor versions.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-07-08
 
 ### Added
 
