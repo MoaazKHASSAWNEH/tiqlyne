@@ -80,19 +80,38 @@ It should not include:
 - internal documentation
 - website files
 
+## Verify workspace dependency rewriting
+
+Before publishing dependent packages, verify that packed manifests use registry versions instead of workspace ranges.
+
+```bash
+tar -xOf packages/motion-web/tiqlyne-motion-web-0.1.0.tgz package/package.json | grep '@tiqlyne/motion-core' -A1
+tar -xOf packages/motion-pack-basic/tiqlyne-motion-pack-basic-0.1.0.tgz package/package.json | grep '@tiqlyne/motion-core' -A1
+```
+
+Expected result: the dependency should resolve to `0.1.0`, not `workspace:*`.
+
 ## Publish manually
 
-Publish in dependency order:
+Publish in dependency order. Prefer `pnpm publish` from each package folder so workspace dependency metadata is handled by pnpm.
 
 ```bash
 cd packages/motion-core
-npm publish --access public
+pnpm publish --access public
 
 cd ../motion-web
-npm publish --access public
+pnpm publish --access public
 
 cd ../motion-pack-basic
-npm publish --access public
+pnpm publish --access public
+```
+
+Alternatively, after inspecting the generated tarballs, publish the exact tarball files from the repository root:
+
+```bash
+npm publish packages/motion-core/tiqlyne-motion-core-0.1.0.tgz --access public
+npm publish packages/motion-web/tiqlyne-motion-web-0.1.0.tgz --access public
+npm publish packages/motion-pack-basic/tiqlyne-motion-pack-basic-0.1.0.tgz --access public
 ```
 
 ## After publication
