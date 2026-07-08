@@ -11,7 +11,7 @@ function HomepageHeader(): ReactNode {
       <div className="container">
         <img
           className={styles.heroLogo}
-          src="/motion-engine/img/logo.png"
+          src="/tiqlyne/img/logo.png"
           alt="Tiqlyne Motion Engine logo"
         />
         <span className={styles.eyebrow}>Version 0.1.0</span>
@@ -28,7 +28,7 @@ function HomepageHeader(): ReactNode {
           </Link>
           <Link
             className="button button--secondary button--lg"
-            href="https://github.com/MoaazKHASSAWNEH/motion-engine"
+            href="https://github.com/MoaazKHASSAWNEH/tiqlyne"
           >
             View on GitHub
           </Link>

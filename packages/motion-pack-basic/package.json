@@ -25,12 +25,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MoaazKHASSAWNEH/motion-engine.git",
+    "url": "git+https://github.com/MoaazKHASSAWNEH/tiqlyne.git",
     "directory": "packages/motion-pack-basic"
   },
-  "homepage": "https://github.com/MoaazKHASSAWNEH/motion-engine#readme",
+  "homepage": "https://github.com/MoaazKHASSAWNEH/tiqlyne#readme",
   "bugs": {
-    "url": "https://github.com/MoaazKHASSAWNEH/motion-engine/issues"
+    "url": "https://github.com/MoaazKHASSAWNEH/tiqlyne/issues"
   },
   "publishConfig": {
     "access": "public"

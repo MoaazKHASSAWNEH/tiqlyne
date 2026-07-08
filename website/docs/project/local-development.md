@@ -7,7 +7,7 @@ sidebar_position: 2
 These commands are for contributors working on the monorepo.
 
 ```bash
-git clone https://github.com/MoaazKHASSAWNEH/motion-engine.git
+git clone https://github.com/MoaazKHASSAWNEH/tiqlyne.git
 cd motion-engine
 pnpm install
 pnpm build

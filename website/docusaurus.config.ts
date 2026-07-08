@@ -2,16 +2,16 @@ import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-const repositoryUrl = 'https://github.com/MoaazKHASSAWNEH/motion-engine';
+const repositoryUrl = 'https://github.com/MoaazKHASSAWNEH/tiqlyne';
 
 const config: Config = {
   title: 'Tiqlyne Motion Engine',
   tagline: 'Framework-agnostic TypeScript motion engine.',
   favicon: 'img/favicon.ico',
   url: 'https://moaazkhassawneh.github.io',
-  baseUrl: '/motion-engine/',
+  baseUrl: '/tiqlyne/',
   organizationName: 'MoaazKHASSAWNEH',
-  projectName: 'motion-engine',
+  projectName: 'tiqlyne',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
   onBrokenLinks: 'throw',
