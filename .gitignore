@@ -5,3 +5,10 @@ coverage
 .env
 .DS_Store
 *.log
+
+# Docusaurus generated files
+website/.docusaurus
+website/build
+
+# npm package archives
+*.tgz
