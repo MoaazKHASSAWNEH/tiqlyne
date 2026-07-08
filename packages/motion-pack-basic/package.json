@@ -15,6 +15,26 @@
   },
   "license": "MIT",
   "author": "Moaaz KHASSAWNEH",
+  "keywords": [
+    "animation",
+    "motion",
+    "typescript",
+    "presets",
+    "fade",
+    "slide"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoaazKHASSAWNEH/motion-engine.git",
+    "directory": "packages/motion-pack-basic"
+  },
+  "homepage": "https://github.com/MoaazKHASSAWNEH/motion-engine#readme",
+  "bugs": {
+    "url": "https://github.com/MoaazKHASSAWNEH/motion-engine/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node ../../scripts/fix-esm-extensions.mjs dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -25,6 +45,7 @@
     "@tiqlyne/motion-core": "workspace:*"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ]
 }
