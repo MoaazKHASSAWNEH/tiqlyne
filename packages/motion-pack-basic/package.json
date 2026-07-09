@@ -42,7 +42,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@tiqlyne/motion-core": "workspace:*"
+    "@tiqlyne/motion-core": "workspace:^"
   },
   "files": [
     "dist",
