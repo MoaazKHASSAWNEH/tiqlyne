@@ -1,6 +1,6 @@
 {
   "name": "@tiqlyne/motion-pack-basic",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Basic motion animation pack for Tiqlyne Motion Engine.",
   "type": "module",
   "sideEffects": false,

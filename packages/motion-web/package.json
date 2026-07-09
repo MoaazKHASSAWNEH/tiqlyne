@@ -1,6 +1,6 @@
 {
   "name": "@tiqlyne/motion-web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Browser driver for Tiqlyne Motion Engine.",
   "type": "module",
   "sideEffects": false,
