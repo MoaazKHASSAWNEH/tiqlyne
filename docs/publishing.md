@@ -38,6 +38,18 @@ packages/motion-web/package.json
 packages/motion-pack-basic/package.json
 ```
 
+The generated documentation version file is:
+
+```txt
+website/src/data/packageVersions.ts
+```
+
+Do not edit it manually. Regenerate it with:
+
+```bash
+pnpm sync:versions
+```
+
 The root `package.json` is private and is not a published package.
 
 ## Prerequisites
@@ -90,10 +102,14 @@ pnpm install
 ```
 
 ```bash
+pnpm sync:versions:check
+```
+
+```bash
 pnpm release:check
 ```
 
-The release check runs formatting, type checking, tests and builds.
+The release check verifies package version documentation sync, formatting, type checking, tests and builds.
 
 ## Check pending package bumps
 
@@ -117,7 +133,13 @@ pnpm version:packages
 
 This updates package versions and generated changelogs according to the pending changesets.
 
-After that, refresh the lockfile if needed:
+After that, refresh the generated documentation package versions:
+
+```bash
+pnpm sync:versions
+```
+
+Then refresh the lockfile if needed:
 
 ```bash
 pnpm install --lockfile-only
@@ -133,7 +155,7 @@ Run:
 pnpm release:check
 ```
 
-Do not publish if formatting, type checking, tests or build fail.
+Do not publish if version sync, formatting, type checking, tests or build fail.
 
 ## Build output checks
 

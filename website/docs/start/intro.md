@@ -3,6 +3,8 @@ sidebar_position: 1
 slug: /intro
 ---
 
+import PackageVersionsTable from '@site/src/components/PackageVersionsTable';
+
 # Tiqlyne Motion Engine
 
 Tiqlyne Motion Engine is a framework-agnostic TypeScript motion engine for defining, composing, validating, inspecting, sampling and controlling animations through a stable core API.
@@ -43,21 +45,11 @@ It provides:
 
 Tiqlyne Motion Engine is split into focused packages:
 
-| Package                      | Description                                                                                        |
-| ---------------------------- | -------------------------------------------------------------------------------------------------- |
-| `@tiqlyne/motion-core`       | Core engine, timeline model, registry, validation, planning, diagnostics, sampling and inspection. |
-| `@tiqlyne/motion-web`        | Web driver based on the Web Animations API.                                                        |
-| `@tiqlyne/motion-pack-basic` | Official basic animation pack with ready-to-use motions.                                           |
+<PackageVersionsTable />
 
 ## Current status
 
-The first public target version is:
-
-```txt
-0.1.0
-```
-
-This version focuses on a stable, documented foundation for defining, planning and playing animations.
+The first public pre-release foundation is available. The packages are versioned independently so each package can evolve at the pace required by its own public API.
 
 ## Choose your next step
 

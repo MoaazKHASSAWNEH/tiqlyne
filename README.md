@@ -11,7 +11,7 @@ Framework-agnostic TypeScript motion engine for declarative UI animation, dynami
 
 📚 **Documentation:** [https://moaazkhassawneh.github.io/tiqlyne/](https://moaazkhassawneh.github.io/tiqlyne/)
 
-[Documentation](https://moaazkhassawneh.github.io/tiqlyne/) · [npm packages](#packages) · [GitHub Release](https://github.com/MoaazKHASSAWNEH/tiqlyne/releases/tag/v0.1.0) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md)
+[Documentation](https://moaazkhassawneh.github.io/tiqlyne/) · [npm packages](#packages) · [GitHub Releases](https://github.com/MoaazKHASSAWNEH/tiqlyne/releases) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md) · [Security](./SECURITY.md)
 
 ---
 
@@ -50,11 +50,11 @@ The result is an animation system that can be used in any JavaScript/TypeScript 
 
 Tiqlyne is not a drop-in replacement for GSAP, Framer Motion, or CSS animation utilities. It is a lower-level, architecture-first motion engine. Understanding what it does not provide helps set the right expectations:
 
-- **No built-in React/Vue/Svelte hooks** — framework adapter packages are not included in `0.1.0`. Framework integration is planned for a future release.
+- **No built-in React/Vue/Svelte hooks** — framework adapter packages are not included in the first public package set. Framework integration is planned for a future release.
 - **No visual timeline editor** — Tiqlyne is a code-first engine. A builder interface is a long-term goal, not a current feature.
-- **No GSAP driver** — only a Web Animations API driver is provided in this release.
+- **No GSAP driver** — only a Web Animations API driver is provided today.
 - **No marketplace or community motion packs** — only `@tiqlyne/motion-pack-basic` exists today.
-- **Not production-ready for high-stakes use** — this is a `0.1.0` pre-release. The API may change before `1.0.0`.
+- **Not production-ready for high-stakes use** — Tiqlyne is still pre-`1.0.0`. The API may change before `1.0.0`.
 - **No scroll-triggered or gesture-driven animations** — playback is controlled programmatically.
 
 ---
@@ -83,11 +83,13 @@ Tiqlyne is not a drop-in replacement for GSAP, Framer Motion, or CSS animation u
 
 ## Packages
 
-| Package                                                                                  | Version | Description                                 |
-| ---------------------------------------------------------------------------------------- | ------- | ------------------------------------------- |
-| [`@tiqlyne/motion-core`](https://www.npmjs.com/package/@tiqlyne/motion-core)             | `0.1.0` | Platform-independent engine core            |
-| [`@tiqlyne/motion-web`](https://www.npmjs.com/package/@tiqlyne/motion-web)               | `0.1.0` | Browser driver using the Web Animations API |
-| [`@tiqlyne/motion-pack-basic`](https://www.npmjs.com/package/@tiqlyne/motion-pack-basic) | `0.1.0` | Built-in motion definitions                 |
+Tiqlyne packages are versioned independently. Check the npm badges above or the package pages below for the latest published version of each package.
+
+| Package                                                                                  | Description                                 |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [`@tiqlyne/motion-core`](https://www.npmjs.com/package/@tiqlyne/motion-core)             | Platform-independent engine core            |
+| [`@tiqlyne/motion-web`](https://www.npmjs.com/package/@tiqlyne/motion-web)               | Browser driver using the Web Animations API |
+| [`@tiqlyne/motion-pack-basic`](https://www.npmjs.com/package/@tiqlyne/motion-pack-basic) | Built-in motion definitions                 |
 
 ### `@tiqlyne/motion-core`
 
@@ -344,22 +346,32 @@ This is a technical foundation for respecting `prefers-reduced-motion`. It does 
 
 ## Project Status
 
-**Current version: `0.1.0`** — first public pre-release, released on July 8, 2026.
+Tiqlyne is in its first public pre-`1.0.0` release line. The public packages are published independently under the `@tiqlyne` scope.
 
-- All three packages are publicly published to npm.
+- Package versions are independent; do not assume a single repository-wide npm version.
 - The public API is usable for early testing and integration.
 - CI (format, typecheck, build, test) and documentation deployment are active on every push to `main`.
-- APIs may still evolve before `1.0.0`. Breaking changes will be documented in the changelog.
+- APIs may still evolve before `1.0.0`. Breaking changes will be documented in the relevant changelog.
 
 ---
 
 ## Versioning Policy
 
-Tiqlyne Motion Engine follows [Semantic Versioning](https://semver.org/). Before `1.0.0`:
+Tiqlyne Motion Engine follows [Semantic Versioning](https://semver.org/) principles with independent package versions.
+
+Each public package has its own version:
+
+- `@tiqlyne/motion-core`
+- `@tiqlyne/motion-web`
+- `@tiqlyne/motion-pack-basic`
+
+Before `1.0.0`:
 
 - Minor versions (`0.x.0`) may introduce breaking changes to the public API.
-- Patch versions (`0.1.x`) address bug fixes without breaking changes.
-- All breaking changes are documented in [`CHANGELOG.md`](./CHANGELOG.md).
+- Patch versions (`0.x.y`) address compatible fixes.
+- All breaking changes are documented in [`CHANGELOG.md`](./CHANGELOG.md) or the relevant package changelog.
+
+The repository root is private and does not represent a published npm package version.
 
 Do not depend on unexported internal paths (e.g., `@tiqlyne/motion-core/src/...`). Only the top-level package entry points are part of the public API.
 
@@ -387,16 +399,18 @@ Install dependencies from the repository root:
 pnpm install
 ```
 
-| Command                   | Description                                                |
-| ------------------------- | ---------------------------------------------------------- |
-| `pnpm format:check`       | Check code formatting                                      |
-| `pnpm typecheck`          | Type-check all packages                                    |
-| `pnpm test`               | Run all tests                                              |
-| `pnpm build`              | Build all packages                                         |
-| `pnpm build:packages`     | Build only the three npm packages                          |
-| `pnpm typecheck:packages` | Type-check only the three npm packages                     |
-| `pnpm test:packages`      | Test only the three npm packages                           |
-| `pnpm release:check`      | Full pre-release check (format + typecheck + test + build) |
+| Command                    | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `pnpm format:check`        | Check code formatting                                                              |
+| `pnpm typecheck`           | Type-check all packages                                                            |
+| `pnpm test`                | Run all tests                                                                      |
+| `pnpm build`               | Build all packages                                                                 |
+| `pnpm build:packages`      | Build only the three npm packages                                                  |
+| `pnpm typecheck:packages`  | Type-check only the three npm packages                                             |
+| `pnpm test:packages`       | Test only the three npm packages                                                   |
+| `pnpm sync:versions`       | Regenerate documentation package versions from package manifests                   |
+| `pnpm sync:versions:check` | Verify documentation package versions are synced with package manifests            |
+| `pnpm release:check`       | Full pre-release check, including version sync, format, typecheck, tests and build |
 
 ---
 
@@ -417,13 +431,13 @@ docs/                   Project and publishing documentation
 
 ## Publishing
 
-npm publishing is done manually. The full process is documented in [`docs/publishing.md`](./docs/publishing.md).
+npm publishing is managed with Changesets and independent package versions. The full process is documented in [`docs/publishing.md`](./docs/publishing.md).
 
 ---
 
 ## Contributing
 
-Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before submitting a pull request. Run `pnpm format:check`, `pnpm typecheck`, `pnpm test`, and `pnpm build` locally before opening a PR.
+Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before submitting a pull request. Run `pnpm release:check` locally before opening a PR.
 
 ---
 

@@ -3,6 +3,7 @@ import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import { packageVersionSummary } from '@site/src/data/packageVersions';
 import styles from './index.module.css';
 
 function HomepageHeader(): ReactNode {
@@ -14,7 +15,7 @@ function HomepageHeader(): ReactNode {
           src="/tiqlyne/img/logo.png"
           alt="Tiqlyne Motion Engine logo"
         />
-        <span className={styles.eyebrow}>Version 0.1.0</span>
+        <span className={styles.eyebrow}>{packageVersionSummary}</span>
         <Heading as="h1" className={styles.heroTitle}>
           Motion you can describe, inspect, and run anywhere.
         </Heading>
