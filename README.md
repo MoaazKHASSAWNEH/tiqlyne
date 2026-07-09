@@ -399,17 +399,17 @@ Install dependencies from the repository root:
 pnpm install
 ```
 
-| Command                    | Description                                                               |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `pnpm format:check`        | Check code formatting                                                     |
-| `pnpm typecheck`           | Type-check all packages                                                   |
-| `pnpm test`                | Run all tests                                                             |
-| `pnpm build`               | Build all packages                                                        |
-| `pnpm build:packages`      | Build only the three npm packages                                         |
-| `pnpm typecheck:packages`  | Type-check only the three npm packages                                    |
-| `pnpm test:packages`       | Test only the three npm packages                                          |
-| `pnpm sync:versions`       | Regenerate documentation package versions from package manifests          |
-| `pnpm sync:versions:check` | Verify documentation package versions are synced with package manifests   |
+| Command                    | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `pnpm format:check`        | Check code formatting                                                              |
+| `pnpm typecheck`           | Type-check all packages                                                            |
+| `pnpm test`                | Run all tests                                                                      |
+| `pnpm build`               | Build all packages                                                                 |
+| `pnpm build:packages`      | Build only the three npm packages                                                  |
+| `pnpm typecheck:packages`  | Type-check only the three npm packages                                             |
+| `pnpm test:packages`       | Test only the three npm packages                                                   |
+| `pnpm sync:versions`       | Regenerate documentation package versions from package manifests                   |
+| `pnpm sync:versions:check` | Verify documentation package versions are synced with package manifests            |
 | `pnpm release:check`       | Full pre-release check, including version sync, format, typecheck, tests and build |
 
 ---

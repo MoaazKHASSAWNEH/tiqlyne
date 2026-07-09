@@ -27,7 +27,10 @@ function HomepageHeader(): ReactNode {
           <Link className="button button--primary button--lg" to="/docs/getting-started">
             Get started
           </Link>
-          <Link className="button button--secondary button--lg" href="https://github.com/MoaazKHASSAWNEH/tiqlyne">
+          <Link
+            className="button button--secondary button--lg"
+            href="https://github.com/MoaazKHASSAWNEH/tiqlyne"
+          >
             View on GitHub
           </Link>
         </div>

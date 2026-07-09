@@ -1,8 +1,5 @@
 import type { ReactNode } from 'react';
-import {
-  packageVersions,
-  type TiqlynePackageName
-} from '@site/src/data/packageVersions';
+import { packageVersions, type TiqlynePackageName } from '@site/src/data/packageVersions';
 
 type PackageVersionProps = {
   name: TiqlynePackageName;
