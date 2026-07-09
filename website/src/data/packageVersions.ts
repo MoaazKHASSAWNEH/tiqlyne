@@ -2,9 +2,9 @@
 // Do not edit it manually.
 
 export const packageVersions = {
-  '@tiqlyne/motion-core': '0.1.0',
-  '@tiqlyne/motion-web': '0.1.0',
-  '@tiqlyne/motion-pack-basic': '0.1.0'
+  '@tiqlyne/motion-core': '0.1.1',
+  '@tiqlyne/motion-web': '0.2.0',
+  '@tiqlyne/motion-pack-basic': '0.2.0'
 } as const;
 
 export type TiqlynePackageName = keyof typeof packageVersions;

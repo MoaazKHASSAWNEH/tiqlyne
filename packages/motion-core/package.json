@@ -1,6 +1,6 @@
 {
   "name": "@tiqlyne/motion-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Core package for Tiqlyne Motion Engine.",
   "type": "module",
   "sideEffects": false,
