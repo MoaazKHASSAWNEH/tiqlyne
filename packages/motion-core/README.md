@@ -24,20 +24,20 @@ npm install @tiqlyne/motion-core @tiqlyne/motion-web
 
 ## What this package provides
 
-| Area | Main exports | Purpose |
-| --- | --- | --- |
-| Engine | `createMotionEngine`, `DefaultMotionEngine` | Create a motion runtime around a driver and optional registry. |
-| Registry | `DefaultMotionRegistry`, `MotionRegistry` | Register and resolve reusable named motion definitions. |
-| Definitions | `BaseMotionDefinition`, `SchemaMotionDefinition`, `MotionDefinition` | Build reusable motions with typed options and validation. |
-| Options | `defineMotionOptions`, `option`, `normalizeMotionOptions` | Describe, infer and validate motion options. |
-| Timelines | `createMotionTimeline`, `createMotionTimelineBuilder` | Build direct timelines with tracks, steps, defaults, labels and stagger rules. |
-| Composition | `createMotionComposition`, `compileMotionComposition` | Combine registered motions into a concrete timeline. |
-| Validation | `validateMotionTimeline` | Catch structural issues before playback. |
-| Planning | `createMotionExecutionPlan`, `scheduleMotionTimeline` | Normalize, order and schedule timeline execution. |
-| Drivers | `MotionDriver`, `NoopMotionDriver`, `TestMotionDriver` | Execute or test planned motion without hard-coding a platform. |
-| Playback | `MotionPlaybackController`, `MotionPlaybackResult` | Model playback status, events and results consistently. |
-| Diagnostics | `MotionDiagnosticCodes`, diagnostic helpers | Explain validation, planning and playback issues. |
-| Tooling | `sampleMotionTimeline`, `inspectMotionTimeline` | Build previews, tests, documentation examples and debugging tools. |
+| Area        | Main exports                                                         | Purpose                                                                        |
+| ----------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Engine      | `createMotionEngine`, `DefaultMotionEngine`                          | Create a motion runtime around a driver and optional registry.                 |
+| Registry    | `DefaultMotionRegistry`, `MotionRegistry`                            | Register and resolve reusable named motion definitions.                        |
+| Definitions | `BaseMotionDefinition`, `SchemaMotionDefinition`, `MotionDefinition` | Build reusable motions with typed options and validation.                      |
+| Options     | `defineMotionOptions`, `option`, `normalizeMotionOptions`            | Describe, infer and validate motion options.                                   |
+| Timelines   | `createMotionTimeline`, `createMotionTimelineBuilder`                | Build direct timelines with tracks, steps, defaults, labels and stagger rules. |
+| Composition | `createMotionComposition`, `compileMotionComposition`                | Combine registered motions into a concrete timeline.                           |
+| Validation  | `validateMotionTimeline`                                             | Catch structural issues before playback.                                       |
+| Planning    | `createMotionExecutionPlan`, `scheduleMotionTimeline`                | Normalize, order and schedule timeline execution.                              |
+| Drivers     | `MotionDriver`, `NoopMotionDriver`, `TestMotionDriver`               | Execute or test planned motion without hard-coding a platform.                 |
+| Playback    | `MotionPlaybackController`, `MotionPlaybackResult`                   | Model playback status, events and results consistently.                        |
+| Diagnostics | `MotionDiagnosticCodes`, diagnostic helpers                          | Explain validation, planning and playback issues.                              |
+| Tooling     | `sampleMotionTimeline`, `inspectMotionTimeline`                      | Build previews, tests, documentation examples and debugging tools.             |
 
 ## Quick start without a browser
 

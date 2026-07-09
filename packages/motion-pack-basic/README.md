@@ -26,11 +26,11 @@ npm install @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
 
 ## Included motions
 
-| Motion type | Class | Category | Purpose |
-| --- | --- | --- | --- |
-| `fade-in` | `FadeInMotion` | `entrance` | Makes a target appear progressively using opacity. |
-| `fade-out` | `FadeOutMotion` | `exit` | Makes a target disappear progressively using opacity. |
-| `slide-in` | `SlideInMotion` | `entrance` | Makes a target enter from one side with optional fading. |
+| Motion type | Class           | Category   | Purpose                                                  |
+| ----------- | --------------- | ---------- | -------------------------------------------------------- |
+| `fade-in`   | `FadeInMotion`  | `entrance` | Makes a target appear progressively using opacity.       |
+| `fade-out`  | `FadeOutMotion` | `exit`     | Makes a target disappear progressively using opacity.    |
+| `slide-in`  | `SlideInMotion` | `entrance` | Makes a target enter from one side with optional fading. |
 
 The pack intentionally stays small. It is a stable foundation for examples, tests, documentation and early integrations, not a complete preset catalogue.
 
@@ -110,10 +110,10 @@ await motion.playTimeline(document.body, timeline);
 
 `fade-in` animates opacity from a lower value to a higher value.
 
-| Option | Default | Description |
-| --- | ---: | --- |
-| `fromOpacity` | `0` | Starting opacity. |
-| `toOpacity` | `1` | Final opacity. |
+| Option        | Default | Description       |
+| ------------- | ------: | ----------------- |
+| `fromOpacity` |     `0` | Starting opacity. |
+| `toOpacity`   |     `1` | Final opacity.    |
 
 Validation requires `fromOpacity < toOpacity`.
 
@@ -133,10 +133,10 @@ await motion.play(element, {
 
 `fade-out` animates opacity from a higher value to a lower value.
 
-| Option | Default | Description |
-| --- | ---: | --- |
-| `fromOpacity` | `1` | Starting opacity. |
-| `toOpacity` | `0` | Final opacity. |
+| Option        | Default | Description       |
+| ------------- | ------: | ----------------- |
+| `fromOpacity` |     `1` | Starting opacity. |
+| `toOpacity`   |     `0` | Final opacity.    |
 
 Validation requires `fromOpacity > toOpacity`.
 
@@ -156,11 +156,11 @@ await motion.play(element, {
 
 `slide-in` animates a target from one side into its final position. It can optionally include opacity animation.
 
-| Option | Default | Description |
-| --- | --- | --- |
+| Option      | Default    | Description                                                                          |
+| ----------- | ---------- | ------------------------------------------------------------------------------------ |
 | `direction` | `'bottom'` | Direction from which the target enters: `'left'`, `'right'`, `'top'`, or `'bottom'`. |
-| `distance` | `24` | Distance in pixels. |
-| `fade` | `true` | Whether opacity should animate from `0` to `1`. |
+| `distance`  | `24`       | Distance in pixels.                                                                  |
+| `fade`      | `true`     | Whether opacity should animate from `0` to `1`.                                      |
 
 ```ts
 await motion.play(element, {

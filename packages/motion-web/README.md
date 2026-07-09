@@ -24,17 +24,17 @@ npm install @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
 
 ## What this package provides
 
-| Area | Main exports | Purpose |
-| --- | --- | --- |
-| Driver | `WebMotionDriver` | Plays Tiqlyne timelines on DOM elements with the Web Animations API. |
-| Controller | `WebMotionPlaybackController` | Wraps browser animations with a Tiqlyne playback controller contract. |
-| Target resolution | `resolveWebTarget`, `resolveWebTargets`, `resolveWebTrackTargets` | Resolve typed target references to DOM elements. |
-| Timing conversion | `toWebStepTimingOptions`, `toWebScheduledTaskTimingOptions` | Convert Tiqlyne timing options to Web Animations API options. |
-| Keyframe conversion | `toWebKeyframes` | Convert Tiqlyne keyframes into browser-compatible keyframes. |
-| Animation creation | `createWebAnimationFromStep`, `createWebAnimationsFromScheduledTask`, `createWebAnimationsFromTimeline` | Build browser `Animation` objects from scheduled timelines. |
-| Reduced motion | `resolveWebPlayableTimeline`, `simplifyWebTimeline`, `resolveWebReducedMotionDiagnostics` | Adapt timelines when reduced motion is requested. |
-| Conflicts | `getEffectiveWebConflictStrategy`, `cancelWebAnimations`, `hasActiveWebAnimations` | Handle existing animations on the same target. |
-| Validation | `validateWebPlayableTimeline`, `shouldValidateWebPlayableTimeline` | Validate a timeline before browser playback. |
+| Area                | Main exports                                                                                            | Purpose                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Driver              | `WebMotionDriver`                                                                                       | Plays Tiqlyne timelines on DOM elements with the Web Animations API.  |
+| Controller          | `WebMotionPlaybackController`                                                                           | Wraps browser animations with a Tiqlyne playback controller contract. |
+| Target resolution   | `resolveWebTarget`, `resolveWebTargets`, `resolveWebTrackTargets`                                       | Resolve typed target references to DOM elements.                      |
+| Timing conversion   | `toWebStepTimingOptions`, `toWebScheduledTaskTimingOptions`                                             | Convert Tiqlyne timing options to Web Animations API options.         |
+| Keyframe conversion | `toWebKeyframes`                                                                                        | Convert Tiqlyne keyframes into browser-compatible keyframes.          |
+| Animation creation  | `createWebAnimationFromStep`, `createWebAnimationsFromScheduledTask`, `createWebAnimationsFromTimeline` | Build browser `Animation` objects from scheduled timelines.           |
+| Reduced motion      | `resolveWebPlayableTimeline`, `simplifyWebTimeline`, `resolveWebReducedMotionDiagnostics`               | Adapt timelines when reduced motion is requested.                     |
+| Conflicts           | `getEffectiveWebConflictStrategy`, `cancelWebAnimations`, `hasActiveWebAnimations`                      | Handle existing animations on the same target.                        |
+| Validation          | `validateWebPlayableTimeline`, `shouldValidateWebPlayableTimeline`                                      | Validate a timeline before browser playback.                          |
 
 ## Quick start with a direct timeline
 
@@ -111,12 +111,12 @@ The Web driver resolves Tiqlyne target references against DOM elements. This all
 
 Common target patterns include:
 
-| Target reference | Typical use |
-| --- | --- |
-| `self` | Animate the root element passed to playback. |
-| `child` | Resolve descendants marked with `data-motion-child`. |
-| `named` | Resolve descendants marked with `data-motion-name`. |
-| `selector` | Resolve descendants with a CSS selector. |
+| Target reference | Typical use                                          |
+| ---------------- | ---------------------------------------------------- |
+| `self`           | Animate the root element passed to playback.         |
+| `child`          | Resolve descendants marked with `data-motion-child`. |
+| `named`          | Resolve descendants marked with `data-motion-name`.  |
+| `selector`       | Resolve descendants with a CSS selector.             |
 
 Use target references when building timelines that animate multiple elements from one root container.
 
