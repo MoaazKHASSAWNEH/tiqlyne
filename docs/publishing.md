@@ -1,22 +1,85 @@
 # Publishing Guide
 
-This guide describes the manual release process for Tiqlyne Motion Engine npm packages.
+This guide describes the release process for Tiqlyne Motion Engine npm packages.
 
-## Packages
+Tiqlyne uses independent package versioning. Each public package has its own npm version and can be released without forcing all other packages to change.
 
-The first public pre-release targets:
+## Public packages
+
+The public npm packages are:
 
 - `@tiqlyne/motion-core`
 - `@tiqlyne/motion-web`
 - `@tiqlyne/motion-pack-basic`
 
+The repository root is private and does not represent a public npm package version.
+
+## Versioning model
+
+Tiqlyne uses Changesets to manage package releases.
+
+Package versions are independent:
+
+```txt
+@tiqlyne/motion-core          can stay at 0.1.0
+@tiqlyne/motion-web           can stay at 0.1.0
+@tiqlyne/motion-pack-basic    can move to 0.2.0
+```
+
+Do not assume a single global Tiqlyne version for all npm packages.
+
+## Source of truth
+
+The source of truth for package versions is each public package manifest:
+
+```txt
+packages/motion-core/package.json
+packages/motion-web/package.json
+packages/motion-pack-basic/package.json
+```
+
+The root `package.json` is private and is not a published package.
+
 ## Prerequisites
+
+Before publishing, make sure you have:
 
 - Node.js compatible with the workspace.
 - pnpm installed.
 - npm account with publish access to the `@tiqlyne` scope.
 - Clean git working tree.
-- Completed changelog entry.
+- A reviewed changeset for every package release.
+- Approval from the release owner.
+
+## Creating a changeset
+
+When a change affects a public package and should be released, create a changeset:
+
+```bash
+pnpm changeset
+```
+
+Select only the package or packages that should receive a version bump.
+
+Examples:
+
+```txt
+New motion added to @tiqlyne/motion-pack-basic
+→ bump @tiqlyne/motion-pack-basic only
+
+Bug fix in @tiqlyne/motion-web
+→ bump @tiqlyne/motion-web only
+
+Breaking core API change before 1.0.0
+→ bump @tiqlyne/motion-core minor
+→ bump dependent packages only if their code or compatibility changes
+```
+
+For infrastructure-only changes that do not require a package release, use an empty changeset:
+
+```bash
+pnpm changeset add --empty
+```
 
 ## Pre-release checks
 
@@ -24,17 +87,53 @@ Run from the repository root:
 
 ```bash
 pnpm install
-pnpm format:check
-pnpm typecheck
-pnpm test
-pnpm build
 ```
-
-Or use:
 
 ```bash
 pnpm release:check
 ```
+
+The release check runs formatting, type checking, tests and builds.
+
+## Check pending package bumps
+
+Before applying versions, inspect the release plan:
+
+```bash
+pnpm changeset status
+```
+
+This should show exactly which packages will be bumped.
+
+If no public package should be released, the status should show no packages to be bumped.
+
+## Apply package versions
+
+When the release plan is approved, apply the package version changes:
+
+```bash
+pnpm version:packages
+```
+
+This updates package versions and generated changelogs according to the pending changesets.
+
+After that, refresh the lockfile if needed:
+
+```bash
+pnpm install --lockfile-only
+```
+
+Review the generated changes carefully before publishing.
+
+## Build and test before publishing
+
+Run:
+
+```bash
+pnpm release:check
+```
+
+Do not publish if formatting, type checking, tests or build fail.
 
 ## Build output checks
 
@@ -46,22 +145,30 @@ find packages -path "*/dist/*" \( -name "*.spec.js" -o -name "*.spec.d.ts" -o -n
 
 Expected result: no output.
 
-## Pack local tarballs
+## Pack local tarballs for inspection
 
-The repository currently pins pnpm `10.0.0`, so package dry-run flags may not be available. Use local pack commands instead:
+Create local package tarballs:
 
 ```bash
 pnpm pack:packages
 ```
 
-This creates package tarballs in the package folders.
+This creates tarballs in the package folders.
+
+Do not hard-code tarball versions in release documentation. Tarball names are derived from the current package versions.
 
 ## Inspect tarballs
 
+List generated package tarballs:
+
 ```bash
-tar -tzf packages/motion-core/tiqlyne-motion-core-0.1.0.tgz
-tar -tzf packages/motion-web/tiqlyne-motion-web-0.1.0.tgz
-tar -tzf packages/motion-pack-basic/tiqlyne-motion-pack-basic-0.1.0.tgz
+find packages -maxdepth 2 -name "*.tgz" -print
+```
+
+Inspect a tarball manually:
+
+```bash
+tar -tzf path/to/package.tgz
 ```
 
 Each tarball should include only:
@@ -82,45 +189,66 @@ It should not include:
 
 ## Verify workspace dependency rewriting
 
-Before publishing dependent packages, verify that packed manifests use registry versions instead of workspace ranges.
+Before publishing dependent packages, verify that packed manifests use registry ranges instead of workspace ranges.
+
+Example:
 
 ```bash
-tar -xOf packages/motion-web/tiqlyne-motion-web-0.1.0.tgz package/package.json | grep '@tiqlyne/motion-core' -A1
-tar -xOf packages/motion-pack-basic/tiqlyne-motion-pack-basic-0.1.0.tgz package/package.json | grep '@tiqlyne/motion-core' -A1
+tar -xOf path/to/package.tgz package/package.json | grep '@tiqlyne/motion-core' -A1
 ```
 
-Expected result: the dependency should resolve to `0.1.0`, not `workspace:*`.
+Expected result: public package tarballs should not contain `workspace:*` or `workspace:^`.
 
-## Publish manually
+Internal dependencies should be rewritten by pnpm to valid npm registry ranges.
 
-Publish in dependency order. Prefer `pnpm publish` from each package folder so workspace dependency metadata is handled by pnpm.
+## Publish packages
+
+Publish only after the release plan and artifacts are approved.
 
 ```bash
-cd packages/motion-core
-pnpm publish --access public
-
-cd ../motion-web
-pnpm publish --access public
-
-cd ../motion-pack-basic
-pnpm publish --access public
+pnpm publish:packages
 ```
 
-Alternatively, after inspecting the generated tarballs, publish the exact tarball files from the repository root:
+This publishes the packages selected by Changesets.
 
-```bash
-npm publish packages/motion-core/tiqlyne-motion-core-0.1.0.tgz --access public
-npm publish packages/motion-web/tiqlyne-motion-web-0.1.0.tgz --access public
-npm publish packages/motion-pack-basic/tiqlyne-motion-pack-basic-0.1.0.tgz --access public
+Do not publish directly from package folders unless intentionally bypassing the Changesets workflow.
+
+## Git tags and GitHub releases
+
+For package-specific releases, prefer package-specific tags:
+
+```txt
+@tiqlyne/motion-pack-basic@0.2.0
+@tiqlyne/motion-web@0.1.1
+@tiqlyne/motion-core@0.2.0
 ```
+
+Global ecosystem releases are reserved for larger milestones where several packages or the overall project direction changes together.
+
+Example global milestone tag:
+
+```txt
+tiqlyne-v0.2.0
+```
+
+Do not use a plain `v0.2.0` tag for a single package release, because it suggests that the whole repository shares one global version.
 
 ## After publication
 
+After publishing:
+
 - Verify each package page on npm.
 - Install the packages in a clean test project.
-- Create a git tag, for example `v0.1.0`.
-- Create a GitHub release with the changelog summary.
+- Verify documentation examples with the published package versions.
+- Create or verify the appropriate GitHub release.
+- Update release/status documentation if needed.
 
 ## Rollback note
 
-npm packages cannot be fully removed reliably once public consumers can install them. If a bad version is published, prefer publishing a patch version or using npm deprecation with a clear message.
+npm packages cannot be fully removed reliably once public consumers can install them.
+
+If a bad version is published, prefer one of the following:
+
+- publish a patch version;
+- deprecate the bad npm version with a clear message;
+- document the issue in the relevant package changelog.
