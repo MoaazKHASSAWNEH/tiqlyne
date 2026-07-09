@@ -2,6 +2,8 @@
 sidebar_position: 3
 ---
 
+import PackageVersion from '@site/src/components/PackageVersion';
+
 # @tiqlyne/motion-pack-basic
 
 `@tiqlyne/motion-pack-basic` is the official basic motion pack for Tiqlyne Motion Engine.
@@ -45,7 +47,7 @@ const motion = createMotionEngine<Element>({
 
 ## Available motions
 
-The current version includes three motions:
+The current package version, <PackageVersion name="@tiqlyne/motion-pack-basic" />, includes three motions:
 
 | Motion type | Description                                             |
 | ----------- | ------------------------------------------------------- |
@@ -132,13 +134,13 @@ Export: `SlideInMotion` (`SlideInMotionOptions`, `SlideInDirection`). Category: 
 
 `slide-in` moves from the selected axis and distance to `translate3d(0, 0, 0)`, optionally fading from `0` to `1`. It uses the config timing and `fill: 'both'`.
 
-`slide-in` provides a reduced timeline: opacity `0` to `1`, no movement, no delay, `ease-out`, and a duration capped at `150` ms. `fade-in` and `fade-out` do not define motion-specific reduced timelines in 0.1.0; the Web driver may use its generic fallback when strategy is `simplify`.
+`slide-in` provides a reduced timeline: opacity `0` to `1`, no movement, no delay, `ease-out`, and a duration capped at `150` ms. `fade-in` and `fade-out` do not define motion-specific reduced timelines in <PackageVersion name="@tiqlyne/motion-pack-basic" />; the Web driver may use its generic fallback when strategy is `simplify`.
 
 This helps reduce potentially uncomfortable motion while preserving visual feedback.
 
 ## What this package does not include
 
-Only the three motions documented on this page are part of `@tiqlyne/motion-pack-basic` in version `0.1.0`. See [Limitations](../release/limitations.md) and [Roadmap](../release/roadmap.md) for work that is not currently available.
+Only the three motions documented on this page are part of `@tiqlyne/motion-pack-basic` in the current package version, <PackageVersion name="@tiqlyne/motion-pack-basic" />. See [Limitations](../release/limitations.md) and [Roadmap](../release/roadmap.md) for work that is not currently available.
 
 ## When to use it
 
