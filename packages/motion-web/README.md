@@ -36,29 +36,40 @@ npm install @tiqlyne/motion-core @tiqlyne/motion-web @tiqlyne/motion-pack-basic
 | Conflicts | `getEffectiveWebConflictStrategy`, `cancelWebAnimations`, `hasActiveWebAnimations` | Handle existing animations on the same target. |
 | Validation | `validateWebPlayableTimeline`, `shouldValidateWebPlayableTimeline` | Validate a timeline before browser playback. |
 
-## Quick start
+## Quick start with a direct timeline
+
+You can play a raw timeline without any motion pack:
 
 ```ts
-import { createMotionEngine } from '@tiqlyne/motion-core';
+import { createMotionEngine, createMotionTimeline } from '@tiqlyne/motion-core';
 import { WebMotionDriver } from '@tiqlyne/motion-web';
 
 const motion = createMotionEngine<Element>({
-  driver: new WebMotionDriver()
+  driver: new WebMotionDriver(),
+  defaults: {
+    duration: 300,
+    easing: 'ease-out',
+    fill: 'both'
+  }
+});
+
+const timeline = createMotionTimeline((timelineBuilder) => {
+  timelineBuilder.track('self', (track) => {
+    track.step({}, (step) => {
+      step.from({ opacity: 0, transform: 'translateY(16px)' });
+      step.to({ opacity: 1, transform: 'translateY(0)' });
+    });
+  });
 });
 
 const element = document.querySelector<HTMLElement>('[data-card]');
 
 if (element) {
-  await motion.play(element, {
-    id: 'card-enter',
-    type: 'fade-in',
-    trigger: 'manual',
-    options: { fromOpacity: 0, toOpacity: 1 }
-  });
+  await motion.playTimeline(element, timeline);
 }
 ```
 
-Register a motion pack, such as `@tiqlyne/motion-pack-basic`, before playing registered motion types like `fade-in` or `slide-in`.
+For named motion types like `fade-in` or `slide-in`, register a motion pack first.
 
 ## Complete browser setup with the basic pack
 
