@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
+import { packageVersionSummary } from '@site/src/data/packageVersions';
 import styles from './styles.module.css';
 
 const packages = [
@@ -114,7 +115,7 @@ export default function HomepageFeatures(): ReactNode {
       <section className={styles.section}>
         <div className={`container ${styles.release}`}>
           <div>
-            <span className={styles.kicker}>Available in 0.1.0</span>
+            <span className={styles.kicker}>{packageVersionSummary}</span>
             <Heading as="h2">A practical foundation, with honest boundaries.</Heading>
           </div>
           <p>
