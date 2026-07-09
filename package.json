@@ -11,6 +11,8 @@
     "clean": "pnpm -r clean",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "sync:versions": "node scripts/sync-package-versions.mjs",
+    "sync:versions:check": "node scripts/sync-package-versions.mjs --check",
     "build:packages": "pnpm --filter @tiqlyne/motion-core --filter @tiqlyne/motion-web --filter @tiqlyne/motion-pack-basic build",
     "typecheck:packages": "pnpm --filter @tiqlyne/motion-core --filter @tiqlyne/motion-web --filter @tiqlyne/motion-pack-basic typecheck",
     "test:packages": "pnpm --filter @tiqlyne/motion-core --filter @tiqlyne/motion-web --filter @tiqlyne/motion-pack-basic test",
@@ -18,7 +20,7 @@
     "pack:web": "cd packages/motion-web && pnpm pack",
     "pack:basic": "cd packages/motion-pack-basic && pnpm pack",
     "pack:packages": "pnpm pack:core && pnpm pack:web && pnpm pack:basic",
-    "release:check": "pnpm format:check && pnpm typecheck && pnpm test && pnpm build",
+    "release:check": "pnpm sync:versions:check && pnpm format:check && pnpm typecheck && pnpm test && pnpm build",
     "changeset": "changeset",
     "version:packages": "changeset version",
     "publish:packages": "changeset publish"
