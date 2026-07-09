@@ -102,13 +102,13 @@ Use the smallest bump that accurately communicates the package impact.
 
 Before `1.0.0`, Tiqlyne still uses semver intent:
 
-| Change type | Recommended bump | Example |
-| --- | --- | --- |
-| Documentation-only package README update | `patch` | Better npm README for `@tiqlyne/motion-core` |
-| Bug fix without public API change | `patch` | Fix reduced-motion handling in `@tiqlyne/motion-web` |
-| New public feature or new motion | `minor` | Add `slide-out` to `@tiqlyne/motion-pack-basic` |
-| Public export removal before `1.0.0` | `minor` | Remove an unused package version constant |
-| Public API redesign before `1.0.0` | `minor` | Change core timeline contracts |
+| Change type                              | Recommended bump | Example                                              |
+| ---------------------------------------- | ---------------- | ---------------------------------------------------- |
+| Documentation-only package README update | `patch`          | Better npm README for `@tiqlyne/motion-core`         |
+| Bug fix without public API change        | `patch`          | Fix reduced-motion handling in `@tiqlyne/motion-web` |
+| New public feature or new motion         | `minor`          | Add `slide-out` to `@tiqlyne/motion-pack-basic`      |
+| Public export removal before `1.0.0`     | `minor`          | Remove an unused package version constant            |
+| Public API redesign before `1.0.0`       | `minor`          | Change core timeline contracts                       |
 
 Dependent packages should only be bumped when their code, package README, compatibility, or public API actually changes.
 
