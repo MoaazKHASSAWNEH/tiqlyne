@@ -78,14 +78,18 @@ The same timeline model can later be executed in the browser with `@tiqlyne/moti
 
 Motion definitions can be registered once, then reused by name through compositions. This is useful for design systems, page builders, low-code runtimes and any application that stores animation behavior as structured data.
 
+The example below assumes `@tiqlyne/motion-pack-basic` is installed and registered.
+
 ```ts
 import {
   compileMotionComposition,
   createMotionComposition,
   DefaultMotionRegistry
 } from '@tiqlyne/motion-core';
+import { registerBasicMotions } from '@tiqlyne/motion-pack-basic';
 
 const registry = new DefaultMotionRegistry();
+registerBasicMotions(registry);
 
 const composition = createMotionComposition((compositionBuilder) => {
   compositionBuilder.defaults({ duration: 250, easing: 'ease-out', fill: 'both' });
