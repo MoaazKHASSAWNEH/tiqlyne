@@ -56,7 +56,7 @@ Core utility exports are `clamp`, `isRecord`, `isTerminalPlaybackStatus`, `norma
 
 ## @tiqlyne/motion-web
 
-- `WebMotionDriver`, `WebMotionDriverOptions`, `WebMotionPlaybackController`, `motionWebVersion`
+- `WebMotionDriver`, `WebMotionDriverOptions`, `WebMotionPlaybackController`
 - `toWebKeyframes`, `toWebStepTimingOptions`, `toWebScheduledTaskTimingOptions`
 - `resolveWebTarget`, `resolveWebTargets`, `resolveWebTrackTargets`, `resolveStaggerOffset`
 - `createWebAnimationFromStep`, `createWebAnimationsFromScheduledTask`, timeline animation helpers and result types
@@ -70,7 +70,7 @@ Core utility exports are `clamp`, `isRecord`, `isTerminalPlaybackStatus`, `norma
 - `FadeInMotion`, `FadeInMotionOptions`
 - `FadeOutMotion`, `FadeOutMotionOptions`
 - `SlideInMotion`, `SlideInMotionOptions`, `SlideInDirection`
-- `registerBasicMotions`, `motionPackBasicVersion`
+- `registerBasicMotions`
 
 ## Current package versions
 
