@@ -70,7 +70,7 @@ Tiqlyne is not a drop-in replacement for GSAP, Framer Motion, or CSS animation u
 - **Validation** — `validateMotionTimeline` catches structural errors before playback
 - **Planning and scheduling** — `createMotionExecutionPlan` + `scheduleMotionTimeline` resolve the execution order
 - **Playback contracts** — `MotionPlaybackController` and `MotionPlaybackResult` for consistent playback state management
-- **Playback events** — subscribe to lifecycle events (play, pause, finish, cancel, skip, error)
+- **Typed playback and engine events** — subscribe to controller-level events and engine-level lifecycle events
 - **Diagnostics and inspection** — `inspectMotionTimeline` and sampling utilities for timeline introspection
 - **Web Animations API driver** — `WebMotionDriver` connects the timeline model to DOM elements via the Web Animations API
 - **Reduced-motion support** — `WebMotionDriver` accepts a `reducedMotion` option; the web package includes helpers for resolving and simplifying timelines based on user preferences
