@@ -2,6 +2,8 @@
 sidebar_position: 23
 ---
 
+import PackageVersionsTable from '@site/src/components/PackageVersionsTable';
+
 # Public exports
 
 Import only from package roots. Internal source paths are not package exports.
@@ -70,7 +72,13 @@ Core utility exports are `clamp`, `isRecord`, `isTerminalPlaybackStatus`, `norma
 - `SlideInMotion`, `SlideInMotionOptions`, `SlideInDirection`
 - `registerBasicMotions`, `motionPackBasicVersion`
 
-This list targets version 0.1.0. See the package `src/index.ts` files as the source of truth when upgrading.
+## Current package versions
+
+This list targets the current public package versions:
+
+<PackageVersionsTable />
+
+See the package `src/index.ts` files as the source of truth for exported symbols when upgrading.
 
 ## Related pages
 
