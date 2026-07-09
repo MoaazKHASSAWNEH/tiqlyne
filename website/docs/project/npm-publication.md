@@ -52,6 +52,12 @@ After the release plan is approved:
 pnpm version:packages
 ```
 
+Then synchronize the documentation package version file:
+
+```bash
+pnpm sync:versions
+```
+
 Then update the lockfile if needed:
 
 ```bash
@@ -65,10 +71,14 @@ Review all generated changes before publishing.
 Before publishing, run:
 
 ```bash
+pnpm sync:versions:check
+```
+
+```bash
 pnpm release:check
 ```
 
-Do not publish if formatting, type checking, tests or build fail.
+Do not publish if version sync, formatting, type checking, tests or build fail.
 
 ## Artifact inspection
 
