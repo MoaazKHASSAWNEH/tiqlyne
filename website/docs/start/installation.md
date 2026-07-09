@@ -3,6 +3,8 @@ sidebar_position: 2
 slug: /installation
 ---
 
+import PackageVersionsTable from '@site/src/components/PackageVersionsTable';
+
 # Installation
 
 Tiqlyne Motion Engine is organized as a set of npm packages under the `@tiqlyne` scope.
@@ -66,15 +68,13 @@ The core package is framework-agnostic. It does not depend on Angular, React, Vu
 
 Framework integrations can use the same engine and delegate execution to a platform driver.
 
-## Current version
+## Current package versions
 
-The current documentation targets:
+The current documentation targets the latest public package versions listed below.
 
-```txt
-0.1.0
-```
+<PackageVersionsTable />
 
-This version is intended as the first public pre-release foundation.
+Tiqlyne packages use independent versions. A package can be released without forcing all other packages to receive the same version.
 
 ## Related pages
 
