@@ -57,5 +57,3 @@ export {
   validateWebPlayableTimeline,
   type WebPlayableTimelineValidationResult
 } from './utils/validate-web-playable-timeline';
-
-export const motionWebVersion = '0.1.0';
