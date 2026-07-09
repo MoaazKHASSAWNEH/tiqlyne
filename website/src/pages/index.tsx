@@ -10,11 +10,13 @@ function HomepageHeader(): ReactNode {
   return (
     <header className={styles.heroBanner}>
       <div className="container">
-        <img
-          className={styles.heroLogo}
-          src="/tiqlyne/img/logo.png"
-          alt="Tiqlyne Motion Engine logo"
-        />
+        <div>
+          <img
+            className={styles.heroLogo}
+            src="/tiqlyne/img/logo.png"
+            alt="Tiqlyne Motion Engine logo"
+          />
+        </div>
         <span className={styles.eyebrow}>{packageVersionSummary}</span>
         <Heading as="h1" className={styles.heroTitle}>
           Motion you can describe, inspect, and run anywhere.
