@@ -4,7 +4,7 @@ sidebar_position: 22
 
 # Basic pack reference
 
-`@tiqlyne/motion-pack-basic` 0.1.0 exports only `FadeInMotion`, `FadeOutMotion`, `SlideInMotion`, their option types, `SlideInDirection`, `registerBasicMotions`, and `motionPackBasicVersion`.
+`@tiqlyne/motion-pack-basic` 0.1.0 exports only `FadeInMotion`, `FadeOutMotion`, `SlideInMotion`, their option types, `SlideInDirection`, and `registerBasicMotions`.
 
 | Type / class                 | Category   | Options                                                                                                   | Validation / output                                                                                                |
 | ---------------------------- | ---------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
